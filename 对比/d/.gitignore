@@ -1,0 +1,7 @@
+node_modules/
+.run/
+参考/
+本轮变化/
+.ai/
+.DS_Store
+__pycache__/
