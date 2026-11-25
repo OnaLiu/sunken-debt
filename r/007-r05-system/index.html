@@ -1,0 +1,241 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><title>第 8 轮 · 系统打磨 · 沉债</title><style>
+:root{--bg:#f6f3ec;--panel:#fffdf8;--ink:#1f1b16;--soft:#5d5448;--line:#e2dacb;--brass:#9a6a1c;--brass-ink:#fff;--sky:#2f6f8f;--code:#f0ebe0}
+@media (prefers-color-scheme:dark){:root{--bg:#14120f;--panel:#1d1a16;--ink:#efe9de;--soft:#b3a893;--line:#3a332a;--brass:#d39b3c;--brass-ink:#1a1408;--sky:#7fb7d4;--code:#2a251e}}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif}
+main{max-width:980px;margin:0 auto;padding:28px 16px 80px}
+a{color:var(--sky)}h1{font-size:clamp(1.5rem,4.5vw,2.1rem);line-height:1.3;margin:.2em 0 .3em}
+h2{font-size:1.25rem;margin:1.6em 0 .5em}h3{font-size:1.08rem;margin:1.4em 0 .4em}h4,h5,h6{font-size:1rem;margin:1.2em 0 .3em}
+.sub{color:var(--soft);margin:0 0 1.2em}.nav{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.92rem;margin-bottom:10px}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 6px}
+.btn{display:inline-flex;align-items:center;gap:.45em;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:600;border:1px solid var(--line);color:var(--ink);background:var(--panel)}
+.btn.main{background:var(--brass);border-color:var(--brass);color:var(--brass-ink)}.btn:hover{filter:brightness(1.06)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px 20px 14px;margin:16px 0}
+.cols{display:grid;grid-template-columns:1fr;gap:16px}@media (min-width:900px){.cols.two{grid-template-columns:1fr 1fr}main.wide{max-width:1400px}}
+.tag{display:inline-block;font-size:.78rem;padding:1px 8px;border-radius:99px;border:1px solid var(--line);color:var(--soft);margin-left:6px;vertical-align:middle;font-weight:500}
+details{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin:12px 0;padding:0 16px}
+summary{cursor:pointer;padding:12px 0;font-weight:600}details[open] summary{border-bottom:1px solid var(--line);margin-bottom:10px}
+code{background:var(--code);padding:1px 5px;border-radius:5px;font-size:.9em;word-break:break-all}
+pre{background:var(--code);padding:12px;border-radius:10px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;font-size:.88rem;line-height:1.6}
+pre code{background:none;padding:0}
+.shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;padding-bottom:14px}
+.shots figure{margin:0}.shots img{width:100%;border-radius:8px;border:1px solid var(--line);image-rendering:pixelated;display:block}
+.shots figcaption{font-size:.85rem;color:var(--soft);margin-top:4px}
+.tbl{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.93rem;margin:8px 0}
+th,td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}th{background:var(--code)}
+ul,ol{padding-left:1.4em}li{margin:.15em 0}.files{font-size:.9rem;columns:2 260px;padding-bottom:12px}.files div{break-inside:avoid}
+.rounds{list-style:none;padding:0;margin:0}.rounds li{border-top:1px solid var(--line);padding:14px 0;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline}
+.rounds .what{flex:1 1 320px}.rounds .what b{display:block}.rounds .what span{color:var(--soft);font-size:.93rem}
+.rounds .go{display:flex;gap:8px;flex-wrap:wrap}.rounds .go a{font-size:.9rem;padding:6px 12px}
+.muted{color:var(--soft)}footer{margin-top:40px;color:var(--soft);font-size:.85rem}
+.pair{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:14px 0}
+.pair p{margin:0 0 8px;font-weight:600}.pair .ab{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pair .one{grid-template-columns:1fr}
+.pair figure{margin:0}.pair img,.pair video{width:100%;border-radius:8px;border:1px solid var(--line);display:block;background:#000}
+.pair figcaption{font-size:.82rem;color:var(--soft);margin-top:3px}@media (max-width:640px){.pair .ab{grid-template-columns:1fr}}
+</style></head><body><main><div class="nav"><a href="../../index.html">← 全部轮次</a><a href="../005-r02-readable/index.html">‹ 上一轮：第 2 轮 · 一眼看懂、字少</a><a href="../008-r05-system/index.html">下一轮：第 8 轮 · 系统打磨 ›</a></div><h1>第 8 轮 · 系统打磨<span class="tag">007-r05-system</span></h1><p class="sub">沉债 · 先看这一轮变了什么；能玩的是最新一版。</p><h2>这一轮变了什么</h2><div class="pair"><p>锚这样的大泥包落上甲板：改前镜头贴得太近，冲洗手的头被切掉，人还在半路泥就自己化开了；改后镜头按泥包大小退远，冲洗手在网出水时就站到清洗位，网包落地压扁再弹回，马上开冲。</p><div class="ab"><figure><video src="changes/1_land_before.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改前</figcaption></figure><figure><video src="changes/1_land_after.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>四片海的泥壳（同一组东西、同一机位，左上沙湾、右上草床、左下白礁、右下黑泥）：改前只换了颜色、都一样化掉；改后沙湾冲散、草床先扯草根、白礁结壳被锤子敲成块、黑泥整片往下坍。</p><div class="ab"><figure><video src="changes/2_shells_before.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改前</figcaption></figure><figure><video src="changes/2_shells_after.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>拉回后的结果卡：改后多了这一网的作业油费和一根金红细条（金是收获、红是油费），这一网值不值一眼看出。</p><div class="ab"><figure><a href="changes/3_card_before.png" target="_blank"><img loading="lazy" src="changes/3_card_before.png" alt="改前"></a><figcaption>改前</figcaption></figure><figure><a href="changes/3_card_after.png" target="_blank"><img loading="lazy" src="changes/3_card_after.png" alt="改后"></a><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>拉回大视野后船员搬运入舱（同一网三件、固定机位）：改前船员沿船舷绕远路，东西放进黑洞就没了；改后主件平稳放回甲板，船员直走到舱口，从四面把东西放进舱里那一堆。</p><div class="ab"><figure><video src="changes/4_carry_before.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改前</figcaption></figure><figure><video src="changes/4_carry_after.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>第一趟 11 件捞完、回港前的舱口：改前是个黑洞；改后这一趟的东西按各自形状堆在舱里，带回多少一眼看得出，点舱口打开收获册，回港结算后清空。</p><div class="ab"><figure><a href="changes/5_hold_before.png" target="_blank"><img loading="lazy" src="changes/5_hold_before.png" alt="改前"></a><figcaption>改前</figcaption></figure><figure><a href="changes/5_hold_after.png" target="_blank"><img loading="lazy" src="changes/5_hold_after.png" alt="改后"></a><figcaption>改后</figcaption></figure></div></div><details><summary>它自己的汇报</summary><div class="card"><p>第 5 轮揭宝与收获做完了。两套无头测试全过：主测试 60/60（其中 11 条是这一轮新加的），可读性测试 59/59。改的都在这个系统里，下网作业、海域与线索、海底生态、燃油与航次的代码没动。</p>
+<p><strong>对照灵感库里玩家骂的几条，这个系统里有的都改了</strong></p>
+<ul><li>
+<strong>惊喜只是数字变大</strong>：以前珍贵物只是光效更强，普通物每次揭晓一个样，四片海的泥壳只换了颜色。现在：
+<ul><li>
+每件珍贵物有自己的那一下：红玻璃一颗颗亮起、杯沿一声脆响、星盘照准规扫过、金箔往上飘、银币洒出；船钟扶正时敲响一下。
+</li><li>
+四种泥壳四种开法，玩家这边还是同一个自动冲洗、同样时长：沙湾冲散、草床先扯草根旧网、白礁结壳裂开后用锤子一块块敲落、黑泥整片往下坍。
+</li></ul>
+</li><li>
+<strong>看不出这一网值不值</strong>：结果卡加了这一网的作业油费，按港口结算的同一油价折算，下面一根金红细条，金是收获、红是油费。
+</li><li>
+<strong>数字在看不见的地方悄悄变</strong>：航次收获现在在揭晓卡底部和拉回后的航次面板上往上滚。
+</li><li>
+<strong>东西没有去处</strong>：以前搬下舱口就进了黑洞。现在舱口里是一堆，这一趟捞的东西按各自形状铺开、越堆越高，大视野里看得见；珍贵的那件时不时反一下光。点舱口打开收获册，回港结算后清空，读档后按账本摆回。
+</li></ul>
+<p><strong>这个游戏自己长出来的一下：水柱打到实物时冲水声变调。</strong> 金属叮、陶器嗒、木头笃、玻璃脆，材质先从声音露出来，好东西后面拖一串颤音。灵感库的答案只借了两条，并改成这个世界的样子：开法随容器变（四种泥壳），全队一起高兴（船员反应）。</p>
+<p><strong>看截图查出来又修掉的问题</strong></p>
+<ul><li>
+泥包落地时冲洗手还在半路。现在网带着东西出水时他们就去清洗位等着，各站离自己最近的位置，路上绕开泥包。
+</li><li>
+锚那样的大泥包，近景把船员的头切掉了。现在近景按泥包大小退远。
+</li><li>
+揭晓那一刻冲洗手凭空消失。现在他们退到近景外，镜头拉回时点头；珍贵的一网全船举手。
+</li><li>
+拉回瞬间主件从展示台瞬移到甲板，扁平件还可能竖着嵌进甲板。现在平稳放回，躺回海底时的样子。
+</li><li>
+搬运手沿船舷绕 15 米远路。重写了甲板寻路，能直走就直走；四个人从舱口四周不同位置放货。
+</li><li>
+重的东西蹲得更久、走得更慢、腰往后仰。银币匣不再白成一片。
+</li><li>
+网包落地按分量压扁再弹回，越重闷响越沉。
+</li></ul>
+<p><strong>替你做的决定</strong></p>
+<ul><li>
+设计里原来写“货物经过舱口遮挡后才离开甲板”。我改成东西放进舱里那一堆、一直看得见，<code>design.md</code> 里这句一起改了。
+</li><li>
+舱里最多摆 40 件。回港时直接清空，没做卸货动画，因为港口属于燃油与航次那一组。
+</li><li>
+油费只算作业油，不含航行油。
+</li><li>
+用户定的时长都没动：冲洗 4.2 / 5.4 秒、展示 2.25 / 3.2 秒、拉回 1.25 秒。
+</li></ul>
+<p><strong>测试和实测</strong></p>
+<ul><li>
+主测试里原有一条“搬运没完成也能下一网”挂了：搬运变快后，开到锚旁边时已经搬完，这个前提不成立了。我把它改成在镜头拉回那一刻检查，那时还在搬、也已经能下网。
+</li><li>
+实时跑演示页 240 秒，帧间隔中位 16.7 毫秒。有一帧 33 毫秒，时间不在游戏自己的更新和渲染里，两次复跑没再出现。镜头没有突然跳动。
+</li><li>
+快进一小时，内存和对象数不涨。
+</li></ul>
+<p><strong>动到的共用文件（都只改了几行）</strong></p>
+<ul><li>
+<code>game.js</code>：导出油价；搬运时把揭宝条目一起带上；点舱口打开收获册。
+</li><li>
+<code>boat.js</code>：舱底从纯黑改成深色舱板。
+</li><li>
+<code>audio.js</code>：只加了新声音。
+</li><li>
+<code>items.js</code>：只改了银币颜色。
+</li><li>
+<code>legend.js</code>：航行暂停图例加了两行。
+</li></ul>
+<p>新文件是 <code>src/game/hold.js</code>，另加了三个截图工具：<code>reveal-shots</code>、<code>shell-shots</code>、<code>hold-shot</code>。</p>
+<p><strong>范围外的一个老问题：</strong> 海底物件的菱形标记不判断遮挡，船正好开在物件上方时，标记会画在甲板上（这一轮看到时它就压在舱口那一堆上）。这属于第 2 轮的界面，我没改。</p>
+<p><strong>给灵感库的新条目</strong>（灵感库不在这个文件夹里，也写在 <code>notes.md</code> 第 13 节最后，可以原样贴进去）：</p>
+<ul><li>
+中奖那一下长成“水柱打到实物时冲水声变了调”：材质先从声音露出来，好东西拖着一串颤音。
+</li><li>
+容器随产地变、开法随容器变，玩家的动作始终一个：软泥冲散、草网扯掉、结壳敲成块、黑泥整片坍。
+</li><li>
+战利品堆在看得见的舱里：这一趟带回多少从大视野就看得出，回港清空；点舱口就是清单的入口。
+</li><li>
+结果卡上用同一把尺子画“这一份收获”和“这一份花费”，值不值一眼看出，不用算。
+</li><li>
+揭晓时围观的人先退到镜头外，等镜头拉远再欢呼：反应留在看得见的地方，不在近景里挡成半截身子。
+</li><li>
+网包落地按分量压扁再弹回、闷响按分量沉：重量本身就是预兆。
+</li></ul>
+<p>为了构建和测试我临时装了依赖，最后已经删掉，文件夹和交付时一样不带 <code>node_modules</code>。</p></div></details><details><summary>用时</summary><p>用时 1 小时 2 分 · 花费 $17.78</p></details><details><summary>改了哪些文件（比起 005-r02-readable：新加 4 · 改动 15 · 删掉 0）</summary><div class="files"><div>＋ src/game/hold.js</div><div>＋ tools/hold-shot.mjs</div><div>＋ tools/reveal-shots.mjs</div><div>＋ tools/shell-shots.mjs</div><div>～ design.md</div><div>～ game.js</div><div>～ notes.md</div><div>～ src/audio.js</div><div>～ src/game/boat.js</div><div>～ src/game/crew.js</div><div>～ src/game/game.js</div><div>～ src/game/reveal.js</div><div>～ src/ui/hud.js</div><div>～ src/ui/legend.js</div><div>～ src/world/items.js</div><div>～ style.css</div><div>～ tools/test-headless.mjs</div><div>～ tools/test-readable-results.json</div><div>～ tools/test-results.json</div></div></details><details><summary>这一轮收到的 prompt</summary><pre>这是第 5 轮打磨：把揭宝与收获：厚泥、清洗、揭晓、展示、搬运入舱打磨好。游戏和设计文档都在当前文件夹。
+范围：只管揭宝与收获这个系统：网包上甲板、厚泥和附着物、船员清洗、逐步露出、揭晓和获得展示、拉回大视野、船员各搬一件入舱。同组还有四份同时在改别的系统：下网作业、海域地点与线索、海底生态、燃油与航次，别碰它们。
+
+- 下面附的是这一类系统的灵感库：先读里面玩家怎么评判这一类、最常见的坏法，对照游戏逐条看，有就改；再想这个游戏自己的答案，挑两三条火花改写进来。
+- 玩家自己建、改、拼的东西：有自己的界面和入口，外观跟着变，变大了也看得清；不能做的说原因。
+- 变强要发生在玩家看得见的地方：屏幕外的敌人不掉血，一大波敌人先有预告、再在屏幕里进来。
+- 机器人会用它，用完游戏照常往下走。
+- 新加的东西先用图形、颜色和动作说话；字只在不写玩家就会做错的时候加，一句话。
+
+——以下是「装备与掉落灵感库」——
+
+
+给设计“打怪掉东西、带回去穿、多出来的怎么处理”用的启发：掉落的品质和节奏、装备管什么、独特和套装、多余装备的去处、死了能带出什么、卡住的人怎么追自己缺的那一件。不是菜单，也不是规范；掉率和价格等平衡模拟时统一调。
+
+用法：
+1. 先不看这里。从这个题材里最具体的那个东西出发，写下这个游戏自己的三个点子：好东西藏在什么里面、拿到的那一下长什么样、多出来的东西在这个世界里变成什么。这三个点子是设计的骨架，下面的只用来补它们。
+2. 再读“从题材里长出答案”，每个问题至少答一个只属于这个游戏的具体点子。
+3. 最后才看“别人的答案”：最多挑两三条，而且每条都要改头换面成这个世界的样子。“热门答案”一栏是很多游戏都会想到的，最多用其中一条；一条在哪个游戏里都能原样成立的，说明它还没改成这个游戏的。
+4. 先按团队和工期定规模（几个装备位、几种底子、几条词条、几套套装、几件独特，一句话说明为什么）。好点子多的时候，让每件独特更有个性，而不是更多件。
+5. 设计稿必须回答这几个问题（是检查，不是点子；答案要从这个游戏里长出来，不要照抄别人的）：
+   - 节奏：每局掉多少、第一件高品质什么时候到、两次“换上更好的”隔多久？用模拟量。
+   - 卡住的人：卡在某处的人，下一局能做什么不一样的事去追自己缺的那一件、或者换一条路过去？至少给两条互不相同的路，不能只靠概率。
+   - 高品质：每件高品质改变了打法或带了技能，还是只是数字更大？
+   - 分工：装备和局内成长各管什么？局内的选择在强度里还占不占大头？
+   - 多余的东西：都有去处吗？比较、整理、处理会不会变成苦活？
+   - 死亡：死了丢什么、保什么，出发前看得懂吗？
+   - 联机：掉落怎么分，能不能给人？
+6. 用户点名照搬某个游戏的系统时（“照暗黑 2”），系统本身是裁定，照原样进第一轮；这里的启发用来补它没管到的地方，不改它。
+
+设计稿里只写结果，不写挑选过程；库里点名的游戏是别人的答案，照搬会被玩家认出来。
+
+收尾时，这个游戏发明出来、玩起来好的装备和掉落点子，一行一条加进来。
+
+## 玩家怎么评判装备与掉落
+
+玩家骂的（条数）：
+- 为了推进被迫长时间重复刷同一种东西，“七成时间在刷钱”（28，最多）。量：卡在某道门槛的人，重复刷几局能过；必需的重复时间占总时长的比例。
+- 构筑选择是假象，最后只剩一两套能用（20）。量：各流派在同样的装备水平下打同一个检查的耗时差。
+- 好装备掉率太低，目标物品追不到（16）。量：拿到某件指定物品要几局，P90 不超过 P50 的 3 倍；第一件最高品质出现的时间。
+- 装备只是数字变大，没有机制变化和惊喜（15）。量：高品质物品里只有纯数值的占比；换装后玩家改没改打法。
+- 局内随机决定成败，玩家没法控制（14）；装备信息不清、找装备和整理繁琐（14：拾取时没有对比、看不到数值范围、没有过滤、仓库没法搜）。量：让玩家判断两件哪件更好，正确率和耗时。
+- 装备追不上敌人数值，或很快被淘汰（9）；获取或使用被门槛卡住（9）；掉得太容易、毕业太早（7）；平衡补丁让投入作废（4）。
+- 经济：仓库太小（12）；找装备没有工具（11）；资源产出和消耗失衡（7）；战利品贬值（7）；投入白费（7）；合成像赌博（6）；交易压过刷宝或被限制得太死（6）。
+- 死亡：扣已经攒下的进度（4）；死得不是自己的错却全额惩罚（6）；一次失败回滚太多（5）；带出规则不清楚（3）；保险太贵或形同虚设（3）。
+
+玩家夸的：
+- 构筑空间大，能搭出自己的流派，中途还能转型（32，最多）。
+- 装备、技能、天赋之间联动乘出爆发，成型后满屏割草（16）。
+- 掉落频率高、正反馈连续，“下一件更好的”一直吊着；顶级掉落有专属的表现（16）。量：两次“换上更好的”之间，前期几分钟、中期十几分钟。
+- 装备带来看得见的变强，回头打早期关卡变成碾压（12）；武器和独特装备有自己的机制和手感，首领有专属掉落（12）。
+- 可控的随机：运气差也有办法凑出来（9）；打造让追求更确定（10）；复杂度适中、好上手（10）。
+- 每件掉落都有去处；死亡损失有上限，敢带好东西出门（6）；扩容作为成长目标；货币花费有取舍（7）。
+
+## 从题材里长出答案
+
+每个问题至少答一个只属于这个游戏的点子：
+- 这个世界里，好东西平时藏在什么里面、在谁手里？打倒谁会掉出谁的东西？
+- 这个题材里最像“中奖”的那一下是什么声音、什么画面（开蚌、撬保险柜、钓上一条大鱼、拆封一张闪卡）？让最高品质的掉落长成它。
+- 装备挂在角色的哪里、看得见吗？换上一件，身上哪里变了样？
+- 一件独特在这个世界里有什么来历？它的代价从来历里长出来吗？
+- 多出来的东西在这个世界里能变成什么（燃料、饲料、建材、贡品、谈判筹码）？谁会收它？
+- 卡住的人在这个世界里能去哪里、找谁、做什么不一样的事？有没有一条路是靠知道而不是靠运气？
+- 死了以后，谁或什么会替你把东西带回去？哪些东西这个世界里“不会丢”？
+- 和朋友一起时，两个人能不能各拿着一件东西的一半、或者互相成全对方的那一件？
+
+## 别人的答案（最多挑两三条，改成这个世界的样子）
+
+**热门答案（很多游戏都会想到，最多用其中一条）**：只在某个局内能力出现时才生效的“押宝”词条；独特改写一条规则、代价写在身上；好掉落先在敌人身上发光预告；顶级掉落从上方落下一道光柱、慢放半拍；回到基地一件件揭晓、最好的最后出场；套装两件给方向、满套改规则；打倒检查点就把收获送回家；按部位定向赌；低品质能送人、顶级绑定。
+
+**掉落和揭晓**：
+- 掉落的形状就是这个世界的容器：蚌壳、货柜、南瓜、密封罐，开法各不一样；
+- 同一个首领每次会掉它身上看得见的那件部件；
+- 掉落会逃跑或被抢，追上才拿到；
+- 揭晓在别处发生：带回去以后才开，开的时候全队一起看。
+
+**装备管什么**：
+- 底子决定玩法（武器种类、攻击方式），词条决定数字；
+- 装备给局内能力的等级，或让本来拿不到的能力能用；
+- 同一件装备可以升阶，早期最爱的那件后期还能用；
+- 装备位很少，每一位都是一次取舍；
+- 装备挂在哪里就改变哪里：引擎改移动，炮口改弹道。
+
+**卡住的人**：
+- 每个区域偏向掉某几类，缺什么就去哪里；
+- 重复的独特变成追那一件的进度；
+- 出发前指定这一局要追的首领或目标；
+- 把不想要的东西从池子里划掉，池子变小；
+- 换一种伤害、换一套装备就能绕过的门槛（克制），而不是只能硬刷数值；
+- 首次击败某个首领必掉一件高品质；连续几次没出好东西，下一次必出。
+
+**多余装备的去处**：
+- 整件重新随机（保留位和档次），而不是一条条洗；
+- 三件同级合成一件高一级的；
+- 拆出来的材料是另一个系统的燃料（建筑、合成、升阶）；
+- 卖给一个有性格的商人，他会记得你卖过什么。
+
+**死亡和带回**：
+- 死在哪里，收获留在哪里，给一次回去捡的机会；
+- 一两个保险格，放这一局最想保住的东西；
+- 材料、经验永远带回，装备才有风险。
+
+**联机的掉落**：
+- 掉落各一份，各看各的，不抢；
+- 朋友的顶级掉落全队都看得见，一起高兴；
+- 队友倒下时，别人可以替他把战利品带回，东西仍归原主。
+
+## 学自近期被夸掉落的游戏
+
+别人的答案，只看它们从哪里长出来，不要搬。依据：上面研究里掉落被夸得最多的游戏。
+
+- Death Must Die：把暗黑式从白板到成型的装备成长压缩进一局短生存战；局内掉带随机词条的装备，局后存进仓库，下一局开局前自选穿戴。
+- Torchlight II：宠物背一包战利品自己跑回城卖掉，玩家留在原地继续刷。
+- Nightmare Reaper：同一把枪随机带上不同的附魔组合；每关结束武器几乎清空，只能挑极少数带走。
+- Grim Dawn：装备和镶在装备上的附件都能带技能；刷到一件机制独特的传奇，专门开新角色围绕它构筑。
+- Diablo II Resurrected：反复刷同一个首领，按已知的掉落范围定向追求；可以自定义拾取过滤器。
+- Last Epoch：传奇和套装改写构筑规则；魔法装备作底子，再用确定的手段打磨。
+- Sublight：可以禁用某一类武器，之后掉落里不再出现；击败首领掉它专属的武器。
+- Astroloot：每种制作货币对应一种固定效果，最后一掷前预览确切结果再决定。
+- Borderlands 2：枪械程序化生成，每次掉落都可能是没见过的手感；物品可以标记收藏，卖杂物时不会误卖。
+- CONVRGENCE、Witchfire：出发前给想保住的东西投保；死后只有一次机会回去捡。
+- Soulforge Lost Path：局中定时来一辆矿车，撑到它来就能把珍贵材料提前运回。
+- Overlooting：红色独特和套装效果是两条并行的强力路线，要取舍。
+- Hell Clock：遗物改变所选技能的行为；可以腐化，变好变坏一半一半。
+
+——「装备与掉落灵感库」到此——
+
+自动试跑都无头，不在屏幕上开窗口；不问问题，自己决定；不往网上推送。
+只在当前文件夹里看和改：不要打开上一级文件夹，也不要看别的轮次的文件夹，也不要去看 … 里的技能和规则（这一轮要的都写在上面；带 prompt 的和只给目标的两份要互相看不见）。</pre></details></main></body></html>

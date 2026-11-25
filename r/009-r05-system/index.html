@@ -1,0 +1,157 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><title>第 8 轮 · 系统打磨 · 沉债</title><style>
+:root{--bg:#f6f3ec;--panel:#fffdf8;--ink:#1f1b16;--soft:#5d5448;--line:#e2dacb;--brass:#9a6a1c;--brass-ink:#fff;--sky:#2f6f8f;--code:#f0ebe0}
+@media (prefers-color-scheme:dark){:root{--bg:#14120f;--panel:#1d1a16;--ink:#efe9de;--soft:#b3a893;--line:#3a332a;--brass:#d39b3c;--brass-ink:#1a1408;--sky:#7fb7d4;--code:#2a251e}}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif}
+main{max-width:980px;margin:0 auto;padding:28px 16px 80px}
+a{color:var(--sky)}h1{font-size:clamp(1.5rem,4.5vw,2.1rem);line-height:1.3;margin:.2em 0 .3em}
+h2{font-size:1.25rem;margin:1.6em 0 .5em}h3{font-size:1.08rem;margin:1.4em 0 .4em}h4,h5,h6{font-size:1rem;margin:1.2em 0 .3em}
+.sub{color:var(--soft);margin:0 0 1.2em}.nav{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.92rem;margin-bottom:10px}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 6px}
+.btn{display:inline-flex;align-items:center;gap:.45em;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:600;border:1px solid var(--line);color:var(--ink);background:var(--panel)}
+.btn.main{background:var(--brass);border-color:var(--brass);color:var(--brass-ink)}.btn:hover{filter:brightness(1.06)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px 20px 14px;margin:16px 0}
+.cols{display:grid;grid-template-columns:1fr;gap:16px}@media (min-width:900px){.cols.two{grid-template-columns:1fr 1fr}main.wide{max-width:1400px}}
+.tag{display:inline-block;font-size:.78rem;padding:1px 8px;border-radius:99px;border:1px solid var(--line);color:var(--soft);margin-left:6px;vertical-align:middle;font-weight:500}
+details{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin:12px 0;padding:0 16px}
+summary{cursor:pointer;padding:12px 0;font-weight:600}details[open] summary{border-bottom:1px solid var(--line);margin-bottom:10px}
+code{background:var(--code);padding:1px 5px;border-radius:5px;font-size:.9em;word-break:break-all}
+pre{background:var(--code);padding:12px;border-radius:10px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;font-size:.88rem;line-height:1.6}
+pre code{background:none;padding:0}
+.shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;padding-bottom:14px}
+.shots figure{margin:0}.shots img{width:100%;border-radius:8px;border:1px solid var(--line);image-rendering:pixelated;display:block}
+.shots figcaption{font-size:.85rem;color:var(--soft);margin-top:4px}
+.tbl{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.93rem;margin:8px 0}
+th,td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}th{background:var(--code)}
+ul,ol{padding-left:1.4em}li{margin:.15em 0}.files{font-size:.9rem;columns:2 260px;padding-bottom:12px}.files div{break-inside:avoid}
+.rounds{list-style:none;padding:0;margin:0}.rounds li{border-top:1px solid var(--line);padding:14px 0;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline}
+.rounds .what{flex:1 1 320px}.rounds .what b{display:block}.rounds .what span{color:var(--soft);font-size:.93rem}
+.rounds .go{display:flex;gap:8px;flex-wrap:wrap}.rounds .go a{font-size:.9rem;padding:6px 12px}
+.muted{color:var(--soft)}footer{margin-top:40px;color:var(--soft);font-size:.85rem}
+.pair{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:14px 0}
+.pair p{margin:0 0 8px;font-weight:600}.pair .ab{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pair .one{grid-template-columns:1fr}
+.pair figure{margin:0}.pair img,.pair video{width:100%;border-radius:8px;border:1px solid var(--line);display:block;background:#000}
+.pair figcaption{font-size:.82rem;color:var(--soft);margin-top:3px}@media (max-width:640px){.pair .ab{grid-template-columns:1fr}}
+</style></head><body><main><div class="nav"><a href="../../index.html">← 全部轮次</a><a href="../008-r05-system/index.html">‹ 上一轮：第 8 轮 · 系统打磨</a><a href="../010-r05-system/index.html">下一轮：第 8 轮 · 系统打磨 ›</a></div><h1>第 8 轮 · 系统打磨<span class="tag">009-r05-system</span></h1><p class="sub">沉债 · 先看这一轮变了什么；能玩的是最新一版。</p><h2>这一轮变了什么</h2><div class="pair"><p>在黑泥沉舟停船看着搬运蟹的窝：改前深处的巡视者只在 60 多米外绕圈，眼前什么也不发生；改后搬运蟹先缩在窝里，船长提醒“底下有大东西要过来”，约 12 秒后巡视者才带着紫圈和一排青色光点从画面左边游进来——先有预告，再在眼前出现。</p><div class="ab"><figure><video src="changes/01-巡视者经过-改前.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改前</figcaption></figure><figure><video src="changes/01-巡视者经过-改后.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>在沙湾空地下了一网（空网）后同一机位：改前网口那片泥没有生物理会；改后鱼群游过来压低身子在网痕上啄食，翻泥蟹也绕过来刨——网翻开的泥成了觅食地。</p><div class="ab"><figure><video src="changes/02-网痕觅食-改前.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改前</figcaption></figure><figure><video src="changes/02-网痕觅食-改后.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>趁搬运蟹出门把它的窝兜走后，它拖着东西回来：改前放下东西照常整理；改后发现窝空了，晃着触角绕着空窝转圈找。</p><div class="ab"><figure><video src="changes/03-窝被兜走-改前.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改前</figcaption></figure><figure><video src="changes/03-窝被兜走-改后.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>窝被兜走过一次以后，等它再出门走出三米多，在窝边下网：改前它不理会，继续去拖碎片；改后网一下水它就扭头跑回窝上趴着护住。</p><div class="ab"><figure><video src="changes/04-下网护窝-改前.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改前</figcaption></figure><figure><video src="changes/04-下网护窝-改后.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改后</figcaption></figure></div></div><details><summary>它自己的汇报</summary><div class="card"><p>刚才那条通知只是一个等待用的计时器结束了，没有新结果。上面的总结就是最终结果。</p></div></details><details><summary>用时</summary><p>用时 1 小时 11 分 · 花费 $25.53</p></details><details><summary>改了哪些文件（比起 005-r02-readable：新加 3 · 改动 9 · 删掉 0）</summary><div class="files"><div>＋ src/eco/director.js</div><div>＋ tools/test-eco-results.json</div><div>＋ tools/test-eco.mjs</div><div>～ design.md</div><div>～ game.js</div><div>～ notes.md</div><div>～ src/audio.js</div><div>～ src/eco/creatures.js</div><div>～ src/game/bot.js</div><div>～ src/game/game.js</div><div>～ tools/test-readable-results.json</div><div>～ tools/test-results.json</div></div></details><details><summary>这一轮收到的 prompt</summary><pre>这是第 5 轮打磨：把海底生态：活物的行为和它们之间的因果打磨好。游戏和设计文档都在当前文件夹。
+范围：只管海底生态这个系统：蟹、鱼群、壳背生物、伏藏生物、巡视者各自在做什么、谁因为谁做了什么、船和网的扰动。同组还有四份同时在改别的系统：下网作业、揭宝与收获、海域地点与线索、燃油与航次，别碰它们。
+
+- 下面附的是这一类系统的灵感库：先读里面玩家怎么评判这一类、最常见的坏法，对照游戏逐条看，有就改；再想这个游戏自己的答案，挑两三条火花改写进来。
+- 玩家自己建、改、拼的东西：有自己的界面和入口，外观跟着变，变大了也看得清；不能做的说原因。
+- 变强要发生在玩家看得见的地方：屏幕外的敌人不掉血，一大波敌人先有预告、再在屏幕里进来。
+- 机器人会用它，用完游戏照常往下走。
+- 新加的东西先用图形、颜色和动作说话；字只在不写玩家就会做错的时候加，一句话。
+
+——以下是「世界与角色灵感库」——
+
+
+给设计世界观、角色和讲故事的方式用的启发：这个世界哪里让人想了解、角色凭什么让人在意、故事怎么通过玩法讲出来。不是菜单，也不是规范；只学结构和手法，不取别人的名字、角色、情节和文字。
+
+用法：
+1. 先从题材里最日常、最具体的东西出发（电脑桌面的文件夹、山的海拔、马的鬃毛），让它成为这个世界的规则、地理或身份。目标是一个只有这个游戏才有的世界，而不是一个“背后另有真相”的套路。
+2. 再用下面“世界从哪里长出来”的问题逼自己再想一轮；后面的种子和例子是别人的答案，只看它们从哪里长出来，不要搬。
+3. 这个世界要有一个让人想弄明白的谜团，和一条用玩法讲出来的故事线。谜团从这个题材的具体东西里长出来（为什么文件夹越往下越旧？为什么只有这座钟停了？），一层层揭开；故事通过场景、物件、机制和角色的变化讲，不靠大段文字。
+4. 写出玩家在这个世界的第一分钟看到、听到、碰到什么，和场景里让人想停下来看的细节（一张没寄出的信、一盏还亮着的灯）：代入感从这里来，不从设定说明来。谜团要有人味：至少一个角色的欲望和恐惧和它连在一起，揭开时玩家会在意。
+5. 下面这几个转折几乎每个设计都会想用，用多了我们的游戏就会彼此相像：主角自己就是谜底；敌人是前人或同伴变的；有人不肯结束，让时间或故事停住了；真相揭晓后敌人原来是善意的；可以不杀，让敌人安息；进度条其实是倒计时；商人或旁白漏出真相。一个游戏最多用其中一条，而且要从这个题材里长出来；谜团的答案最好是这个世界独有的。
+6. 范围按小团队做得完来定：一个让人记住的角色，胜过二十个只有名字的。
+
+设计稿里只写结果，不写挑选过程。
+
+收尾时，这个游戏发明出来、玩家记住的世界和角色手法，一行一条加进来。
+
+## 世界从哪里长出来
+
+每个问题至少答一个具体的东西：
+- 这个题材里最日常的东西是什么？把它变成世界的规则或地理（文件夹就是地牢，回收站就是难缠的敌人）。
+- 这里的人每天在为什么发愁？玩法就是解决它的办法。
+- 玩家在这个世界里是什么职业或身份？别人怎么看他、怎么叫他？
+- 这个世界有什么好笑或古怪的不合理之处？按世界自己的逻辑认真处理它（复制国王，得到的是一个替身）。
+- 你做的事改变了谁、改变了哪里？玩家回头能看见。
+- 基调是什么（荒诞、温暖、阴森、讽刺）？文字、声音、画面都按同一个基调。
+
+## 玩家怎么评判世界与角色
+
+玩家骂的：
+- 画面过时、廉价，和商店页不符（38，最多）。
+- 剧情或世界观缺席，像事后补上，不知道为什么在做这件事（28）。
+- 世界空旷、没有生气、重复（25）。
+- 文本、本地化、配音质量差（20）。量：每种语言请母语者读一遍。
+- 题材或类型的承诺没兑现，基调违和（18）；能看出 AI 生成的内容（15）；视觉刺眼、让人不适（15）。
+- 美术不统一、素材拼凑（11）；氛围靠声音却没做好声音（11）；剧情太短、没讲完（10）；不尊重玩家角色的身份（10）。
+
+玩家夸的：
+- 美术风格统一、一眼可辨，贯彻到场景、角色、特效和界面（45，最多）。
+- 怀旧和熟悉题材的召唤（28）。
+- 声音、光影和空间一起营造氛围（25）。
+- 看得出手工感和用心，愿意包容粗糙（25）。
+- 治愈可爱的基调（22）；新奇题材或文化混搭，而且机制本身在讲题材（22）；有个性、记得住的角色（22）。
+- 剧情靠悬念和节奏抓人，又不拖累游玩（20）；幽默和小细节让世界有生命（15）；系统生成的涌现故事（6）。
+
+## 机制种子
+
+**世界的钩子**：
+- 一个普通的东西变成整个世界（一本书、一座钟楼、一个抽屉、一场梦）；
+- 世界的规则就是玩法（时间在不同区域流速不同）；
+- 中心有一个谜团，每一局揭开一点；
+- 世界因为你而改变，回头能看到你留下的痕迹；
+- 两三个势力有各自的目的，你不得不站队或周旋；
+- 废墟里藏着过去发生的事，不说出来，让你自己拼。
+
+**用玩法讲故事**（避开用法第 5 条点名的转折）：
+- 每次失败或死亡都推进一段对话或关系；
+- 物品说明里藏着世界的历史；
+- 场景本身在讲故事（翻倒的桌子、没写完的信、墙上的涂鸦）；
+- 角色记得你上次做了什么，下次见面会提起；
+- 机制就是隐喻（越来越难的攀登就是心里的焦虑）；
+- 首领是你认识的人，打之前你已经了解他；
+- 选择有后果，后果在几关之后才显现；
+- 不可靠的叙述者：游戏说的和你看到的不一样；
+- 游戏外层还有一层：菜单、存档、旁白也是故事的一部分。
+
+**角色**：
+- 一个陪着你的伙伴，会对你的行为说风凉话；
+- 一个隔一阵就出现的对手，每次都更强、也更像人；
+- 一个有脾气的商人，买卖之间透露世界的事；
+- 每个角色有一件想要的东西和一件害怕的东西；
+- 角色会随时间变化，结局时和开头不一样；
+- 送礼、聊天、帮忙，解锁每个人的故事；
+- 可爱的外表配上沉重的往事，反差让人记住。
+
+**氛围**：
+- 每个区域一套色板、一段音乐、一种天气；
+- 环境里有会动的小东西（虫、灯、风吹的布）；
+- 声音先于画面：远处的钟声、脚步、低语；
+- 安静的地方让人喘口气，也让人不安；
+- 光线讲情绪：暖光是安全，冷光是危险。
+
+## 局部骨架
+
+一个游戏挑一两个。
+
+1. **谜团一层层揭开**：每揭开一层露出下一层；答案来自这个题材，不是套路转折。
+2. **陪伴者**：一个角色从头陪到尾，他的变化就是故事。
+3. **地点即角色**：据点、城市或船本身有性格，会随你成长。
+4. **小人物视角**：大事件从一个小角色眼里看，世界显得更大。
+5. **世界会记账**：你做过的事留在世界里，回头能看见，别人会提起。
+
+## 学自近期被夸世界与角色的游戏
+
+别人的答案，只看它们从哪里长出来，不要搬。依据：研究里世界与角色被夸得最多的游戏，2025-01 至 2026-09 发售。
+
+- Life Below：开局是一片荒芜的海床，摆放珊瑚和海藻把它修成礁石，建造本身就是修复海洋的故事；镜头能从整片礁区推近到一条鱼。
+- The Royal Writ：每张卡是一个带缺陷的动物臣民（近视的鸡弓手），看卡面就知道它怎么打；冲进敌方基地的卡永久离开牌组，记入王国传说。
+- Antivirus Survivors 2000：关卡是千禧年代的电脑桌面，双击文件夹往深处走，敌人是病毒和弹窗，回收站是难缠的敌人。
+- 9 Lives to Defend：“猫有九命”直接做成生命机制；主人出门度假的一次旅行就是一局。
+- Nuclear Gladiators 3000：整局是一场近未来的电视真人秀，播报员解说、赞助商广告，回合之间转幸运轮盘。
+- Union of Gnomes：把白雪公主倒过来讲，被压迫的小矮人起义推翻她，沿途首领是别的童话角色。
+- Laysara：每座城建在一座不同的山上，海拔分出植被带和气候；看得见的搬运工沿山路上下运货。
+- THE SPIRIT LIFT：死亡是“倒带重来这一夜”，每一轮拼出电梯的真正用途；卡牌是 90 年代的旧物件，效果模仿它们的现实行为。
+- Arksync：一只小机器泰迪熊劫持了战争机甲，你操纵机甲帮它找走失的主人；世界是人类丢弃垃圾的月球。
+- Versebound：民族史诗的诗篇做成可装配的“诗”；黑麦面包圈当武器，无敌蚊子站在你这边。
+- ZOE Begone!：佐伊想睡觉，梦里的动画师一直打扰她，每关摧毁他的画笔和刻刀。
+- My Little Cafe Nightmare：顾客是口味古怪的幽灵，调对了咖啡才赢得这位客人的信任。
+- The Ranch of Rivershine：马的鬃毛和尾巴会随时间长长；村民反复目击一匹神秘的马，传闻拼出小镇的秘密。
+
+——「世界与角色灵感库」到此——
+
+自动试跑都无头，不在屏幕上开窗口；不问问题，自己决定；不往网上推送。
+只在当前文件夹里看和改：不要打开上一级文件夹，也不要看别的轮次的文件夹，也不要去看 … 里的技能和规则（这一轮要的都写在上面；带 prompt 的和只给目标的两份要互相看不见）。</pre></details></main></body></html>

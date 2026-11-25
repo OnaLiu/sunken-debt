@@ -1,0 +1,107 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><title>第 2 轮 · 一眼看懂、字少 · 沉债</title><style>
+:root{--bg:#f6f3ec;--panel:#fffdf8;--ink:#1f1b16;--soft:#5d5448;--line:#e2dacb;--brass:#9a6a1c;--brass-ink:#fff;--sky:#2f6f8f;--code:#f0ebe0}
+@media (prefers-color-scheme:dark){:root{--bg:#14120f;--panel:#1d1a16;--ink:#efe9de;--soft:#b3a893;--line:#3a332a;--brass:#d39b3c;--brass-ink:#1a1408;--sky:#7fb7d4;--code:#2a251e}}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif}
+main{max-width:980px;margin:0 auto;padding:28px 16px 80px}
+a{color:var(--sky)}h1{font-size:clamp(1.5rem,4.5vw,2.1rem);line-height:1.3;margin:.2em 0 .3em}
+h2{font-size:1.25rem;margin:1.6em 0 .5em}h3{font-size:1.08rem;margin:1.4em 0 .4em}h4,h5,h6{font-size:1rem;margin:1.2em 0 .3em}
+.sub{color:var(--soft);margin:0 0 1.2em}.nav{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.92rem;margin-bottom:10px}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 6px}
+.btn{display:inline-flex;align-items:center;gap:.45em;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:600;border:1px solid var(--line);color:var(--ink);background:var(--panel)}
+.btn.main{background:var(--brass);border-color:var(--brass);color:var(--brass-ink)}.btn:hover{filter:brightness(1.06)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px 20px 14px;margin:16px 0}
+.cols{display:grid;grid-template-columns:1fr;gap:16px}@media (min-width:900px){.cols.two{grid-template-columns:1fr 1fr}main.wide{max-width:1400px}}
+.tag{display:inline-block;font-size:.78rem;padding:1px 8px;border-radius:99px;border:1px solid var(--line);color:var(--soft);margin-left:6px;vertical-align:middle;font-weight:500}
+details{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin:12px 0;padding:0 16px}
+summary{cursor:pointer;padding:12px 0;font-weight:600}details[open] summary{border-bottom:1px solid var(--line);margin-bottom:10px}
+code{background:var(--code);padding:1px 5px;border-radius:5px;font-size:.9em;word-break:break-all}
+pre{background:var(--code);padding:12px;border-radius:10px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;font-size:.88rem;line-height:1.6}
+pre code{background:none;padding:0}
+.shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;padding-bottom:14px}
+.shots figure{margin:0}.shots img{width:100%;border-radius:8px;border:1px solid var(--line);image-rendering:pixelated;display:block}
+.shots figcaption{font-size:.85rem;color:var(--soft);margin-top:4px}
+.tbl{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.93rem;margin:8px 0}
+th,td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}th{background:var(--code)}
+ul,ol{padding-left:1.4em}li{margin:.15em 0}.files{font-size:.9rem;columns:2 260px;padding-bottom:12px}.files div{break-inside:avoid}
+.rounds{list-style:none;padding:0;margin:0}.rounds li{border-top:1px solid var(--line);padding:14px 0;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline}
+.rounds .what{flex:1 1 320px}.rounds .what b{display:block}.rounds .what span{color:var(--soft);font-size:.93rem}
+.rounds .go{display:flex;gap:8px;flex-wrap:wrap}.rounds .go a{font-size:.9rem;padding:6px 12px}
+.muted{color:var(--soft)}footer{margin-top:40px;color:var(--soft);font-size:.85rem}
+.pair{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:14px 0}
+.pair p{margin:0 0 8px;font-weight:600}.pair .ab{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pair .one{grid-template-columns:1fr}
+.pair figure{margin:0}.pair img,.pair video{width:100%;border-radius:8px;border:1px solid var(--line);display:block;background:#000}
+.pair figcaption{font-size:.82rem;color:var(--soft);margin-top:3px}@media (max-width:640px){.pair .ab{grid-template-columns:1fr}}
+</style></head><body><main><div class="nav"><a href="../../index.html">← 全部轮次</a><a href="../004-r04-library/index.html">‹ 上一轮：library</a><a href="../007-r05-system/index.html">下一轮：第 8 轮 · 系统打磨 ›</a></div><h1>第 2 轮 · 一眼看懂、字少<span class="tag">005-r02-readable</span></h1><p class="sub">沉债 · 先看这一轮变了什么；能玩的是最新一版。</p><h2>这一轮变了什么</h2><div class="pair"><p>同一片海面：改后船员脚下有青色我方圈、头上写名字、衣帽体型按职责分开，网兜不住的鳐鱼脚下是紫圈；常驻界面只剩模式、燃油和小海图，按键说明、测深、航次账用到时才飞进来。</p><div class="ab"><figure><a href="changes/01-谁是谁-改前.png" target="_blank"><img loading="lazy" src="changes/01-谁是谁-改前.png" alt="改前"></a><figcaption>改前</figcaption></figure><figure><a href="changes/01-谁是谁-改后.png" target="_blank"><img loading="lazy" src="changes/01-谁是谁-改后.png" alt="改后"></a><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>收完一网、镜头拉回大视野后：改前结果卡已经自己消失，改后它停在右上角，等玩家点一下或按 C 才收起。</p><div class="ab"><figure><a href="changes/02-结果卡-改前.png" target="_blank"><img loading="lazy" src="changes/02-结果卡-改前.png" alt="改前"></a><figcaption>改前</figcaption></figure><figure><a href="changes/02-结果卡-改后.png" target="_blank"><img loading="lazy" src="changes/02-结果卡-改后.png" alt="改后"></a><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>全速开向浅滩：改前撞上了才弹出“水太浅”；改后提前约 2.6 秒在船头前画出红色虚线弧，底部提醒“减速或转向”。</p><div class="ab"><figure><video src="changes/03-浅滩预兆-改前.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改前</figcaption></figure><figure><video src="changes/03-浅滩预兆-改后.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>下网后等网回来：改前看不出还要等多久；改后网旁一直挂着“还剩几秒”的倒计时圈，作业栏同步显示，空网也留下一张写明原因的结果卡。</p><div class="ab"><figure><video src="changes/04-等网回来-改前.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改前</figcaption></figure><figure><video src="changes/04-等网回来-改后.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>作业中按 Esc 暂停：改前只有一排菜单；改后把这一屏的图标、小海图和测深的符号、船员职责、能按的键各用一句话讲清，收起的面板也全部展开。</p><div class="ab"><figure><a href="changes/05-暂停说明-改前.png" target="_blank"><img loading="lazy" src="changes/05-暂停说明-改前.png" alt="改前"></a><figcaption>改前</figcaption></figure><figure><a href="changes/05-暂停说明-改后.png" target="_blank"><img loading="lazy" src="changes/05-暂停说明-改后.png" alt="改后"></a><figcaption>改后</figcaption></figure></div></div><details><summary>它自己的汇报</summary><div class="card"><p>第 2 轮“一眼看懂屏幕”做完了，改动覆盖航行、作业、揭晓、港口和海图的整个画面。最终打包下，原有验收 49/49 通过，这一轮新写的验收 59/59 通过。实时跑演示 2 分钟共 7202 帧，没有一帧超过 25 毫秒。</p>
+<p><strong>12 条要求怎么落地的</strong></p>
+<ul><li>
+<strong>阵营阴影：</strong> 游戏里没有战斗和敌人，所以分三种颜色。我方船员是青圈，网能兜住的活物是橙圈，兜不了的大型生物是紫圈。生物躲起来、离得远或在深水看不清时，脚下的圈也跟着淡去或消失。
+</li><li>
+<strong>职责与名字：</strong> 五个船员按职责分成三种体型、帽子和衣服颜色：船长老魏，冲洗手阿满、小秦，搬运手石头、老蔡。名字写在头顶，颜色对应职责。水下活物揭晓前不写名字，因为设计文档不让提前泄露身份。
+</li><li>
+<strong>能交互的东西：</strong>
+<ul><li>
+看得见、网能兜的东西上有浅黄菱形。
+</li><li>
+看得见但被甲板挡住、网下不去的，用灰菱形带横杠。
+</li><li>
+埋着的硬物用红三角。
+</li><li>
+泊位在水面上有金色虚线圈；满油又没东西结算时圈变灰，并写“暂时不用靠”。
+</li></ul>
+</li><li>
+<strong>伤人前的预兆：</strong> 这里会让玩家吃亏的只有三件事，都有预兆。快搁浅时船头前方出现红色虚线弧（实测提前 2.6 秒）。网口压到埋着的硬物时，作业栏先写明。返航油不够时燃油栏闪动提醒。
+</li><li>
+<strong>常驻与暂停：</strong>
+<ul><li>
+常驻只有模式和燃油；航行时多一张小海图。
+</li><li>
+按键提示、作业栏、回波测深、航次账都是用到时飞进来，用完收起。
+</li><li>
+暂停时这些全部出来。中间是这个地方的图例，航行、作业、揭晓、港口各不相同，一个图标一句话。海图自带图例。
+</li></ul>
+</li><li>
+<strong>要等的事：</strong> 吊臂到位、网的回收、冲洗泥壳、靠泊、补油，都在那件东西旁边挂着“还剩几秒”。网的回收在 6.7 到 25.6 米水深实测，预计和实际差不到 0.1 秒。
+</li><li>
+<strong>字和画面：</strong>
+<ul><li>
+字是系统高清中文字体，窗口缩放后按屏幕实际像素重画。
+</li><li>
+画面固定 1920×1080：窗口怎么拉都只整体缩放、两边留黑；镜头拉远拉近，界面大小不变。
+</li></ul>
+</li><li>
+<strong>按钮与结果卡：</strong>
+<ul><li>
+每个按钮按了都有看得见的结果；不能按的变灰，按了写原因。
+</li><li>
+每一网都有结果卡（空网也有），停在右边，点一下或按 C 才收起。
+</li><li>
+港口结算单补满油前，“继续出海”是灰的。
+</li></ul>
+</li></ul>
+<p><strong>独立审查</strong><br>我请了一个审查代理按这 12 条挑毛病，它找出 2 条严重、6 条中等、9 条轻微的问题。最严重的两条是：结算单很长时看不全，以及点灰色的“下网”会穿过界面、把落点悄悄挪走。改了其中 16 条，每条都加了回归测试；没改的是下面第一条。另外我自己发现并修了几处，例如在港口暂停时按回车会直接出海。</p>
+<p><strong>两处取舍</strong></p>
+<ul><li>
+镜头背对航向时，浅水的红弧要晚一点才进画面；底部的红色文字提示从一开始就有，所以没改。
+</li><li>
+窗口很小时字会跟着变小，这是“固定 1920×1080、只整体缩放”规则的结果。我没有为此放大界面，改为窗口缩到 60% 以下时，在画面外用正常字号提示放大窗口或全屏。
+</li></ul>
+<p>规则补进了 <code>design.md</code> §10.1；改动、决定和实测写在 <code>notes.md</code> 第 12 节。新增工具：<code>tools/test-readable.mjs</code>（这一轮的验收）、<code>tools/ui-tour.mjs</code>（逐个画面截图）、<code>tools/crisp-shot.mjs</code>（检查字清不清）。</p>
+<p>为了构建和测试，我从本机 npm 缓存离线装过依赖，结束时删掉了，开发文件也已删除。要重跑，先 <code>npm ci --offline</code>，再 <code>npm test</code>。全程无头运行，没有联网推送。</p></div></details><details><summary>用时</summary><p>用时 1 小时 31 分 · 花费 $37.66</p></details><details><summary>改了哪些文件（比起 002-r01-autoplay：新加 7 · 改动 19 · 删掉 1）</summary><div class="files"><div>＋ src/render/rings.js</div><div>＋ src/ui/legend.js</div><div>＋ src/ui/overlay.js</div><div>＋ tools/crisp-shot.mjs</div><div>＋ tools/test-readable-results.json</div><div>＋ tools/test-readable.mjs</div><div>＋ tools/ui-tour.mjs</div><div>～ design.md</div><div>～ game.js</div><div>～ notes.md</div><div>～ package.json</div><div>～ src/core/input.js</div><div>～ src/eco/creatures.js</div><div>～ src/game/boat.js</div><div>～ src/game/bot.js</div><div>～ src/game/crew.js</div><div>～ src/game/game.js</div><div>～ src/game/net.js</div><div>～ src/game/reveal.js</div><div>～ src/game/salvage.js</div><div>～ src/main.js</div><div>～ src/render/warmup.js</div><div>～ src/ui/hud.js</div><div>～ src/world/world.js</div><div>～ style.css</div><div>～ tools/test-results.json</div><div>－ tools/changes-capture.mjs</div></div></details><details><summary>这一轮收到的 prompt</summary><pre>这是第 2 轮打磨：让玩家一眼看懂屏幕。游戏和设计文档都在当前文件夹。
+范围：航行、作业、揭晓、港口和海图的整个画面。
+
+- 人多的战斗里，每个单位脚下有阵营阴影，我方和敌方颜色明显不同。
+- 职责不同的单位一眼分得开：体型、轮廓、颜色，有名字的头上写名字。
+- 能交互的东西一眼看得出能交互，和不能交互的背景分得开，不用走过去试。
+- 伤人的东西出手前有看得见的预兆；没露过面的东西不伤人，屏幕外的打不到玩家。
+- 屏幕上只常驻玩家一直要看的东西；其余用到时飞进来、用完收起来，暂停时全部出来。
+- 每个地方的暂停说那个地方玩家要懂的东西，不同地方说的不同：这一屏和小地图上每个小图标代表什么，这里能按的键；一个图标一句话。
+- 字用高清字体，按屏幕原来的分辨率画；画面是像素风，字也不用像素字。
+- 要等的事（建造、施工、开箱、救人、冷却）在它本身上一直看得见还剩多久。
+- 字不被屏幕边切掉，不压别的字和按钮。
+- 画面按 1920×1080 固定：窗口拉宽缩窄、全屏和窗口来回切，能看见的世界范围不变，只整体缩放、两边留黑；镜头远近和界面分开，界面大小不变。
+- 每个按钮按了都有看得见的结果；不能按的变灰，按了说原因。
+- 没有倒计时的选择不会自己跳过；结果卡等玩家点了才收起。
+
+自动试跑都无头，不在屏幕上开窗口；不问问题，自己决定；不往网上推送。
+只在当前文件夹里看和改：不要打开上一级文件夹，也不要看别的轮次的文件夹，也不要去看 … 里的技能和规则（这一轮要的都写在上面；带 prompt 的和只给目标的两份要互相看不见）。</pre></details></main></body></html>

@@ -1,0 +1,259 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><title>第 8 轮 · 系统打磨 · 沉债</title><style>
+:root{--bg:#f6f3ec;--panel:#fffdf8;--ink:#1f1b16;--soft:#5d5448;--line:#e2dacb;--brass:#9a6a1c;--brass-ink:#fff;--sky:#2f6f8f;--code:#f0ebe0}
+@media (prefers-color-scheme:dark){:root{--bg:#14120f;--panel:#1d1a16;--ink:#efe9de;--soft:#b3a893;--line:#3a332a;--brass:#d39b3c;--brass-ink:#1a1408;--sky:#7fb7d4;--code:#2a251e}}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif}
+main{max-width:980px;margin:0 auto;padding:28px 16px 80px}
+a{color:var(--sky)}h1{font-size:clamp(1.5rem,4.5vw,2.1rem);line-height:1.3;margin:.2em 0 .3em}
+h2{font-size:1.25rem;margin:1.6em 0 .5em}h3{font-size:1.08rem;margin:1.4em 0 .4em}h4,h5,h6{font-size:1rem;margin:1.2em 0 .3em}
+.sub{color:var(--soft);margin:0 0 1.2em}.nav{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.92rem;margin-bottom:10px}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 6px}
+.btn{display:inline-flex;align-items:center;gap:.45em;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:600;border:1px solid var(--line);color:var(--ink);background:var(--panel)}
+.btn.main{background:var(--brass);border-color:var(--brass);color:var(--brass-ink)}.btn:hover{filter:brightness(1.06)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px 20px 14px;margin:16px 0}
+.cols{display:grid;grid-template-columns:1fr;gap:16px}@media (min-width:900px){.cols.two{grid-template-columns:1fr 1fr}main.wide{max-width:1400px}}
+.tag{display:inline-block;font-size:.78rem;padding:1px 8px;border-radius:99px;border:1px solid var(--line);color:var(--soft);margin-left:6px;vertical-align:middle;font-weight:500}
+details{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin:12px 0;padding:0 16px}
+summary{cursor:pointer;padding:12px 0;font-weight:600}details[open] summary{border-bottom:1px solid var(--line);margin-bottom:10px}
+code{background:var(--code);padding:1px 5px;border-radius:5px;font-size:.9em;word-break:break-all}
+pre{background:var(--code);padding:12px;border-radius:10px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;font-size:.88rem;line-height:1.6}
+pre code{background:none;padding:0}
+.shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;padding-bottom:14px}
+.shots figure{margin:0}.shots img{width:100%;border-radius:8px;border:1px solid var(--line);image-rendering:pixelated;display:block}
+.shots figcaption{font-size:.85rem;color:var(--soft);margin-top:4px}
+.tbl{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.93rem;margin:8px 0}
+th,td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}th{background:var(--code)}
+ul,ol{padding-left:1.4em}li{margin:.15em 0}.files{font-size:.9rem;columns:2 260px;padding-bottom:12px}.files div{break-inside:avoid}
+.rounds{list-style:none;padding:0;margin:0}.rounds li{border-top:1px solid var(--line);padding:14px 0;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline}
+.rounds .what{flex:1 1 320px}.rounds .what b{display:block}.rounds .what span{color:var(--soft);font-size:.93rem}
+.rounds .go{display:flex;gap:8px;flex-wrap:wrap}.rounds .go a{font-size:.9rem;padding:6px 12px}
+.muted{color:var(--soft)}footer{margin-top:40px;color:var(--soft);font-size:.85rem}
+.pair{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:14px 0}
+.pair p{margin:0 0 8px;font-weight:600}.pair .ab{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pair .one{grid-template-columns:1fr}
+.pair figure{margin:0}.pair img,.pair video{width:100%;border-radius:8px;border:1px solid var(--line);display:block;background:#000}
+.pair figcaption{font-size:.82rem;color:var(--soft);margin-top:3px}@media (max-width:640px){.pair .ab{grid-template-columns:1fr}}
+</style></head><body><main><div class="nav"><a href="../../index.html">← 全部轮次</a><a href="../007-r05-system/index.html">‹ 上一轮：第 8 轮 · 系统打磨</a><a href="../009-r05-system/index.html">下一轮：第 8 轮 · 系统打磨 ›</a></div><h1>第 8 轮 · 系统打磨<span class="tag">008-r05-system</span></h1><p class="sub">沉债 · 先看这一轮变了什么；能玩的是最新一版。</p><h2>这一轮变了什么</h2><div class="pair"><p>开进第 5 片海域：改前这片叫「归潮沙湾·5」，远处的东西不报方位，船员一认出船就说看不见的「货舱那边好像翻开了」；改后它有自己的地名「断缆沙湾」，远处只报方位并在水面上圈出位置，开近看清了船员才说眼前看得见的「侧躺在坡上，断桅还拖在沙里」。</p><div class="ab"><figure><video src="changes/1-region5-before.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改前</figcaption></figure><figure><video src="changes/1-region5-after.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>去沉船的路上铺了线索：改前海草里什么也没有；改后从船来的方向起一路横着断桨，提示「草里横着几支断桨，一路往东」，水面上画出一条指向沉船的虚线。</p><div class="ab"><figure><a href="changes/2-trail-before.png" target="_blank"><img loading="lazy" src="changes/2-trail-before.png" alt="改前"></a><figcaption>改前</figcaption></figure><figure><a href="changes/2-trail-after.png" target="_blank"><img loading="lazy" src="changes/2-trail-after.png" alt="改后"></a><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>下过网的地方留下自己的现场浮标：改前网收回来，水面上什么也不留；改后船边立起青色浮标，白圈数是在这里下过几网，黄旗表示这里还有看见了没捞完的东西。</p><div class="ab"><figure><a href="changes/3-buoy-before.png" target="_blank"><img loading="lazy" src="changes/3-buoy-before.png" alt="改前"></a><figcaption>改前</figcaption></figure><figure><a href="changes/3-buoy-after.png" target="_blank"><img loading="lazy" src="changes/3-buoy-after.png" alt="改后"></a><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>第 5 片以后有的沉船已经被别人先捞过：改前船边照样躺着那两件货（菱形标记）；改后货没了，只剩一个歪着的旧浮标和沙上的空压痕，提示「有人捞过的地方」。</p><div class="ab"><figure><a href="changes/4-rival-before.png" target="_blank"><img loading="lazy" src="changes/4-rival-before.png" alt="改前"></a><figcaption>改前</figcaption></figure><figure><a href="changes/4-rival-after.png" target="_blank"><img loading="lazy" src="changes/4-rival-after.png" alt="改后"></a><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>黑泥海域远远就能找到埋着的船：改前水面一片平；改后沉船上方的水面一直冒气泡、泛白沫，远处只说「左前方：水面上冒着一串气泡」。</p><div class="ab"><figure><video src="changes/5-seep-before.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改前</figcaption></figure><figure><video src="changes/5-seep-after.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改后</figcaption></figure></div></div><details><summary>它自己的汇报</summary><div class="card"><p>这条通知只是一个盯测试日志的后台监视到时自动关了，不是新结果。我顺手查了一下，还剩两个盯日志的后台进程挂着，已经关掉，现在没有残留的后台任务。上一条汇报的结论不变：三套测试主测试 49/49、可读性 59/59、地点与线索 29/29 全过，<code>game.js</code> 是最后一次改源码后打的包。</p></div></details><details><summary>用时</summary><p>用时 42 分钟 · 花费 $19.42</p></details><details><summary>改了哪些文件（比起 005-r02-readable：新加 4 · 改动 18 · 删掉 0）</summary><div class="files"><div>＋ tools/clue-watch.mjs</div><div>＋ tools/place-shots.mjs</div><div>＋ tools/test-places-results.json</div><div>＋ tools/test-places.mjs</div><div>～ design.md</div><div>～ game.js</div><div>～ notes.md</div><div>～ package.json</div><div>～ src/game/bot.js</div><div>～ src/game/game.js</div><div>～ src/ui/hud.js</div><div>～ src/ui/legend.js</div><div>～ src/ui/overlay.js</div><div>～ src/world/decor.js</div><div>～ src/world/layout.js</div><div>～ src/world/region.js</div><div>～ src/world/sites.js</div><div>～ src/world/world.js</div><div>～ style.css</div><div>～ tools/density.json</div><div>～ tools/test-readable-results.json</div><div>～ tools/test-results.json</div></div></details><details><summary>这一轮收到的 prompt</summary><pre>这是第 5 轮打磨：把海域、地点与线索：航路、地点分布、线索、四种海域和之后的新海域打磨好。游戏和设计文档都在当前文件夹。
+范围：只管海域、地点与线索这个系统：航路上的地标和线索、沉船现场和散落的布置、四种海域和之后新海域的变化、旧现场的保留。同组还有四份同时在改别的系统：下网作业、揭宝与收获、海底生态、燃油与航次，别碰它们。 第 1 轮另一份做到了一件这一份没有的：船员和字幕只说已经看见的东西（离得远时只说方向，看清了才说具体证据），第 5 片以后的海域也有不点出物件的说法和自己的地名；在 参考/003-r01-autoplay-goal/ 里可以看，照这个结果做进这一份。
+
+- 下面附的是这一类系统的灵感库：先读里面玩家怎么评判这一类、最常见的坏法，对照游戏逐条看，有就改；再想这个游戏自己的答案，挑两三条火花改写进来。
+- 玩家自己建、改、拼的东西：有自己的界面和入口，外观跟着变，变大了也看得清；不能做的说原因。
+- 变强要发生在玩家看得见的地方：屏幕外的敌人不掉血，一大波敌人先有预告、再在屏幕里进来。
+- 机器人会用它，用完游戏照常往下走。
+- 新加的东西先用图形、颜色和动作说话；字只在不写玩家就会做错的时候加，一句话。
+
+——以下是「关卡与刷怪灵感库」——
+
+
+给设计地图、章节、关卡、刷怪器和场景互动用的启发，不是菜单，也不是规范。只记机制的骨架，不带数值；数值到数值和节奏那一轮统一调。
+
+用法：
+1. 先不看这里，写下这个游戏自己的三个关卡点子：从它的幻想、题材和核心动作里长出来，别的游戏用不了的那种。再给每一关（或每一章）定一样别的关没有的东西：一条新规则、一种新威胁或一种新地形，玩家一进去就知道“这里不一样”。
+2. 再读这里，只挑两三条最能放大这几个点子的，改头换面成这个世界独有的样子：同一个“边缘伸手”，在梦境里是被子里伸出的手，在矿洞里是岩壁里的根须。挑得少比挑得多好；一条在哪个游戏里都能原样成立的，说明它还没改成这个游戏的。
+3. 范围按小团队做得完来定：宁可三关各有一个好点子，也不要十个点子撒满六章。
+4. 所有游戏都该做到的事（威胁先有预告、推进和喘息交替、新东西先教后考、奖励不长时间断档）不在这里，那是数值和节奏那一轮的要求。
+5. 下面这几条几乎每个游戏都会想用，用多了我们的游戏就会彼此相像：最终首领就是地图本身；场景从四周合拢；伪装成装饰或宝物的怪；把敌人引进地形危险；只有光照处安全；进场方向随压力轮换；倒下的人变成某个物件等队友救。一个游戏最多用其中一条，而且只在它是最贴切的选择时用；其余的从这个游戏自己的点子和库里少见的条目里找。
+
+收尾时，这个游戏发明出来、玩起来好的条目，一行一条加进来；和已有条目说的是同一件事就合并。
+
+## 机制种子
+
+**敌人从哪来**：
+- 正前方排队来；
+- 上下两侧钻出；
+- 从背后绕过来；
+- 从背景深处推近、变大；
+- 从地面或水面下冒出；
+- 从天上掉下来，先有影子；
+- 从场景里的门、窗、洞、裂缝里出来；
+- 装饰本身就是敌人（伪装）；
+- 被打死的敌人分裂出小的；
+- 大敌人身上载着小敌人，到场再放下；
+- 传送门开在玩家附近，先亮一圈；
+- 从玩家走过的路上追上来；
+- 屏幕两侧同时来，逼你选一边；
+- 一扇门关上后四面埋伏；
+- 每次推压换一个新方向；
+- 方向跟着压力变：平静从一个方向，压力上来再开别的方向。
+
+**刷怪节拍**：
+- 按时钟换波（每分钟一套组合）；
+- 一大群一碰就散的杂兵冲一下，再退潮；
+- 暴风雨前的安静，然后一次性压上；
+- 敌人有自己的作息：睡着时能绕过去，吵醒了就成群出动；
+- 敌人会互相争抢：一种敌人吃掉另一种变强，或者两派打起来；
+- 敌人随玩家刚做的事出现：放了大招就来一批克大招的；
+- 敌人数量固定，打一个少一个，地图慢慢变空，最后剩下最难的几个；
+- 精英带一队护卫，打掉精英护卫就散；
+- 杂兵一直在，主目标一个接一个；
+- 同屏上限，满了就推迟下一队；
+- 主动招惹更多敌人换更多掉落；
+- 越强出怪越多，让变强看得见（割草）；
+- 敌人成队列越过可见的距离慢慢逼近，给玩家准备时间；
+- 打得越快，下一波来得越早（节奏由玩家决定）；
+- 撤退波：敌人逃跑，追上去有奖励；
+- 视野外一圈刷怪，离玩家有最小距离（幸存者类）；
+- 编队沿曲线和直线进场，看起来像一个形状，整队打掉给奖励（射击游戏）；
+- 每波用点数买敌人，按威胁定价，按角色混编：杂兵、肉盾、远程、冲锋、辅助、精英；
+- 竞技场里敌人站位先亮标记，过一会儿才能动（房间类动作游戏）；
+- 导演系统：压力低时加怪，压力高时停，高压太久就强制喘息；
+- 同屏上限，落在后面太远的敌人移走或挪到前面；
+- 随实力变大的鱼群潮：主目标进行中每隔一阵来一大群一碰就散的杂兵，先起一道往里推的波光；数量随玩家已选的升级增加（不加血），后排混几条会开火的，屏幕满了就跳过，不算积压。梦潮 2026-10-06：推压与喘息从每 5 分钟 3.7 轮升到 5.9 轮，每局击杀 +30%。
+
+**会出手的地图**：
+- 屏幕边缘伸进来一只手，抓住就拖走；
+- 背景里的装饰（雕像、玩偶、灯笼、植物）醒过来咬人；
+- 宝箱、门、道具是伪装的怪；
+- 背景里的东西其实是一张进度表：钟、月亮、潮水线、烛火，走到头就出事；
+- 玩家留下的东西会被敌人利用（脚印、残骸、没捡的掉落）；
+- 墙、天花板、地形慢慢合拢；
+- 卷轴停下来，甚至倒着走；
+- 风、水流、传送带把玩家往一边推；
+- 背景里的巨物伸爪横扫一整条；
+- 黑暗里睁开一双眼睛，然后开火；
+- 灯一盏盏灭掉，只剩光照到的地方安全；
+- 水位或岩浆上涨，逼着往前；
+- 地板塌陷，先有裂纹；
+- 落石、坠物，先有影子；
+- 藤蔓或触手从地里缠上来；
+- 场景里的炮台、喷口定时开火；
+- 看起来安全的角落其实是陷阱；
+- 重力翻转；
+- 整个关卡本身就是一只巨大的怪，打它的部件；
+- 关卡是一台机器，玩家要拆掉或启动它的零件，零件本身就是敌人或平台；
+- 关卡是一场仪式或一出戏，按节目单推进，跑调了就出乱子；
+- 关卡在另一个尺度上：你在一张桌面、一只口袋、一页纸的边缘里打；
+- 天气就是对手：一阵风、一场雨、一次潮汐改变整片战场的规则；
+- 地图上有第三方势力，它们和你、和敌人都会打；
+- 时间在不同区域走得不一样快，敌人和子弹也一样；
+- 关卡会记住你上一次怎么打的，下一次在那里设埋伏；
+- 战场是移动的：一辆车、一艘船、一列火车、一只巨兽的背；
+- 规则开关：关卡里有一个开关能翻转一条规则（重力、颜色、敌我），双方都受影响；
+
+**先兆的做法**：
+- 影子先落下；
+- 裂纹先蔓延；
+- 抽动、颤抖；
+- 睁眼；
+- 一声固定的音效；
+- 落灰、掉碎屑；
+- 光慢慢聚起来；
+- 一条瞄准线；
+- 屏幕边缘的箭头；
+- 灯光闪烁；
+- 音乐变调；
+- 路线的虚影预演；
+- 倒数的节拍。
+
+**地图里的奖励**：
+- 摧毁会出手的场景掉额外奖励；
+- 碰一下装置换一次升级；
+- 点亮灯、敲响铃；
+- 借水流、风冲出加速；
+- 打开捷径；
+- 藏起来的房间；
+- 可以打破的墙；
+- 危险区里奖励更多；
+- 护送、搬运；
+- 限时门，快就给；
+- 用地形杀敌：推进陷阱、引爆油桶；
+- 把敌人引到危险里，让危险帮你打；
+- 连锁反应：一个东西炸了引爆一排；
+- 收集品放在危险旁边；
+- 每关的秘密数量写在关卡选择上。
+
+**关卡结构**：
+- 一条线，中段一个中头目，最后头目；
+- 岔路，路口先显示每条路的奖励；
+- 房间连房间，出口显示下一间的奖励；
+- 一片竞技场加按时出现的事件；
+- 开放地图，散着兴趣点；
+- 一路往下钻（纵向）；
+- 和上涨的危险赛跑；
+- 倒着卷轴的一关；
+- 首领连战；
+- 过关后同一张图重新混编、变难；
+- 关卡带一条本局的特殊规则（诅咒或祝福）；
+- 同一张图白天和夜里两种玩法；
+- 地图记得上一局：上次打开的捷径还在，上次救的人在那里等你。
+
+**章节怎么变**：
+- 每章带来一个新动作或新规则，不只是换颜色；
+- 章节首领的规则在前面几关就零碎出现过；
+- 换色板、换音乐、换天气；
+- 每章自己的敌人和场景危险；
+- 章节之间回到一个据点，据点因为你打过的章节而变化；
+- 打完首领世界变了（同一张图换了一种状态）；
+- 新章出现另一方势力，和之前的敌人互相打。
+
+**头目与精英**：
+- 每个阶段换一种躲法；
+- 头目利用场景，或者打坏场景改变战场；
+- 几个身体同时打；
+- 攻击从本关的小怪长出来；
+- 打掉一段血就喷奖励；
+- 头目在关卡里追着你跑；
+- 弱点藏在场景里；
+- 头目就是地图本身；
+- 回应玩家的构筑（导电外壳、召唤镜像）。
+
+**期待和收获的节拍**：
+- 路口预告奖励；
+- 能看见的首领倒计时；
+- 开箱前先抖一下；
+- 收集品就在危险旁边；
+- 连击条；
+- 关卡进度条；
+- 检查点送一份礼；
+- 差一件就凑齐的提示。
+
+## 局部骨架
+
+一个游戏最多挑一两个，放在最需要变化的那一段。
+
+1. **方向轮换**：每次推压从一个新方向来，喘息时收回。
+2. **场景反派段**：有一段，敌人主要是地图本身。
+3. **假平静**：安静得有点久，然后伏击。
+4. **追逐段**：身后的危险逼你往前，没时间犹豫。
+5. **守点段**：守住一个位置，敌人四面来。
+6. **赌一把的岔路**：一条安全，一条危险但奖励多。
+7. **首领前的静场**：首领出场前给一段安静和补给，让期待攒起来。
+8. **回头路变样**：同一段路回来时，地图已经变了。
+
+## 按类型的骨架
+
+- **幸存者类**（吸血鬼幸存者）：一局 30 分钟，每分钟换一套敌人；开头慢，十分钟左右涨到满屏；首领在固定时刻掉宝箱，进化从宝箱里出；最后一个定时事件结束这一局。
+- **一波一商店**（土豆兄弟类竞技场射击）：短波次，每波后进商店；每一分钟都有一次喘息和一次构筑选择。
+- **房间加奖励预告**（哈迪斯）：战斗房一到三波；出口显示奖励；中头目房、商店、休息房；每个区域一个首领。
+- **分岔地图**（杀戮尖塔）：每幕十几层；玩家在战斗、精英、事件、休息、商店、宝箱之间规划路线；这一幕的首领一开始就知道。
+- **时间压力**（雨中冒险 2）：难度随时间涨；每关以一段守点事件结束。
+- **街机纵版射击**：每关几分钟——先用一波展示本关主题，几段把同一个点子变着花样用，中段一个中头目，一段较平静的过渡，然后首领；小杂兵填空档；计分系统（连锁、勋章、贴脸加分）把冒险变成收益；火力升级和炸弹是资源；分数到线给命。
+- **肉鸽射击**：上面的关卡结构，关与关或波与波之间做构筑选择（商店，或带预告的升级选择）；每关一个首领，弹幕从本关小怪长出来。
+- **横版射击加活的场景**：经典横版结构，加上场景本身出手（边缘伸手、装饰醒来、地形合拢），各带先兆、能打掉换奖励；每次推压打开新的进场方向。（梦潮 2026-10-06 的方向）
+
+## 学自哪些游戏（只记骨架）
+
+- 求生之路（Left 4 Dead）：导演系统按玩家的紧张程度控制刷怪，高压之后强制给一段放松。
+- 吸血鬼幸存者：每分钟换一套敌人组合；首领在固定时刻掉宝箱；同屏有上限。
+- 哈迪斯：房间出口显示下一间的奖励；每个区域一个首领。
+- 杀戮尖塔：地图一开局就能看到全部节点和首领，玩家规划路线。
+- 雨中冒险 2：难度随时间上涨，逗留有代价。
+- 死亡细胞：生物群系之间有岔路；限时门奖励快速通过。
+- 洞穴探险（Spelunky）：手工小块拼成随机关卡；在一层待太久会出现追杀的幽灵。
+- 挺进地牢：宝箱怪（细微的征兆能认出来）。
+- 黑暗之魂：宝箱怪靠锁链朝向这种小细节被认出来。
+- 合金弹头：大部分场景能打烂，打烂有东西；关卡里有大型场面和载具。
+- 宇宙巡航机（Gradius）：摩艾石像关，场景本身在开火；地形就是关卡的难点。
+- R-Type：有一关的首领就是一整艘巨舰，整关都在打它。
+- 达雷斯（Darius）：每关结束选一条分支进下一关。
+- 斑鸠（Ikaruga）：每一章有自己的规则和配色。
+- 茶杯头：每个首领几个阶段，每个阶段换躲法。
+- 超级马里奥：一关只讲一个新点子：出现、发展、变奏、收尾；害羞鬼被看着就停。
+- 空洞骑士：打开的捷径会绕回已知区域。
+- 陷阵之志（Into the Breach）：敌人的攻击和场景危险都提前标出来，玩家利用它们。
+- 坠落之井（Downwell）：一路往下，越往下越危险。
+- 梦潮：回声航线（我们的）：普通杂兵和主目标分开调度；鱼群潮带一道往里推的波光预告；地图装置碰一下就给升级仪式。
+
+——「关卡与刷怪灵感库」到此——
+
+自动试跑都无头，不在屏幕上开窗口；不问问题，自己决定；不往网上推送。
+只在当前文件夹里看和改：不要打开上一级文件夹，也不要看别的轮次的文件夹，也不要去看 … 里的技能和规则（这一轮要的都写在上面；带 prompt 的和只给目标的两份要互相看不见）。</pre></details></main></body></html>
