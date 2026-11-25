@@ -1,0 +1,73 @@
+{
+  "size": [
+    1024,
+    1024
+  ],
+  "mode": "RGB",
+  "mean_RGB": [
+    193.76836776733398,
+    180.86491203308105,
+    148.08380126953125
+  ],
+  "mean_error": [
+    -0.23163223266601562,
+    -0.1350879669189453,
+    0.08380126953125
+  ],
+  "detail_coverage_percent": 3.2857894897460938,
+  "shell_beds": 14,
+  "isolated_shells": 950,
+  "pebble_groups": 18,
+  "dark_speck_pockets": 25,
+  "patches": [
+    {
+      "color": 1,
+      "center": [
+        75,
+        228
+      ],
+      "length_px": 470,
+      "transition_px": 56,
+      "painted_px": 16168
+    },
+    {
+      "color": 1,
+      "center": [
+        659,
+        705
+      ],
+      "length_px": 446,
+      "transition_px": 56,
+      "painted_px": 16292
+    },
+    {
+      "color": 2,
+      "center": [
+        650,
+        52
+      ],
+      "length_px": 491,
+      "transition_px": 56,
+      "painted_px": 9768
+    },
+    {
+      "color": 2,
+      "center": [
+        293,
+        694
+      ],
+      "length_px": 435,
+      "transition_px": 56,
+      "painted_px": 10136
+    }
+  ],
+  "edge_step_RGB": [
+    0.4720052083333333,
+    1.015625
+  ],
+  "internal_step_RGB": [
+    0.5238218882372108,
+    0.5219196755865103
+  ],
+  "source_chip_silhouettes": 126
+}
