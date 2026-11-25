@@ -1,0 +1,252 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><title>第 8 轮 · 系统打磨 · 沉债</title><style>
+:root{--bg:#f6f3ec;--panel:#fffdf8;--ink:#1f1b16;--soft:#5d5448;--line:#e2dacb;--brass:#9a6a1c;--brass-ink:#fff;--sky:#2f6f8f;--code:#f0ebe0}
+@media (prefers-color-scheme:dark){:root{--bg:#14120f;--panel:#1d1a16;--ink:#efe9de;--soft:#b3a893;--line:#3a332a;--brass:#d39b3c;--brass-ink:#1a1408;--sky:#7fb7d4;--code:#2a251e}}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif}
+main{max-width:980px;margin:0 auto;padding:28px 16px 80px}
+a{color:var(--sky)}h1{font-size:clamp(1.5rem,4.5vw,2.1rem);line-height:1.3;margin:.2em 0 .3em}
+h2{font-size:1.25rem;margin:1.6em 0 .5em}h3{font-size:1.08rem;margin:1.4em 0 .4em}h4,h5,h6{font-size:1rem;margin:1.2em 0 .3em}
+.sub{color:var(--soft);margin:0 0 1.2em}.nav{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.92rem;margin-bottom:10px}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 6px}
+.btn{display:inline-flex;align-items:center;gap:.45em;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:600;border:1px solid var(--line);color:var(--ink);background:var(--panel)}
+.btn.main{background:var(--brass);border-color:var(--brass);color:var(--brass-ink)}.btn:hover{filter:brightness(1.06)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px 20px 14px;margin:16px 0}
+.cols{display:grid;grid-template-columns:1fr;gap:16px}@media (min-width:900px){.cols.two{grid-template-columns:1fr 1fr}main.wide{max-width:1400px}}
+.tag{display:inline-block;font-size:.78rem;padding:1px 8px;border-radius:99px;border:1px solid var(--line);color:var(--soft);margin-left:6px;vertical-align:middle;font-weight:500}
+details{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin:12px 0;padding:0 16px}
+summary{cursor:pointer;padding:12px 0;font-weight:600}details[open] summary{border-bottom:1px solid var(--line);margin-bottom:10px}
+code{background:var(--code);padding:1px 5px;border-radius:5px;font-size:.9em;word-break:break-all}
+pre{background:var(--code);padding:12px;border-radius:10px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;font-size:.88rem;line-height:1.6}
+pre code{background:none;padding:0}
+.shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;padding-bottom:14px}
+.shots figure{margin:0}.shots img{width:100%;border-radius:8px;border:1px solid var(--line);image-rendering:pixelated;display:block}
+.shots figcaption{font-size:.85rem;color:var(--soft);margin-top:4px}
+.tbl{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.93rem;margin:8px 0}
+th,td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}th{background:var(--code)}
+ul,ol{padding-left:1.4em}li{margin:.15em 0}.files{font-size:.9rem;columns:2 260px;padding-bottom:12px}.files div{break-inside:avoid}
+.rounds{list-style:none;padding:0;margin:0}.rounds li{border-top:1px solid var(--line);padding:14px 0;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline}
+.rounds .what{flex:1 1 320px}.rounds .what b{display:block}.rounds .what span{color:var(--soft);font-size:.93rem}
+.rounds .go{display:flex;gap:8px;flex-wrap:wrap}.rounds .go a{font-size:.9rem;padding:6px 12px}
+.muted{color:var(--soft)}footer{margin-top:40px;color:var(--soft);font-size:.85rem}
+.pair{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:14px 0}
+.pair p{margin:0 0 8px;font-weight:600}.pair .ab{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pair .one{grid-template-columns:1fr}
+.pair figure{margin:0}.pair img,.pair video{width:100%;border-radius:8px;border:1px solid var(--line);display:block;background:#000}
+.pair figcaption{font-size:.82rem;color:var(--soft);margin-top:3px}@media (max-width:640px){.pair .ab{grid-template-columns:1fr}}
+</style></head><body><main><div class="nav"><a href="../../index.html">← 全部轮次</a><a href="../009-r05-system/index.html">‹ 上一轮：第 8 轮 · 系统打磨</a><a href="../011-r05-system/index.html">下一轮：第 8 轮 · 系统打磨 ›</a></div><h1>第 8 轮 · 系统打磨<span class="tag">010-r05-system</span></h1><p class="sub">沉债 · 先看这一轮变了什么；能玩的是最新一版。</p><h2>这一轮变了什么</h2><div class="pair"><p>航海星盘贴着沉船船舷：圈刚从船舷挪到旁边沙地、同一下就按下网——改前吊臂还没转过去就算「到位」，网落在旧位置搁在船舷上，星盘兜空；改后先等吊臂转到，网落进圈里，把星盘兜了上来。</p><div class="ab"><figure><video src="changes/01-落点刚换就下网-改前.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改前</figcaption></figure><figure><video src="changes/01-落点刚换就下网-改后.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>网口一边压着翻扣的船壳：改前判定只看圈里 23 个点，圈画在沙底、网穿过船壳直落沙地；改后整个网口都算，圈停在船壳上变黄、沙地那半画红点，网也真停在船壳上。</p><div class="ab"><figure><video src="changes/02-网口压着船壳-改前.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改前</figcaption></figure><figure><video src="changes/02-网口压着船壳-改后.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>18 米深的沙地：改前只有一根虚线，网一下去线就没了，几秒触底只能猜；改后引线上一块小方块是一秒，按下网前数得出 6 秒，下去以后一秒少一块，最后一块没了正好触底（掐活物停下的时机就靠它）。</p><div class="ab"><figure><video src="changes/03-秒结-改前.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改前</figcaption></figure><figure><video src="changes/03-秒结-改后.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>网口压着货舱沿：改前只写一行「更低处的东西兜不到」，看不出是哪儿；改后在网兜垂不到的舱底画红点，红点盖住的封蜡货袋就是这一网兜不上来的。</p><div class="ab"><figure><a href="changes/04-红点-改前.png" target="_blank"><img loading="lazy" src="changes/04-红点-改前.png" alt="改前"></a><figcaption>改前</figcaption></figure><figure><a href="changes/04-红点-改后.png" target="_blank"><img loading="lazy" src="changes/04-红点-改后.png" alt="改后"></a><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>把落点往外推到臂长尽头：改前圈推不动也不说为什么；改后水面画出吊臂够得着的黄虚线弧，作业栏说一句「臂已伸到头（12.6 m）：再远要开船挪近」。</p><div class="ab"><figure><a href="changes/05-臂推到头-改前.png" target="_blank"><img loading="lazy" src="changes/05-臂推到头-改前.png" alt="改前"></a><figcaption>改前</figcaption></figure><figure><a href="changes/05-臂推到头-改后.png" target="_blank"><img loading="lazy" src="changes/05-臂推到头-改后.png" alt="改后"></a><figcaption>改后</figcaption></figure></div></div><details><summary>它自己的汇报</summary><div class="card"><p>这一轮下网作业改完了。三套测试全部通过：原有的主测试 49/49、一眼看懂 59/59，这轮新加的下网作业验收 28/28。</p>
+<p><strong>吊臂「到位」那处毛病（照参考 003 修的）</strong></p>
+<ul><li>
+原来「到位」用的是上一帧的结果，落点刚换的那一帧会被当成到位。机器人 4 个种子各跑 900 秒，22–24 网里有 9–15 网落在旧位置，偏 1–10 厘米。
+</li><li>
+现在按当前落点实时判断：落点一改，吊臂目标当场跟上，网从落点正上方下去。同样跑法偏差为 0，手动玩也一样。
+</li></ul>
+<p><strong>对照灵感库查出并改掉的毛病</strong></p>
+<ul><li>
+<strong>网会穿过看得见的结构</strong>：原来整个网口只取 23 个点找触底面。沉船附近 6–22% 的落点，网口圈明明压着船肋、船壳（最高的高出 5.5 米），网却穿过去落到下面，规则学不会。现在沉船部分逐格查，405 个落点里圈内没有一处结构高过触底面；前 6 片海域原本取得到的货一件不少。
+</li><li>
+<strong>网口边上的蟹被按住又放跑</strong>：触底时按住用一条标准，闭网收入用另一条。现在两边用同一条，边上的蟹受惊逃回窝。
+</li><li>
+<strong>吊臂推到头不说为什么</strong>：现在水面画出臂够得着的黄虚线弧，作业栏说一句「再远要开船挪近」，松手 1.6 秒后收起。
+</li></ul>
+<p><strong>这个游戏自己的两条答案</strong></p>
+<ul><li>
+<strong>测深绳秒结</strong>：臂端引线上的小方块，一块一秒。按 A 前数块数就知道网几秒触底，下网后一秒过一块；预报和实际触底只差 0.00–0.01 秒。用来掐蟹停下翻泥那 9–11 秒。
+</li><li>
+<strong>红点</strong>：网架被舱沿、礁台托住时，网兜垂不到的低处画红点。它替换了原来那两行「高低不平」的提示字。深水里挪动网口圈、看哪里出红点，就能摸出沉船的高低。
+</li></ul>
+<p><strong>机器人怎么用</strong></p>
+<ul><li>
+选点和游戏用同一个触底面判断。
+</li><li>
+数秒结决定什么时候下网捞活物，字幕会把秒结读出来。
+</li><li>
+先松开摇杆再按 A；按了 A 网没下去，就回去接着对准，不再把那件货当成已经捞过。这条是修吊臂时暴露出来的：标题「自动演示」里的银币匣一度漏掉，现在 102 秒揭晓（原来 101 秒）。
+</li><li>
+实时跑 240 秒：14403 帧，帧间隔 99% 分位 16.8 毫秒，没有超过 25 毫秒的长帧。
+</li></ul>
+<p><strong>我替你定的几件事</strong></p>
+<ul><li>
+按了 A、吊臂还在转时，0.3 米以内的小修正不取消下网，挪开超过 0.3 米才算改主意。这样手柄摇杆回中的那点余量不会把下网悄悄取消。
+</li><li>
+判定变严以后，少数以前能「穿过」船肋捞到东西的落点不再能捞。每件货都还有别的落点取得到，已自动检查。
+</li><li>
+生物自己的行为（停留多久、多远会被吓跑）一点没动，只改了网怎么按住和收入它们。
+</li></ul>
+<p><strong>改了哪些文件，合并时留意</strong></p>
+<ul><li>
+源码：<code>src/game/</code> 下的 <code>boat.js</code>、<code>net.js</code>、<code>salvage.js</code>、<code>game.js</code>、<code>aimviz.js</code>、<code>bot.js</code>，和 <code>src/ui/</code> 下的 <code>hud.js</code>、<code>legend.js</code>、<code>overlay.js</code>。
+</li><li>
+新测试 <code>tools/test-drop.mjs</code>，<code>package.json</code> 里 <code>npm test</code> 改成依次跑三套。
+</li><li>
+<code>design.md</code> 只改了 §5.0–5.3、加了 §5.5，§5.4 燃料没动；<code>notes.md</code> 加了第 13 节。
+</li><li>
+可能和另外四份撞车的地方：<code>game.js</code> 里 <code>disturb()</code> 的第 6 个参数从半径改成「被压住的活物集合」；<code>legend.js</code>、<code>overlay.js</code>、<code>package.json</code> 也改了几行。
+</li></ul>
+<p>开发文件和临时装的依赖都删了，再构建或跑测试前先 <code>npm ci --offline</code>。</p></div></details><details><summary>用时</summary><p>用时 55 分钟 · 花费 $16.99</p></details><details><summary>改了哪些文件（比起 005-r02-readable：新加 2 · 改动 15 · 删掉 0）</summary><div class="files"><div>＋ tools/test-drop-results.json</div><div>＋ tools/test-drop.mjs</div><div>～ design.md</div><div>～ game.js</div><div>～ notes.md</div><div>～ package.json</div><div>～ src/game/aimviz.js</div><div>～ src/game/boat.js</div><div>～ src/game/bot.js</div><div>～ src/game/game.js</div><div>～ src/game/net.js</div><div>～ src/game/salvage.js</div><div>～ src/ui/hud.js</div><div>～ src/ui/legend.js</div><div>～ src/ui/overlay.js</div><div>～ tools/test-readable-results.json</div><div>～ tools/test-results.json</div></div></details><details><summary>这一轮收到的 prompt</summary><pre>这是第 5 轮打磨：把下网作业：选点、伸缩臂、垂直判定、活物时机打磨好。游戏和设计文档都在当前文件夹。
+范围：只管下网作业这个系统：读海底选落点、调伸缩臂、垂直入口和挡网判定、活物按闭网位置结算的时机。同组还有四份同时在改别的系统：揭宝与收获、海域地点与线索、海底生态、燃油与航次，别碰它们。 第 1 轮另一份查出一处规则毛病：吊臂「到位」用的是上一帧的结果，目标刚换的那一帧会被当成到位，贴着礁壁的落点因此兜空；那一份修过，在 参考/003-r01-autoplay-goal/ 里可以看它怎么修的，在这一份里照样修好（手动玩也会碰到）。
+
+- 下面附的是这一类系统的灵感库：先读里面玩家怎么评判这一类、最常见的坏法，对照游戏逐条看，有就改；再想这个游戏自己的答案，挑两三条火花改写进来。
+- 玩家自己建、改、拼的东西：有自己的界面和入口，外观跟着变，变大了也看得清；不能做的说原因。
+- 变强要发生在玩家看得见的地方：屏幕外的敌人不掉血，一大波敌人先有预告、再在屏幕里进来。
+- 机器人会用它，用完游戏照常往下走。
+- 新加的东西先用图形、颜色和动作说话；字只在不写玩家就会做错的时候加，一句话。
+
+——以下是「读环境选点与时机 · 火花库（spot-reading）」——
+
+适用：玩家从看得见的环境线索判断东西在哪、从哪下手、什么时候下手，然后一次性出手（下网、下钩、下铲、开挖、投放、按快门、交答案），结果由出手那一刻的真实状态决定。钓鱼、打捞、潜水、寻宝、金属探测、考古挖掘、观察推理、找东西都属于这一类。
+
+## 怎么用
+
+1. **先自己想。** 合上这份库，按这个游戏的题材回答四件事：东西为什么会在那里（哪个人、哪件事、哪种生物、哪种自然过程把它留下、挪走、盖住或露出来）？玩家站在哪里看，看得见什么？出手是哪一个动作？出手那一刻由什么决定成败？先写下自己的答案。设计的主体应该从这些答案长出来。
+2. **先定规模，而且定得比第一反应小。写成设计的第一节。**
+   - 先写最小可玩版本：一种出手动作，加一张决定一切的底层状态（地形、鱼群、地下布局之类）。所有线索都是这张状态在画面上的不同画法，不为某一条线索单独做一套系统。
+   - 每一种目标、线索、条件变化、场地都问一遍：去掉它，读点和出手还成立吗？还成立的，就不进第一版。
+   - 这个系统之外的东西（图鉴、商店、成长、展示）不展开，只写它们和读点怎么接。
+   - 数量（几种、几处）按这个团队画得完、调得完的量来算，再留出余量。
+   - 然后写清楚：谁做什么，第一个要验证什么、验收标准是什么，大致排期，落后时先砍什么，明确不做什么。
+
+3. **火花是替换，不是追加。** 挑两三条和题材最贴的火花，团队越小挑得越少。每用一条，就替换掉自己原设计里较平的一处，不在上面再加一层。改写时换成这个世界里的材料、生物、天气和人，改到看不出出自哪款游戏。如果改完的东西放进任何一个同类游戏也成立，说明还没改进题材，就不用它。库里的句子不要原样出现在设计里。
+4. **热门做法最多用一个。** 标【热门】的做法人人都会想到，最多用一个。
+5. **评判数据用来挑风险。** 从“玩家怎么评判”里找出这个游戏最可能出事的一处，写明怎么避开。不必每一条都回应。
+6. **写具体，只写结果。** 设计里要给出具体的数值和阈值，例如耗时、范围、次数、概率、窗口长短；库里不带数字，是为了让数字从这个游戏的规模里算出来。交付的设计只写结果：
+   - 规模和制作计划；
+   - 玩家看见什么，怎么判断；
+   - 怎么出手，结果怎么定；
+   - 错了付出什么，怎样越玩越会读。
+
+   不写挑选过程，也不写“参考了哪条火花”。
+
+## 玩家怎么评判这个领域
+
+**样本：** 研究了 66 款付费游戏，覆盖钓鱼、打捞潜水、寻宝挖掘、观察推理、找东西；其中 45 款手挑，21 款按 Steam 标签抽取。39 款评测够多，标注了 2661 条（好评 2151，差评 510）。
+
+- **错一次付出什么、要重复多少次，谈得最多，最决定口碑。**
+  - 22% 的评测谈到它，夸和骂各占一半。
+  - 差评里 29% 在骂：空跑、来回跑、干等、重复劳动、一次失误抹掉积累。
+  - 好评里 15% 在夸：失手便宜、没有倒计时、动手过程本身解压、等待时有东西可看。
+- **出手那一下骂多夸少。**
+  - 7% 谈到。
+  - 差评里 14% 在骂：只剩“盯着图标走到变色，按两下挖”，放不准，判定不跟手。
+  - 好评里只有 3.5% 在夸它。
+- **发现的回报是好评的主力。**
+  - 9% 谈到，好评里 8% 在夸。
+  - 夸的是：一个发现回答一个问题，又引出下一个；物种和物件在外形、行为上有区分；东西有出处；清理和鉴定的过程本身有意思。
+  - 骂的是：池子小，各地挖出的是同一批东西，新发现和旧发现手感一样，像抽扭蛋。
+- **读线索玩家很少直接夸，但夸法很一致。**
+  - 4% 谈到。
+  - 被夸的做法：线索指区域和处境，不指坐标；能从东西在空间里的位置反推它是什么；换个角度就能露出被挡住的东西；答案一开始就在眼前，懂了才看得出。
+  - 被骂的：像素搜索，只盯探测器，谜面抽象到只能看攻略，画面太暗或太密看不清。
+- **越玩越会读，夸多骂少，而且和整款好评率同向（ρ≈0.44）。**
+  - 5% 谈到。
+  - 夸的是：规律能学会，也能预测。
+  - 骂的是：升级只改数字，关键知识只能去攻略查，几小时就到顶。
+- **生物和时机谈得少（2%），骂多于夸。**
+  - 骂的是：鱼像木头；条件门槛不说明；只能干等某个固定时间点；昼夜和天气节奏失衡；敌对生物反复打断。
+  - 在谈它最多的几款里，它和整款口碑高度同向。
+- **结果公平谈得少（2%），几乎全是骂。**
+  - 骂的是：结果像掷骰，看见了却拿不到，bug 吞掉到手的东西，稀有物掉率太低又没有保底，只能穷举。
+- **信息仪器毁誉参半（3%）。**
+  - 夸的是：辅助能分层自选；咬钩铃让人不必一直盯着。
+  - 骂的是：标记太粗或太乱；扫描强到“滑过去拿就行”；提示时灵时不灵。
+
+## 火花
+
+每条都要换成这个游戏的东西才能用。
+
+### 线索怎么说话
+- 水面漂着的碎片告诉你下面是什么材料，但不告诉你是哪一件。
+- 鸟群盘旋的规模区分下面是一大片残骸，还是几只漂流的桶。
+- 水下的影子只分大小和形状（细长、带鳍），咬上来才知道是哪一条。
+- 东西在结构里的位置说明它是什么：总在桅杆下出现的是瞭望的人，压在舱底的是重货。
+- 换个角度，被挡住的那一面就露出来；挡住的东西本身说明谁在前、哪里是空的。
+- 委托只给特征（“圆的”“会响的”），现场哪样东西算数由玩家判断。
+
+### 由粗到细
+- 先认大轮廓（岛形、山脊、船身走向），再找地标，再按方向和步数走，最后一铲。
+- 远处的扫描只看到一团，靠近才分得清是一群还是一个；赶到时它可能已经走了。
+- 站准位置，对地标做一个动作，地标才回应（震动、发光、回声），回应之后才给下一句。
+- 外面只能靠一张慢速的黑白照片看，从按下快门到画面显出来，这段时间就是悬念。
+
+### 活物与时机
+- 鱼先绕，再啄几下，然后才真咬；提早收线会把它吓走。
+- 生物受惊后要游多远、过多久才放下戒心，按真实观察来定；玩家靠近的方式决定它跑不跑。
+- 生物会被别的东西吸引或吓走（血腥味、更大的影子、船的动静），看它们的反应就能读到自己看不见的东西。
+- 知道生物怕什么、爱什么，就能反过来用它，把目标引到或赶到够得着的地方。
+- 黑暗里收获更好，也更会骗人：灯照到才显形的礁石，远处出现又消失的船影。
+- 出手和结果之间隔着一段能读的延迟（麻醉要几秒才起效，笼子要泡一夜），这段时间里世界照常在动。
+- 【热门】昼夜推进，入夜危险上升，玩家要在“再来一次”和“趁天亮回去”之间选。
+
+### 仪器的分寸
+- 仪器会被这个世界里的某种东西挡住或骗过（某种岩层、某种金属、某种水温），挡住本身也是线索。
+- 出手后提示“钩子对不上这里的鱼”，等于间接说出这里有什么、没有什么。
+- 【热门】越接近目标信号越强的探测器。
+- 【热门】在点上直接标出存量高、中、低，拿一次掉一档。
+
+### 出手那一下
+- 先切断一整块的所有连接点，再整块拖走；切错地方会炸、会漏、会断电。
+- 抛下之后画面切到水下剖面，看着目标靠近、试探、咬住。
+- 【热门】带走的东西按形状占位置，装不下就得回去。
+
+### 结果与揭晓
+- 答案要凑够一小批才一起确认，单个瞎猜得不到对错。【热门】
+- 只剩少数几处错时，告诉玩家“很接近了”，但不说是哪几处。
+- 赌一把：把手上的收获押出去换更大的，输了就是输了。
+
+### 越玩越会读
+- 同一种目标有变体和异变，熟练的人能从细节上分出来。
+- 有的场面一次就能定下一大批答案，熟练的人知道先去找这种场面。
+
+### 发现的回报
+- 同一次出手，可能拉上正常的东西，也可能拉上异变的。
+- 饵和收获荒诞地不对等：拿巨物当饵，只钓上来一条金鱼。
+- 钓上来的东西能当下一次的饵或工具。
+- 平淡的日常偶尔被一次解释不了的异象打断。
+
+## 组合骨架
+
+每个骨架都是一条小循环，空格从题材里填。一个设计最多借一个骨架。
+
+- **活物当仪器：** 目标本身看不见 → 某种生物对目标有反应（聚集、绕开、翻找、搬运）→ 玩家靠它的动作判断位置和时机 → 玩家靠近会惊动它，所以怎么靠近也是选择。
+- **窗口地形：** 场景按节律变化 → 某些位置只在窗口里露出来或够得着 → 出手要赶在窗口里 → 错过的代价是时间，下一个窗口可以预告。
+- **粗到细漏斗：** 远处一个粗信号 → 现场的地标 → 最后精确的一步。每一层交给不同的感官（看、听、手感），每一层只缩小一点。
+
+## 按类型的骨架
+
+- **休闲、治愈：** 失手几乎不花钱，只花时间；读线索的乐趣来自看生物和天气。慎用倒计时和清档式的惩罚。
+- **写实模拟：** 线索来自真实的物理条件。最常被骂的是隐藏变量在画面上看不出来，以及数值反直觉；每个条件都要有一个看得见的表现。
+- **诡异、恐怖：** 信息被刻意削弱（只有照片、只有声音、只有黑暗）。越黑收获越好，错觉也越多。代价是精神和安全，而不是长时间的重复。
+- **推理、找东西：** 线索就是全部，结果不掷骰。要防穷举。提示只指区域。
+- **动作、捕猎：** 出手时目标还在动，判断要一直持续到出手那一刻。失手的代价要低，让人马上想再来一次。
+
+## 学自哪些游戏
+
+- **DREDGE：** 水面迹象，漂浮碎片暗示材料，存量分档，异变鱼，黑暗里的幻象，按形状占格的货舱。
+- **Sea of Thieves：** 只有岛形的藏宝图，地标、罗盘和步数，谜语图上地标的回应，海鸥群的规模。
+- **Animal Crossing（外部参照）：** 鱼影的大小和形状，鱼啄几下才咬，跑动会吓鱼。
+- **Call of the Wild: The Angler、Ultimate Fishing Simulator、Cast n Chill、Moonglow Bay、WEBFISHING：**
+  - 水温和时段；
+  - 提示钩子大小不对；
+  - 水下剖面；
+  - 用窝料把鱼引过来；
+  - 季节和水域各有自己的鱼；
+  - 涟漪和特殊水域。
+- **Fishing: Barents Sea / North Atlantic、Deadliest Catch：**
+  - 远距扫描看到的和到现场看到的不一样；
+  - 鱼群按日期洄游；
+  - 蟹笼要泡上一段时间；
+  - 反面教材：隐藏的底质和水温需求，以及“变绿就收”的指示灯。
+- **DAVE THE DIVER、Freediving Hunter、Subnautica：**
+  - 受惊后逃开的距离；
+  - 麻醉起效前的延迟；
+  - 反面教材：强到不用找的扫描芯片。
+- **Iron Lung：** 只靠坐标和慢速照片认外面。
+- **Hardspace: Shipbreaker、Ship Graveyard Simulator 1/2：** 先读结构再下刀，危险部件，整块切下再拖走。
+- **Return of the Obra Dinn、The Case of the Golden Idol、The Rise of the Golden Idol、Strange Horticulture：** 从空间位置反推身份，批量确认，只剩几处错时给提示，干扰词。
+- **Hidden Folks、Hidden Through Time、TOEM：** 旋转视角，只给特征的委托。
+- **Outer Wilds：** 随时间变化的地点和只在某个时刻打开的入口。
+- **GONE Fishing：** 饵和收获不对等，渔获再当饵。
+- **Dinosaur Fossil Hunter、Treasure Hunter Simulator：** 反面教材是盯着探测器图标走到变色。
+
+——「读环境选点与时机 · 火花库（spot-reading）」到此——
+
+自动试跑都无头，不在屏幕上开窗口；不问问题，自己决定；不往网上推送。
+只在当前文件夹里看和改：不要打开上一级文件夹，也不要看别的轮次的文件夹，也不要去看 … 里的技能和规则（这一轮要的都写在上面；带 prompt 的和只给目标的两份要互相看不见）。</pre></details></main></body></html>

@@ -1,0 +1,260 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><title>第 8 轮 · 系统打磨 · 沉债</title><style>
+:root{--bg:#f6f3ec;--panel:#fffdf8;--ink:#1f1b16;--soft:#5d5448;--line:#e2dacb;--brass:#9a6a1c;--brass-ink:#fff;--sky:#2f6f8f;--code:#f0ebe0}
+@media (prefers-color-scheme:dark){:root{--bg:#14120f;--panel:#1d1a16;--ink:#efe9de;--soft:#b3a893;--line:#3a332a;--brass:#d39b3c;--brass-ink:#1a1408;--sky:#7fb7d4;--code:#2a251e}}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif}
+main{max-width:980px;margin:0 auto;padding:28px 16px 80px}
+a{color:var(--sky)}h1{font-size:clamp(1.5rem,4.5vw,2.1rem);line-height:1.3;margin:.2em 0 .3em}
+h2{font-size:1.25rem;margin:1.6em 0 .5em}h3{font-size:1.08rem;margin:1.4em 0 .4em}h4,h5,h6{font-size:1rem;margin:1.2em 0 .3em}
+.sub{color:var(--soft);margin:0 0 1.2em}.nav{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.92rem;margin-bottom:10px}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 6px}
+.btn{display:inline-flex;align-items:center;gap:.45em;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:600;border:1px solid var(--line);color:var(--ink);background:var(--panel)}
+.btn.main{background:var(--brass);border-color:var(--brass);color:var(--brass-ink)}.btn:hover{filter:brightness(1.06)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px 20px 14px;margin:16px 0}
+.cols{display:grid;grid-template-columns:1fr;gap:16px}@media (min-width:900px){.cols.two{grid-template-columns:1fr 1fr}main.wide{max-width:1400px}}
+.tag{display:inline-block;font-size:.78rem;padding:1px 8px;border-radius:99px;border:1px solid var(--line);color:var(--soft);margin-left:6px;vertical-align:middle;font-weight:500}
+details{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin:12px 0;padding:0 16px}
+summary{cursor:pointer;padding:12px 0;font-weight:600}details[open] summary{border-bottom:1px solid var(--line);margin-bottom:10px}
+code{background:var(--code);padding:1px 5px;border-radius:5px;font-size:.9em;word-break:break-all}
+pre{background:var(--code);padding:12px;border-radius:10px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;font-size:.88rem;line-height:1.6}
+pre code{background:none;padding:0}
+.shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;padding-bottom:14px}
+.shots figure{margin:0}.shots img{width:100%;border-radius:8px;border:1px solid var(--line);image-rendering:pixelated;display:block}
+.shots figcaption{font-size:.85rem;color:var(--soft);margin-top:4px}
+.tbl{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.93rem;margin:8px 0}
+th,td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}th{background:var(--code)}
+ul,ol{padding-left:1.4em}li{margin:.15em 0}.files{font-size:.9rem;columns:2 260px;padding-bottom:12px}.files div{break-inside:avoid}
+.rounds{list-style:none;padding:0;margin:0}.rounds li{border-top:1px solid var(--line);padding:14px 0;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline}
+.rounds .what{flex:1 1 320px}.rounds .what b{display:block}.rounds .what span{color:var(--soft);font-size:.93rem}
+.rounds .go{display:flex;gap:8px;flex-wrap:wrap}.rounds .go a{font-size:.9rem;padding:6px 12px}
+.muted{color:var(--soft)}footer{margin-top:40px;color:var(--soft);font-size:.85rem}
+.pair{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:14px 0}
+.pair p{margin:0 0 8px;font-weight:600}.pair .ab{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pair .one{grid-template-columns:1fr}
+.pair figure{margin:0}.pair img,.pair video{width:100%;border-radius:8px;border:1px solid var(--line);display:block;background:#000}
+.pair figcaption{font-size:.82rem;color:var(--soft);margin-top:3px}@media (max-width:640px){.pair .ab{grid-template-columns:1fr}}
+</style></head><body><main><div class="nav"><a href="../../index.html">← 全部轮次</a><a href="../010-r05-system/index.html">‹ 上一轮：第 8 轮 · 系统打磨</a><a href="../012-r00-merge/index.html">下一轮：合并：第 8 轮 · 系统打磨 + 第 8 轮 · 系统打磨 + 第 8 轮 · 系统打磨 + 第 8 轮 · 系统打磨 + 第 8 轮 · 系统打磨 ›</a></div><h1>第 8 轮 · 系统打磨<span class="tag">011-r05-system</span></h1><p class="sub">沉债 · 先看这一轮变了什么；能玩的是最新一版。</p><h2>这一轮变了什么</h2><div class="pair"><p>同一处海面、同样只剩 9.8 的油：改前燃油条上只有一个“返航余量 +4.2”的数；改后条上多了白色回港线（左边斜纹那截是开回泊位要用的油），小海图把去了就回不来的水域压暗，用金边圈出还能去的地方，开船时烟囱冒淡烟。</p><div class="ab"><figure><a href="changes/01-出海看油-改前.png" target="_blank"><img loading="lazy" src="changes/01-出海看油-改前.png" alt="改前"></a><figcaption>改前</figcaption></figure><figure><a href="changes/01-出海看油-改后.png" target="_blank"><img loading="lazy" src="changes/01-出海看油-改后.png" alt="改后"></a><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>同一刻打开大海图（油 17，刚发现草湾泊位）：改前只画开过的水域和地点；改后金边以内是去了还能回到泊位的水域，金边外压暗加斜纹，新发现的草湾泊位也多出自己那一块能去的范围。</p><div class="ab"><figure><a href="changes/02-海图-改前.png" target="_blank"><img loading="lazy" src="changes/02-海图-改前.png" alt="改前"></a><figcaption>改前</figcaption></figure><figure><a href="changes/02-海图-改后.png" target="_blank"><img loading="lazy" src="changes/02-海图-改后.png" alt="改后"></a><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>全速开着把油烧到见底：改前船速掉到 2.4 m/s，烟囱不冒烟；改后掉到 4.2 m/s，烟囱一顿一顿冒黑烟，底部提示说回港要按三倍油价补满备用油柜。</p><div class="ab"><figure><video src="changes/03-油见底-改前.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改前</figcaption></figure><figure><video src="changes/03-油见底-改后.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>同一趟（浅滩两网、沉船两网）靠泊结算：改前只有清单和“耗油 32.9（其中作业 8.3）”一行字；改后耗油行换成航行、作业两段的小油条，右边画出这一趟的航迹，一处现场一个圆，外圈小点是在那儿下的每一网。</p><div class="ab"><figure><a href="changes/04-结算单-改前.png" target="_blank"><img loading="lazy" src="changes/04-结算单-改前.png" alt="改前"></a><figcaption>改前</figcaption></figure><figure><a href="changes/04-结算单-改后.png" target="_blank"><img loading="lazy" src="changes/04-结算单-改后.png" alt="改后"></a><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>同样跑完三趟再打开收获册：改前只有累计清单和总账；改后多了航次簿，每趟一根柱子（赚的往上、亏的往下，金点表示有珍贵件），点开的第 3 趟油见底，航迹上靠备用油柜那段画成红虚线，总账也把备用油的钱算了进去。</p><div class="ab"><figure><a href="changes/05-收获册-改前.png" target="_blank"><img loading="lazy" src="changes/05-收获册-改前.png" alt="改前"></a><figcaption>改前</figcaption></figure><figure><a href="changes/05-收获册-改后.png" target="_blank"><img loading="lazy" src="changes/05-收获册-改后.png" alt="改后"></a><figcaption>改后</figcaption></figure></div></div><details><summary>它自己的汇报</summary><div class="card"><p>这一轮燃油与航次改完了。改完重新打包了 <code>game.js</code>，三套无头测试都通过：主测试 49/49、一眼看懂屏幕 59/59、新加的燃油与航次 22/22。实时跑 60 秒演示，没有超过 25 毫秒的卡帧。其他四个系统没动，只在 <code>game.js</code> 里给每一网多记了落点和收获，给航次账用。</p>
+<p><strong>对照灵感库查出的问题</strong></p>
+<ul><li>
+<strong>不知道什么时候该回</strong>：右上只有一个“返航余量 +23.4”，玩家得自己心算还能花多少油。
+</li><li>
+<strong>油尽罚的是干等</strong>：以前 2.4 米/秒爬回港，离港 300 米要爬两分多钟。
+</li><li>
+<strong>结算单看不出值不值</strong>：只有清单和几行数，看不出油花在哪、哪处现场赚了。
+</li><li>
+<strong>发现新泊位看不见变化</strong>：只弹一行字，能走多远的变化不在画面上。
+</li><li>
+<strong>存档会重复扣油</strong>：结算单出来后自动存档再读档，下一趟会把上一趟的油再算一次。已修。
+</li><li>
+<strong>网在水下还能靠泊</strong>：靠泊会把船连着水下的网一起开走。已修。
+</li><li>
+<strong>说不清为什么不能下网</strong>：油见底时按下网，先报“船还在滑行”，最后才说没油。已改成先说没油。
+</li><li>
+<strong>往返累不累</strong>：量了，纯往返（决定回港→靠稳→出港→第一网）只占总时长 12%–15%，不算拖沓，没改。
+</li></ul>
+<p><strong>这个游戏自己的答案：一根拴在泊位上的油绳</strong></p>
+<ul><li>
+<strong>回港线和回不来的水域</strong>：燃油条上加一条白色回港线，表示开回最近泊位要用的油，线左边那截压暗、不能花。小海图和海图上，按现在的油去了回不来的水域压暗加斜纹，和返航余量是同一笔账。下一网会吃进回港的油时，燃油条上的斜纹变红，但仍然能下网，只提醒不拦。
+</li><li>
+<strong>发现新泊位当场看得见</strong>：小海图上一圈金色从新泊位往外扫开，扫过的暗水域亮起来，回港线往回退。
+</li><li>
+<strong>航迹账</strong>：结算单右边画出这一趟的路线。一处现场一个圆，越大越值钱，金色表示有珍贵发现；外圈小点是在那儿下的每一网，空心是空网。
+</li><li>
+<strong>航次簿</strong>：收获册里每趟一根柱子，赚往上、亏往下；点一下柱子，看那一趟的航迹。最多摆 12 根，更早的合成一格；航迹只留最近 8 趟，点更早的会写明原因。
+</li><li>
+<strong>备用油柜</strong>：油尽不困死，收获一件不少。船以 4.2 米/秒冒着黑烟、发动机突突地开回去，不能下网；账单多一行“三倍油价补满备用油柜”，航迹上那段画成红虚线。平时开船冒淡烟，停船观察不冒，看得出看是免费的。
+</li><li>
+<strong>烟单独做了一份</strong>：原来的粒子会被后期的水面和天空处理整块抹掉，所以烟另做成写深度的像素烟团，在新文件 <code>src/render/smoke.js</code>。
+</li></ul>
+<p><strong>机器人</strong></p>
+<ul><li>
+机器人决定去哪儿时，用的是和小海图、回港线同一笔油账；回港时字幕说“油条快退到回港线了”。
+</li><li>
+人为让油见底时，它靠备用油柜开回 235 米，账单扣 148，补满后 4 分钟里又下了 6 网。
+</li><li>
+3 个种子各跑 25 分钟，表现和改之前一致：每局 36–39 网、补给 3 次、7 片海域都有收获。
+</li></ul>
+<p><strong>我替你定的数</strong>：油尽慢航速度 4.2 米/秒、备用油按三倍油价补，都是初值，平衡时再调。“回不来的水域”和返航余量一样按直线 × 1.15 估，不绕礁石算路。</p>
+<p>规则写进了 <code>design.md</code> 新加的 §5.5，改动和实测写在 <code>notes.md</code> 第 13 节。为跑测试临时装的 <code>node_modules</code> 已删掉。</p>
+<p><strong>可以加进「外出与派遣灵感库」的四条</strong>（<code>notes.md</code> 第 13 节末尾也有）：</p>
+<ul><li>
+补给就是一根拴在补给点上的绳：燃料条上画出“回去要用的那截”，地图上把“去了回不来”的地方压暗；发现新补给点时，能去的范围当场从那里长出来。
+</li><li>
+结算单画出这一趟的路线，每处收获一个圆、每次出手一个小点：一眼看出燃料花在哪、哪处值。
+</li><li>
+补给耗尽不困死：备用燃料只够慢慢回家、不能干活，回家账单多一行，路线上那段画成红虚线。
+</li><li>
+冒烟只在烧燃料时出现：停下来观察不冒烟，玩家一眼知道“看是免费的”。
+</li></ul></div></details><details><summary>用时</summary><p>用时 41 分钟 · 花费 $13.62</p></details><details><summary>改了哪些文件（比起 005-r02-readable：新加 3 · 改动 13 · 删掉 0）</summary><div class="files"><div>＋ src/render/smoke.js</div><div>＋ tools/test-voyage-results.json</div><div>＋ tools/test-voyage.mjs</div><div>～ design.md</div><div>～ game.js</div><div>～ notes.md</div><div>～ package.json</div><div>～ src/audio.js</div><div>～ src/game/boat.js</div><div>～ src/game/bot.js</div><div>～ src/game/game.js</div><div>～ src/ui/hud.js</div><div>～ src/ui/legend.js</div><div>～ style.css</div><div>～ tools/test-readable-results.json</div><div>～ tools/test-results.json</div></div></details><details><summary>这一轮收到的 prompt</summary><pre>这是第 5 轮打磨：把燃油与航次：油、返航余量、补给、航次账打磨好。游戏和设计文档都在当前文件夹。
+范围：只管燃油与航次这个系统：移动和作业的油、返航余量、油尽时怎么办、泊位补给、航次结算和累计收获。同组还有四份同时在改别的系统：下网作业、揭宝与收获、海域地点与线索、海底生态，别碰它们。
+
+- 下面附的是这一类系统的灵感库：先读里面玩家怎么评判这一类、最常见的坏法，对照游戏逐条看，有就改；再想这个游戏自己的答案，挑两三条火花改写进来。
+- 玩家自己建、改、拼的东西：有自己的界面和入口，外观跟着变，变大了也看得清；不能做的说原因。
+- 变强要发生在玩家看得见的地方：屏幕外的敌人不掉血，一大波敌人先有预告、再在屏幕里进来。
+- 机器人会用它，用完游戏照常往下走。
+- 新加的东西先用图形、颜色和动作说话；字只在不写玩家就会做错的时候加，一句话。
+
+——以下是「外出与派遣灵感库」——
+
+
+给设计“派人离开据点、去外面、带东西回来”用的启发：派遣、搜刮、远征、跑商、侦察，一键出发、自动结算的那一类。不是菜单，也不是规范；数值等平衡模拟时统一调。手动操控角色跑图的部分不在这里（那是关卡，见 「关卡与刷怪灵感库」）。
+
+用法：
+1. 先定规模，再想点子：几片区域、多少地点、一趟几天、一队几人、一趟几个遭遇、玩家一次派遣点几下；外出部分玩家要新学的规则不超过五条。好点子多的时候，让每一趟更有意思，而不是更多种外出。
+2. 先不看这里，写下这个游戏自己的两三个外出点子：从它的题材里“出门”这件事最独特的物理或规矩长出来（潮水、雾、轨道窗口、沙暴、宵禁、信仰的禁忌）。卡住时，从下面“外出从哪里长出来”挑一个问题想一想。
+3. 再读后面的种子，只挑两三条能放大这几个点子的，改成这个世界的样子。挑得少比挑得多好；一条在哪个游戏里都能原样成立的（“派队伍去地点，按时长带回资源”），说明它还没改成这个游戏的。种子和例子是别人的答案，看它们从哪里长出来，不要搬。
+4. 设计稿必须写清五件事（是检查，不是点子）：出发前看得到路程、危险、可能的收获和成功率；派一次只要几下，结果自动结算、读起来快；失败留下一部分收获、不清空一局；每一趟的收获喂给据点的哪条成长线；同一个地点再去时会变。
+5. 下面这些几乎每个设计都会想用，用多了我们的游戏就会彼此相像：遭遇按队里有谁来解；出发前定一个方针（稳妥 / 贪心）；一个地点分几次讲完的故事；遭遇和势力记得你上次做了什么；救回来的人在据点开新设施；出门的人在家少一份产出；地点按潮汐、月相、季节之类的周期开放；队伍被困要再派一队去接；一趟里留一个需要拍板的时刻；危险标志配对应装备；外出日志写成一段小故事。一个游戏最多用其中一条，而且要改成只有这个游戏才有的样子。
+6. 设计稿里只写结果，不写挑选过程。
+
+收尾时，这个游戏发明出来、玩起来好的外出点子，一行一条加进来；和已有条目说的是同一件事就合并。
+
+## 玩家怎么评判外出
+
+玩家骂的（括号里是片段数，各取 220 条片段）：
+- 跑图和往返太累：走得慢、资源点散在远处、背包小、过场长（26）。量：一趟里移动和等待占总时长 ≤ 30%。
+- 地点和遭遇换皮、固定、可预测，几轮就背得出（20）。量：重访同一地点时内容与上次相同的比例；每小时第一次见到的新东西。
+- 地图太小，或很大却是空的（20）。量：每段路至少一个可交互的点；最长连续无事可做的时长。
+- 导航和寻物失灵：不知道东西在哪产、找不到路（17）。量：一种材料从“需要”到“第一次拿到”的中位时长。
+- 为一种资源反复刷同一个地方，产出太低（15）。量：任何一种资源占总外出次数的比例有上限。
+- 计时和生存消耗挤压探索，被打断（13）。
+- 惩罚过重、难度突刺：失败一把赔光（13）。量：一次失败损失占总资产的比例。
+- 派遣是黑箱，调度又繁琐：不知道人在哪、何时回、不能召回（12）。量：完成一次派遣的点击数；查看状态的次数。
+- 被线性任务牵着跑腿取货（11）。
+- 事件浅、乱序、重复（10）。量：一次外出内重复事件的比例；某个选项选择率超过 80% 说明选择没有意义。
+- 太简单、没风险，远征太短（10）。量：远征成功率落在 60%–85%。
+- 外出和据点主循环脱节，不知道出去是为了什么（9）。量：带回的东西在据点被用掉的比例。
+
+玩家夸的：
+- 外出收获直接推着据点长，据点又让人走得更远：“采集 → 回去升级 → 去更远处”（22，最多）。
+- 路上的文字事件写得好：有梗、有立场、出乎意料又合逻辑，会留下后果（18）。
+- 地点各不相同，远方有吸引力：地标、环境、规则都不一样（18）。
+- 路上散落着秘密和战利品：锁着的房间、藏宝点，比自己做的更好（16）。
+- 能把外出交给别人做，一键派遣、自动结算、回来领取（15）。
+- 路线和节点上的取舍：看得见的分支，花代价揭开未知（14）。
+- 明确但宽容的时间或补给预算（11）。
+- 搜打撤式的贪与退：带点东西回家容易，大奖要冒大险，安全回来才算数（11）。
+- 据点本身在路上：家就是一辆车、一艘船、一只巨兽（11）。
+- 探索在揭开故事：废墟、遗物和派出去的人自己的支线（10）。
+- 出发前的侦察和情报改变结果（7）。
+- 远征是带修正的一段独立冒险，难度可自己加（7）。
+
+## 外出从哪里长出来
+
+卡住时挑一个问题（不必都答）：
+- 这个世界里“出门”最独特的那条规矩或物理是什么？让它成为派遣的核心取舍，而不是背景。
+- 据点里有什么东西，只有带出去才有用（一盏灯、一份地图、一个会说当地话的人）？
+- 外面的什么东西，带回来会改变据点的形状、规则或人？
+- 路本身能不能是玩法（一条会动的路、一条要先修的路、一条只有某个人认得的路）？
+- 外面有谁也在出门（对手、另一个据点、一群动物），你们会怎么相遇？
+- 一次出门失败，在这个世界里是什么样子？它能不能留下一件以后用得上的东西？
+
+## 机制种子
+
+**为什么非出去不可**（外面有据点没有的东西）：
+- 据点只能维持，变强要靠外面才有的东西（零件、图纸、种子、人）；
+- 据点的下一级需要一件只在某个地方的东西；
+- 外面有人在等：求救的、欠债的、许过约的；
+- 外面的东西会过期：水退了才露出来，下一次涨水就没了；
+- 威胁从外面来，去源头能削弱它；
+- 好奇：远处有一个说不清的东西，越走近越清楚。
+
+**去哪里**（每个地点一样别处没有的东西）：
+- 一个地点一条自己的规则（这里只能夜里进、这里不能带灯、这里每次进去格局都变）；
+- 越远越独特：近处产常用的，远处才有稀罕的；
+- 有人住的地点：可以交易、谈判、招人，也可能被你得罪；
+- 移动的地点：一艘漂着的船、一支路过的商队，错过就没了；
+- 地点是别人的家，你拿走的东西改变了那里的人；
+- 去过的地点在地图上留下你的痕迹（捷径、标记、朋友）；
+- 能把一个地点经营成你的：投资、修好、结交，之后它每天给你送东西；
+- 地点是一张蓝图：几个节点、一条主路、几处可选的小宝藏，计划会出岔子。
+
+**派谁、带什么**（出发前的决定，看得出后果）：
+- 队里的人各管一样事：找东西的、背东西的、打架的、说话的、认路的；
+- 两个人一起去有化学反应：一对搭档加成，一对冤家出事；
+- 带的工具决定能拿走什么、能过哪道坎；
+- 背包有限，带回什么要取舍（多带食物就少带零件）；
+- 补给决定走多远；
+- 路线二选一：快而险、慢而稳；
+- 花一点资源先揭开未知，或者不花、直接闯。
+
+**路上**（自动结算，但每一下都有意思）：
+- 天气和水位改变这一趟的规则；
+- 捡到太重的东西，必须扔掉别的才能带走；
+- 只有“花时间”的行动推进时钟，走动和看都不花。
+
+**回来**（结算与收获）：
+- 一件惊喜：清单之外的东西；
+- 人变了：带回一个新特质、一道伤、一段关系；
+- 发现了新地点；
+- 外面跟着回来的东西：一个跟踪者、一个求收留的人、一个消息；
+- 带回的东西决定下一次能去哪（一本书、一把钥匙、一张图）。
+
+**出门和据点互相喂**：
+- 据点的升级让人走得更远（更大的背包、更好的船、更远的区域）；
+- 据点的缺口决定去哪（今天缺零件，就去机械厂）；
+- 你从外面拿走的东西改变外面（搜空了、惹恼了、修好了）；
+- 外出和据点的倒计时对齐：赶在威胁到来前回家；
+- 你在外面做的事能修复外面：荒地变林、淹掉的街退水，能去的地方跟着变大；
+- 待得越久越危险，随时可以带一部分收获收工。
+
+**节奏**：
+- 开头的几趟短而安全，教会规则；
+- 新区域随据点成长一片片打开，每片带一样新东西；
+- 回来的日子刚好在威胁之前，或者赶不上——这本身就是取舍。
+
+**联机**：
+- 每人派自己的队，收获进共享仓库，个人的东西各自拿；
+- 两队约在同一地点会合，合力才能搬走的大件；
+- 一人在家守、一人在外，家里的人能用无线电给外面的人一次帮助；
+- 有人掉线，他在外面的队按方针自动走完回来。
+
+## 组合骨架
+
+一个游戏挑一两个。
+
+1. **派遣板**：一面墙上挂着地点卡，人和工具往上放，看得见成功率，结束这一天自动走。
+2. **侦察—开拓**：先派一个人摸清危险，再派大队去拿东西。
+3. **长征**：一趟走很多天，补给和背包是全部的取舍，回来时据点已经变了。
+4. **贪与退**：越深越值钱，安全回来才算数，路上可以随时掉头。
+5. **外面跟回家**：外出带回的不只是东西，还有人、消息和麻烦。
+
+## 按类型的骨架
+
+- **卡牌与文字经营**（苏丹的游戏一类）：地点是一个事件槽，人卡和物卡放进去，检定自动结算，结果是新的卡。
+- **基地建设与殖民**：派遣队伍去地图上的点，按时长回来，收获喂给生产线；地图随据点扩张逐片打开。
+- **生存**：白天在家、夜里出门，背包是核心取舍，遭遇有道德重量。
+- **肉鸽**：一趟远征就是一局，路线是节点地图，带回的东西进局外成长。
+- **合作**：分头派队、合力搬大件、家里和外面互相支援。
+
+## 学自近期被夸外出的游戏
+
+别人的答案，只看它们从哪里长出来，不要搬。依据：上面研究里外出被夸得最多的游戏（86 条）。
+
+- The Wandering Village：村子建在一头行走的巨兽背上，从背上派小队到沿途地面搜刮；带回的旧世界遗物研究成科技，但科技是双刃剑。
+- PROFITS 2167：班次里挖得越久、刷出的虫群越密，随时可以带一部分收益收工，也可以硬撑到最后拿全部。
+- MeowCraft：给冒险者小队穿上自己锻造的装备派进地下城；和外地素材点签投资协议，换每日自动配送，追加投资解锁更多种类。
+- HeistGeist：劫案地点是建筑蓝图上的一串节点，先策划再执行，计划会出岔子；队伍分头行动，每人一张小地图。
+- Dead Engine：开车进陌生城区搜刮再撤回营地；散落的幸存者循着线索救回，回营地后开放新设施。
+- THE SPIRIT LIFT：三人小队的组合决定解法，遇到两难时用某个人的专长绕开，角色会对事件当场吐槽；楼层事件一点点揭开住客的故事。
+- Skogdal：一张固定的手绘大地图贯穿所有局，跨局逐步填满；关卡的敌人和奖励基本固定，熟了之后能规划路线；谜团的碎片散在地图各处。
+- Flan&#x27;s BN：只有标明“耗时”的行动推进时钟，到点被送回卧室；搜到的书决定能进哪些故事关卡。
+- Voice of Belldona：节点被迷雾盖着，花灯芯提前揭开，或者直接闯问号；每走一步都花物资，物资也是钱。
+- Stackmon：捕获的生物既能留在营地生产，也是外出的队伍，同一批要在两种用途之间调配。
+- Cozy Keep：在矿井里被打倒会被送回店里，满载的背包留在原地，要自己回去捡。
+- Towers of Aghasba：在荒地上种树、引来动物，荒原变成森林，可探索的世界跟着变大。
+
+## 学自哪些游戏（只记骨架）
+
+- 辐射：避难所：派居民去废土，按时间自动探索，回来带一份日志；骂的是计时等待。
+- 60 秒差距！：派人出门，地点的危险标志要配对应的装备；骂的是准备充分仍随机死掉。
+- 这是我的战争：白天在家、夜里出门搜刮，背包格子决定带回什么，路上的抉择有道德重量。
+- 冰汽时代：侦察队在冰原上发现幸存者和资源，事件用一段文字交代，回来改变城市。
+- 密教模拟器、司辰之书：远征的每一道关卡要放进有对应属性的人，失败会受伤或发疯。
+- 暗黑地牢：出发前买补给、配队伍，回到小镇疗伤减压。
+- 苏丹的游戏：人和物都是卡，放进事件槽，掷骰自动结算。
+- 超越光速（FTL）：节点地图上的事件，船员的种族和装备打开额外的选项。
+
+——「外出与派遣灵感库」到此——
+
+自动试跑都无头，不在屏幕上开窗口；不问问题，自己决定；不往网上推送。
+只在当前文件夹里看和改：不要打开上一级文件夹，也不要看别的轮次的文件夹，也不要去看 … 里的技能和规则（这一轮要的都写在上面；带 prompt 的和只给目标的两份要互相看不见）。</pre></details></main></body></html>
