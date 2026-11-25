@@ -1,0 +1,39 @@
+{
+ "name": "沉债",
+ "design": "design",
+ "game": "salvage",
+ "site": "site",
+ "art": "mixed",
+ "segments": [
+  {
+   "name": "第一段·归潮沙湾",
+   "key": "沙湾",
+   "sample": true
+  },
+  {
+   "name": "第二段·锈钟峡",
+   "key": "锈钟峡"
+  },
+  {
+   "name": "第三段·无光层",
+   "key": "无光层"
+  },
+  {
+   "name": "第四段·债底",
+   "key": "债底"
+  }
+ ],
+ "tables": "auto",
+ "look_first": true,
+ "home": "gaochuan@mac-mini/sunken-debt",
+ "sample_first": true,
+ "look_sample": true,
+ "v8": true,
+ "design_kept": {
+  "work": ".",
+  "doc": "handoff/Tasks/salvage-focus/打捞玩法设计.md",
+  "files": [
+   "handoff/Tasks/salvage-focus/打捞玩法设计.md"
+  ]
+ }
+}
