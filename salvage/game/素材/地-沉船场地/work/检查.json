@@ -1,0 +1,41 @@
+{
+  "new_layer_non_ring_one_pixel_horizontal_runs": 0,
+  "source": "work/out-before-recut.png",
+  "size": [
+    2048,
+    2048
+  ],
+  "mode": "RGB",
+  "resized": false,
+  "imagegen_atlas": "work/particles-imagegen.png",
+  "new_palette": [
+    "#DBD6BD",
+    "#B8AE96",
+    "#8A8C86",
+    "#A8A394",
+    "#8F8A78",
+    "#5C5445",
+    "#9A9482",
+    "#7F7868"
+  ],
+  "protected_pixels_changed": 0,
+  "deep_pixels_changed": 0,
+  "sand_changed_fraction": 0.03300413870010152,
+  "mud_changed_fraction": 0.010110035619944478,
+  "sand_area_m2": 568.4111938476562,
+  "mud_area_m2": 933.9158935546875,
+  "shell_pile_count": 14,
+  "single_shells_in_requested_crop": 175,
+  "counts": {
+    "dark_dots": 109,
+    "furrow": 31,
+    "pale_debris": 700,
+    "pebbles": 81,
+    "shell_pile": 2767,
+    "single_shell": 995,
+    "wormholes": 282
+  },
+  "original_one_pixel_horizontal_runs": 119528,
+  "final_one_pixel_horizontal_runs": 121949,
+  "row_check_note": "Original gradient and legacy marks already contain 1px runs and are preserved. New marks are native 3px blocks, 5px ringed holes or 6px stepped furrows; no upscale is performed."
+}
