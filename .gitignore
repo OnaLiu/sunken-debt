@@ -1,0 +1,42 @@
+# Reinstallable dependencies and local caches
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store
+.cache/
+/dist/
+
+# Machine-only configuration and credentials
+.env
+.env.*
+!.env.example
+credentials.json
+*.pem
+*.key
+
+# Local execution logs and generated edit patches; keep screenshots and summaries
+*.log
+*.patch
+**/.run/prompt.txt
+**/evidence/**/result.json
+**/evidence/*-result.json
+
+# Forecast ledgers and run logs stay on the forecasting machine
+.ai/gold-medal-producer/
+.ai/*.log
+
+# Temporary run data (never committed)
+.ai/
+site/index.html
+site/chain.html
+site/progress.html
+site/rounds.html
+site/zongtai.json
+site/zongtai.json.tmp
+*/game/资料/
+*/game/库/
+*/库/
+*/game/素材/重做*.json
+*/game/素材/*/codex.err
+*/game/素材/*/codex.jsonl
+*/game/素材/*/.*/

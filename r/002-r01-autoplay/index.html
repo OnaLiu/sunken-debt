@@ -1,0 +1,162 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><title>自动演示（并进了第 0 轮） · 沉债</title><style>
+:root{--bg:#f6f3ec;--panel:#fffdf8;--ink:#1f1b16;--soft:#5d5448;--line:#e2dacb;--brass:#9a6a1c;--brass-ink:#fff;--sky:#2f6f8f;--code:#f0ebe0}
+@media (prefers-color-scheme:dark){:root{--bg:#14120f;--panel:#1d1a16;--ink:#efe9de;--soft:#b3a893;--line:#3a332a;--brass:#d39b3c;--brass-ink:#1a1408;--sky:#7fb7d4;--code:#2a251e}}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif}
+main{max-width:980px;margin:0 auto;padding:28px 16px 80px}
+a{color:var(--sky)}h1{font-size:clamp(1.5rem,4.5vw,2.1rem);line-height:1.3;margin:.2em 0 .3em}
+h2{font-size:1.25rem;margin:1.6em 0 .5em}h3{font-size:1.08rem;margin:1.4em 0 .4em}h4,h5,h6{font-size:1rem;margin:1.2em 0 .3em}
+.sub{color:var(--soft);margin:0 0 1.2em}.nav{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.92rem;margin-bottom:10px}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 6px}
+.btn{display:inline-flex;align-items:center;gap:.45em;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:600;border:1px solid var(--line);color:var(--ink);background:var(--panel)}
+.btn.main{background:var(--brass);border-color:var(--brass);color:var(--brass-ink)}.btn:hover{filter:brightness(1.06)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px 20px 14px;margin:16px 0}
+.cols{display:grid;grid-template-columns:1fr;gap:16px}@media (min-width:900px){.cols.two{grid-template-columns:1fr 1fr}main.wide{max-width:1400px}}
+.tag{display:inline-block;font-size:.78rem;padding:1px 8px;border-radius:99px;border:1px solid var(--line);color:var(--soft);margin-left:6px;vertical-align:middle;font-weight:500}
+details{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin:12px 0;padding:0 16px}
+summary{cursor:pointer;padding:12px 0;font-weight:600}details[open] summary{border-bottom:1px solid var(--line);margin-bottom:10px}
+code{background:var(--code);padding:1px 5px;border-radius:5px;font-size:.9em;word-break:break-all}
+pre{background:var(--code);padding:12px;border-radius:10px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;font-size:.88rem;line-height:1.6}
+pre code{background:none;padding:0}
+.shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;padding-bottom:14px}
+.shots figure{margin:0}.shots img{width:100%;border-radius:8px;border:1px solid var(--line);image-rendering:pixelated;display:block}
+.shots figcaption{font-size:.85rem;color:var(--soft);margin-top:4px}
+.tbl{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.93rem;margin:8px 0}
+th,td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}th{background:var(--code)}
+ul,ol{padding-left:1.4em}li{margin:.15em 0}.files{font-size:.9rem;columns:2 260px;padding-bottom:12px}.files div{break-inside:avoid}
+.rounds{list-style:none;padding:0;margin:0}.rounds li{border-top:1px solid var(--line);padding:14px 0;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline}
+.rounds .what{flex:1 1 320px}.rounds .what b{display:block}.rounds .what span{color:var(--soft);font-size:.93rem}
+.rounds .go{display:flex;gap:8px;flex-wrap:wrap}.rounds .go a{font-size:.9rem;padding:6px 12px}
+.muted{color:var(--soft)}footer{margin-top:40px;color:var(--soft);font-size:.85rem}
+.pair{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:14px 0}
+.pair p{margin:0 0 8px;font-weight:600}.pair .ab{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pair .one{grid-template-columns:1fr}
+.pair figure{margin:0}.pair img,.pair video{width:100%;border-radius:8px;border:1px solid var(--line);display:block;background:#000}
+.pair figcaption{font-size:.82rem;color:var(--soft);margin-top:3px}@media (max-width:640px){.pair .ab{grid-template-columns:1fr}}
+</style></head><body><main class=wide><div class="nav"><a href="../../index.html">← 全部轮次</a><a href="../001-r00-free/index.html">‹ 上一轮：第 0 轮 · 照设计文档，从零做出一个只有打捞的可玩切片，把文档写的整套打</a><a href="../004-r04-library/index.html">下一轮：library ›</a></div><h1>自动演示（并进了第 0 轮）<span class="tag">002-r01-autoplay</span></h1><p class="sub">沉债 · 先看这一轮变了什么；能玩的是最新一版。</p><div class="cols two"><div><h2>带这一轮 prompt 的一份</h2><h2>这一轮变了什么</h2><div class="pair"><p>新做的演示页 demo.html：点一下，机器人从标题画面自己选「开始航程」开一局普通的游戏（随机海图，只按玩家的按键），按 Esc 随时停下、接着由你玩。</p><div class="ab one"><figure><video src="changes/演示页开局_改后.mp4" controls muted loop playsinline preload="metadata"></video><figcaption></figcaption></figure></div></div><div class="pair"><p>机器人一局里的几个时刻（按真实速度剪在一起，上方说明条是录像时加的）：自己选点下网、揭晓、油不多时自己回港靠泊结算，再出海在海草覆舟、白礁断船、黑泥沉舟都捞到东西；以前的演示机器人是直接调游戏函数、从专门的起点开始的。</p><div class="ab one"><figure><video src="changes/机器人一局_改后.mp4" controls muted loop playsinline preload="metadata"></video><figcaption></figcaption></figure></div></div><div class="pair"><p>开船驶近下一片新海域时：改前要当场一口气生成整片海域，画面停住将近 0.9 秒（上方小图里的红条，小图是录像时加的）；改后分到很多帧里慢慢建，整段最长一帧 17 毫秒，船一直顺着开。</p><div class="ab"><figure><video src="changes/新海域生成_改前.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改前</figcaption></figure><figure><video src="changes/新海域生成_改后.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>作业时把网口从右舷往船头、再往左舷推：改前网口卡在驾驶室前的禁区边上，最后折回自己甲板上空，怎么推都过不去；改后网口能推到另一舷，吊臂从船尾绕过去。</p><div class="ab"><figure><video src="changes/网口过船头_改前.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改前</figcaption></figure><figure><video src="changes/网口过船头_改后.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>揭晓锚这类一两米长的大件：改前锚被立起来顶到镜头跟前，只看得到一截锚杆和横杆；改后锚平放在甲板上整只入画，连着那截断缆。</p><div class="ab"><figure><a href="changes/锚揭晓_改前.png" target="_blank"><img loading="lazy" src="changes/锚揭晓_改前.png" alt="改前"></a><figcaption>改前</figcaption></figure><figure><a href="changes/锚揭晓_改后.png" target="_blank"><img loading="lazy" src="changes/锚揭晓_改后.png" alt="改后"></a><figcaption>改后</figcaption></figure></div></div><details><summary>它自己的汇报</summary><div class="card"><p><code>demo.html</code> 做好了：打开后点一下，机器人从标题开始一直玩，按 Esc 停。最终构建的全部测试通过（49/49）。最后在真实 GPU、1920×1080 下实时跑了 10 分钟，没有一帧超过 25 毫秒，镜头也没有突然跳动。</p>
+<p><strong>演示页</strong></p>
+<ul><li>
+和 <code>index.html</code> 用同一份 <code>game.js</code> 和 <code>style.css</code>。画面和声音都由代码生成，字体用系统字体，所以没有任何素材的第二份拷贝。这个文件夹里没有单独的效果页，也就没有别的页面要共用素材。
+</li><li>
+点一下之后，机器人在标题选「开始航程」，和玩家玩的是同一个正常游戏：随机种子、同样的起点、同样的规则，不是特意摆好的样本世界。
+</li><li>
+它会探索、找到沉船、下网、洗泥揭晓、回港补给，然后依次做海草覆舟、白礁断船、黑泥沉舟，再继续进入新的海域。
+</li><li>
+<strong>「一局」其实不会结束。</strong> 设计里没有结局，补给后接着出海，所以「接着开下一局」平常不会触发。这条路还是做了：如果哪次回到了标题，机器人会开新的一局（有测试）。
+</li><li>
+<strong>Esc</strong> 让机器人停下，原样交给你，机器人不会再回来；再按一次 Esc 打开暂停菜单。想再看演示就刷新页面。
+</li><li>
+演示页从不读写你的存档，和游戏共用的只有设置（像素大小、音量）。
+</li></ul>
+<p><strong>机器人只按键</strong></p>
+<ul><li>
+机器人重写了：现在只输出手柄会给的东西（摇杆、Ⓐ、Ⓨ、缩放）。以前它直接调用游戏函数来切模式、下网、靠泊；现在有一项测试专门检查它的代码里没有这种调用。
+</li><li>
+它只从船开近时看得见的东西，以及停下不动的生物里挑目标，不再用以前给旧演示写的隐藏网位清单。
+</li><li>
+游戏里给机器人开的特殊照顾也去掉了：自动离港、特殊的起始位置、它自己的镜头控制。
+</li><li>
+有一条是我自己定的，不是游戏规则：机器人在一片海域下大约 8 网后就换地方，第一片海湾做完先回一次港，这样演示更早到港口、更早走到四种海域。第一片海湾大约 4 分钟做完，大约 12 分钟到黑泥沉舟。
+</li></ul>
+<p><strong>机器人碰到的游戏毛病（在游戏里修了）</strong></p>
+<ul><li>
+<strong>网口圈卡在船头：</strong> 作业模式下，网口圈在船的一侧、目标在另一侧时，推摇杆会让圈一直顶在驾驶室前方那块区域的边上。玩家也会碰到同一堵墙。现在圈能越过去，吊臂从船尾绕过去，不再穿过驾驶室。
+</li><li>
+<strong>作业镜头被船挡住：</strong> 进作业模式时镜头转到船的侧面，驾驶室正好挡在网前面。现在转到目标那一侧。
+</li><li>
+<strong>大件收获出了画面：</strong> 揭晓锚这类大件时，东西跑到屏幕下边、压在结果卡下面。现在大件会正确取景。
+</li><li>
+在 120Hz 屏幕上按住缩放会快一倍，现在任何屏幕上缩放速度都一样。
+</li></ul>
+<p><strong>画面顺不顺</strong></p>
+<ul><li>
+<strong>启动和第一次的停顿：</strong> 第一次进作业模式会卡 0.47 秒，第一次揭晓卡 1.2 秒。现在需要的初次准备在标题画面时就在后台做完。
+</li><li>
+<strong>新海域：</strong> 前四片之后出现的沙湾变体，生成时每片会卡 1.1–2.3 秒。现在约 50 毫秒，并分摊到几帧里。26 片生成海域里的 194 件东西，位置和以前完全一样。
+</li><li>
+<strong>帧时间：</strong> 修了游戏循环，移动不再一顿一顿；揭晓开始和拉回时镜头缓入，不再猛地一冲。
+</li><li>
+<strong>其他偶尔掉帧的原因：</strong> 让屏幕上的面板重绘更省；减少了会引起周期性停顿的小量持续内存分配。
+</li><li>
+<strong>长时间运行：</strong> 船身后 1.1 公里以外的海域从内存里释放，回去时照原样重建。模拟跑两小时，内存一直在 60–92 MB 之间，没有上涨的趋势。
+</li></ul>
+<p><strong>结果</strong></p>
+<ul><li>
+之前一次 15 分钟实时运行：零长帧。最后这次 10 分钟运行（见上）也是零长帧、零镜头跳动，旁边还有别的程序在占用机器。机器被无关的视频编码占满时，偶尔有慢帧，那是外部负载。
+</li><li>
+稳定性：7 个随机种子各跑 25 分钟模拟时间，每局 34–40 网，空网最多 2 次，补给 3 次，从第一片海湾到第七片每片都有收获，船一次也没有闲站超过 1 秒。
+</li><li>
+机器人只会放弃那些一直不在够得着的地方停下的蟹和鱼（每 25 分钟 2–5 个），它会换目标，不干等。
+</li></ul>
+<p><strong>要知道的两件事</strong></p>
+<ul><li>
+<code>index.html</code> 标题里的「自动演示」按钮仍然用固定的样本世界（设计保证那里会出现珍贵物），现在也换成了只按键的机器人。
+</li><li>
+为了能重新构建和测试，我在本地 <code>node_modules</code> 里装了构建和测试工具（git 忽略这个文件夹），没有往任何地方推送。
+</li></ul>
+<p>改动详情和怎么重跑检查见 <code>notes.md</code> 第 11 节。自己重新量画面顺不顺：<code>node tools/perf-probe.mjs 600</code>。</p></div></details><details><summary>用时</summary><p>用时 2 小时 47 分 · 花费 $27.30</p></details><details><summary>改了哪些文件（比起 001-r00-free：新加 12 · 改动 27 · 删掉 1）</summary><div class="files"><div>＋ demo.html</div><div>＋ src/core/perf.js</div><div>＋ src/render/warmup.js</div><div>＋ tools/changes-capture.mjs</div><div>＋ tools/demo-keys.mjs</div><div>＋ tools/demo-shots.mjs</div><div>＋ tools/gen-bench.mjs</div><div>＋ tools/gen-golden.mjs</div><div>＋ tools/long-run.mjs</div><div>＋ tools/perf-probe.mjs</div><div>＋ tools/pilot-run.mjs</div><div>＋ tools/seed-sweep.mjs</div><div>～ game.js</div><div>～ notes.md</div><div>～ src/core/geo.js</div><div>～ src/core/input.js</div><div>～ src/eco/creatures.js</div><div>～ src/game/boat.js</div><div>～ src/game/bot.js</div><div>～ src/game/game.js</div><div>～ src/game/net.js</div><div>～ src/game/reveal.js</div><div>～ src/game/salvage.js</div><div>～ src/main.js</div><div>～ src/render/materials.js</div><div>～ src/render/view.js</div><div>～ src/ui/hud.js</div><div>～ src/world/flora.js</div><div>～ src/world/layout.js</div><div>～ src/world/region.js</div><div>～ src/world/terrain.js</div><div>～ src/world/world.js</div><div>～ src/world/wreck.js</div><div>～ style.css</div><div>～ tools/demo-run.mjs</div><div>～ tools/diag.mjs</div><div>～ tools/flow.mjs</div><div>～ tools/test-headless.mjs</div><div>～ tools/test-results.json</div><div>－ tools/record-changes.mjs</div></div></details><details><summary>这一轮收到的 prompt</summary><pre>这是第 1 轮打磨：做自动演示。游戏和设计文档都在当前文件夹。
+范围：整个打捞切片：从标题开始的自动演示，持续探索、打捞、揭晓、返港补给、四种海域。
+
+- 在 `index.html` 旁边做一个 `demo.html`：打开后点一下，机器人从标题开始自己玩，一局完了接着开下一局，按 Esc 停。
+- 游戏、自动演示和效果页用的是同一份图片、声音、视频和字体：改一处，几个页面一起变，不各存一份。
+- 机器人只用玩家能用的操作，演示游戏默认会做的事，不靠额外下指令去赢。
+- 机器人卡住、站着不动、没事可做的地方，是游戏的毛病：修游戏，不修机器人。
+- 整局玩下来画面一直是顺的：不掉帧、不顿，移动、镜头和动画不一跳一跳；在用户的电脑上全屏玩也一样。
+
+自动试跑都无头，不在屏幕上开窗口；不问问题，自己决定；不往网上推送。
+只在当前文件夹里看和改：不要打开上一级文件夹，也不要看别的轮次的文件夹，也不要去看 … 里的技能和规则（这一轮要的都写在上面；带 prompt 的和只给目标的两份要互相看不见）。</pre></details></div><div><h2>只给这一轮目标的对照</h2><p class="muted">这一轮没有交「改前 / 改后」的例子（这个办法 2026-10-14 才开始用），看下面它自己的汇报。</p><details open><summary>它自己的汇报</summary><div class="card"><p>这一轮自动演示打磨完成了。最终构建 <code>game.js</code> 跑完整无头验收，54 项全部通过（原有 45 项 + 本轮新加 9 项），带 2400/2600 秒长演示的版本也全部通过。全程无头，没有开窗口，也没有往网上推送。</p>
+<p><strong>改了什么</strong></p>
+<ul><li>
+<strong>从标题开始</strong>：除了菜单里的“自动演示”，标题界面 25 秒没人操作也会自己开始演示。最后 8 秒有倒计时，按键、动鼠标、打开设置都会重新计时。演示时左上角的按键说明注明了“按 Esc 接管后可用”。
+</li><li>
+<strong>字幕看见了才说</strong>：以前开局就说“浅滩上露出半截铜色的筒”，那时船还离浅滩 100 米。现在没看清现场之前只说方向（“往东开——浅滩那片水清”），等出现“看清了：…”或船开近了，才说具体证据。第 5 片以后的海域也补了一套不点出物件的字幕。
+</li><li>
+<strong>补给安排</strong>：以前黑泥沉舟做完，会先开进第 5 片捞一网，再折回灯塔泊位加油，然后又开回来。现在换海域前按“把那一片做完再回港”来算油，不够就先在顺路的泊位补给。现在每个航次做 6–13 网。
+</li><li>
+<strong>靠位和绕礁</strong>：
+<ul><li>
+目标落在驾驶室前方时，船停着原地转向，不再往前蹭 9 秒再换船位。黑泥沉舟最后一网的换位时间从 32 秒降到 6 秒。
+</li><li>
+被礁挡住时先找中转点绕过去，船头蹭到礁就马上倒出来重新找路。
+</li></ul>
+</li><li>
+<strong>空网</strong>：查出两个原因并修好了。
+<ul><li>
+机器人选的落点太贴礁壁，偏几厘米就兜不住。现在要求网口往任一方向偏 0.2 米也兜得住。
+</li><li>
+吊臂“到位”用的是上一帧的结果，目标刚换的那一帧会被当成到位。这条是规则层面的问题，手动玩家也会碰到，现在改成实时判断。
+</li></ul>
+</li><li>
+<strong>镜头</strong>：发现沉船时会转过去同时框住船和沉船；快到落点时预先站到作业镜头那一侧。长航段在尾随、俯视、侧面、甲板近景、船前方几个机位之间慢慢转换。在十几米深的地方作业时镜头会拉远，船和网都留在画面里。
+</li><li>
+<strong>其他</strong>：
+<ul><li>
+回港、出港和长航段中途，船员会说一两句只涉及已知事实的话（几件货、累计净赚多少），两句之间至少隔 4.5 秒。
+</li><li>
+第 5 片以后的海域有了地名（如“断缆沙湾”“沉钩草床”），不再显示成“归潮沙湾·5”。
+</li><li>
+演示中在港口按 Esc 接管后，结算卡会改成提示按 A 出海。
+</li></ul>
+</li></ul>
+<p><strong>实测结果（2600 秒）</strong></p>
+<div class=tbl><table><thead><tr><th>项目</th><th>改之前</th><th>改之后</th></tr></thead><tbody><tr><td>下网</td><td>66 网</td><td>67 网</td></tr><tr><td>空网</td><td>1</td><td>0</td></tr><tr><td>卡住后放弃</td><td>1</td><td>0</td></tr><tr><td>补给</td><td>6 次</td><td>6 次</td></tr><tr><td>经过海域</td><td>14 片</td><td>14 片</td></tr><tr><td>前 1000 秒里最长一段“只在开船、没有新事件”</td><td>37 秒</td><td>26 秒</td></tr></tbody></table></div>
+<p>无头 Chrome 在 1920×1080 下，标题、演示开头和快进 2400 秒后都是 60 帧。</p>
+<p><strong>还没改的</strong></p>
+<ul><li>
+变体海域会抽到同名的珍贵物，例如第 5 片的货舱里又是银币匣。这是现有的内容规则，这一轮没动内容和概率。
+</li><li>
+闲置自动开始的演示，在第一次按键之前没有声音（浏览器不允许自动播放）。
+</li><li>
+出港后开往下一片海域的航段仍要 48–58 秒，因为泊位离海域本来就远。现在靠轮换机位和船员话来填这段时间。
+</li></ul>
+<p><strong>目录里的变化</strong></p>
+<ul><li>
+改动在 <code>src/game/bot.js</code>、<code>game.js</code>、<code>boat.js</code>、<code>src/main.js</code>、<code>src/ui/hud.js</code>、<code>src/world/region.js</code>、<code>style.css</code>、<code>tools/test-headless.mjs</code>，已重新构建 <code>game.js</code>。<code>notes.md</code> 第 4、6、9、10 节已更新。
+</li><li>
+新增观看和调试工具，其中 <code>node tools/demo-watch.mjs &lt;秒&gt; &lt;目录&gt;</code> 会从标题点进演示，记录时间线、截图，并拼成联系表。
+</li><li>
+为了跑测试，我用 <code>npm ci</code> 在当前文件夹装了依赖（<code>node_modules</code>，已在 .gitignore 里）。开发用的 <code>index-dev.html</code> 和 <code>game.dev.js</code> 已删掉。
+</li></ul></div></details><details><summary>用时</summary><p>用时 1 小时 49 分 · 149 步 · 花费 $12.85</p></details><details><summary>改了哪些文件（比起 001-r00-free：新加 6 · 改动 12 · 删掉 1）</summary><div class="files"><div>＋ tools/demo-watch.mjs</div><div>＋ tools/perf.mjs</div><div>＋ tools/probe-eval.mjs</div><div>＋ tools/probe.mjs</div><div>＋ tools/sheets.mjs</div><div>＋ tools/title-shot.mjs</div><div>～ game.js</div><div>～ notes.md</div><div>～ src/game/boat.js</div><div>～ src/game/bot.js</div><div>～ src/game/game.js</div><div>～ src/main.js</div><div>～ src/ui/hud.js</div><div>～ src/world/region.js</div><div>～ style.css</div><div>～ tools/density.json</div><div>～ tools/test-headless.mjs</div><div>～ tools/test-results.json</div><div>－ tools/record-changes.mjs</div></div></details><details><summary>这一轮收到的 prompt</summary><pre>这是第 1 轮打磨：做自动演示。游戏和设计文档都在当前文件夹。
+范围：整个打捞切片：从标题开始的自动演示，持续探索、打捞、揭晓、返港补给、四种海域。
+
+自动试跑都无头，不在屏幕上开窗口；不问问题，自己决定；不往网上推送。
+只在当前文件夹里看和改：不要打开上一级文件夹，也不要看别的轮次的文件夹，也不要去看 … 里的技能和规则（这一轮要的都写在上面；带 prompt 的和只给目标的两份要互相看不见）。</pre></details></div></div></main></body></html>

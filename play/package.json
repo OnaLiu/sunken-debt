@@ -1,0 +1,17 @@
+{
+  "name": "chenzhai-salvage-slice",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "沉债 · 打捞玩法演示（一片海、一圈打捞、收获单；风格化3D、代码绘制）",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "watch": "node tools/build.mjs --watch",
+    "test": "node tools/build.mjs && node tools/test-headless.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "puppeteer-core": "25.12.0",
+    "three": "0.186.1"
+  }
+}

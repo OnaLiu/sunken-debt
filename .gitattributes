@@ -1,0 +1,10 @@
+**/game/**/*.md merge=union
+**/notes*.md merge=union
+**/效果清单*.md merge=union
+**/规格.md merge=union
+**/待画.md merge=union
+**/账目.jsonl merge=union
+进度/开发进度.md merge=union
+.gitignore merge=union
+**/game/effects.html merge=ours
+**/game/look.html merge=ours

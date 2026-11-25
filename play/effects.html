@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>沉债 · 效果单 · 第 9 轮</title>
+<style>
+:root {
+  --bg: #f3efe4; --panel: #fffdf7; --ink: #1f2a2c; --mute: #5f6b6c; --line: #d9d1bd; --accent: #9a6b12; --accent-ink: #fff8e6;
+  --chip: #efe6cf; --chip-ink: #5a4310; --sel: #fff3d2; --before: #8b3a2b; --after: #1f6b52; --stage: #0b1416; --veil: rgba(8,16,18,.82);
+  --tag: #0f2427; --tag-ink: #f2ead2; --tag-hit: #c9a24a;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1719; --panel: #152124; --ink: #e8e2d2; --mute: #9aa6a3; --line: #2a3a3d; --accent: #d8ab4c; --accent-ink: #1a1204;
+  --chip: #2a2615; --chip-ink: #e8cf8a; --sel: #222d23; --before: #e08a76; --after: #7fd3b0; --stage: #050a0b; --veil: rgba(4,9,10,.85);
+  --tag: #0b1a1c; --tag-ink: #f2ead2; --tag-hit: #d8ab4c; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1719; --panel: #152124; --ink: #e8e2d2; --mute: #9aa6a3; --line: #2a3a3d; --accent: #d8ab4c; --accent-ink: #1a1204;
+  --chip: #2a2615; --chip-ink: #e8cf8a; --sel: #222d23; --before: #e08a76; --after: #7fd3b0; --stage: #050a0b; --veil: rgba(4,9,10,.85);
+  --tag: #0b1a1c; --tag-ink: #f2ead2; --tag-hit: #d8ab4c; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.6 -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
+.wrap { max-width: 1480px; margin: 0 auto; padding: 18px 20px 40px; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; margin-bottom: 14px; }
+header h1 { margin: 0; font-size: 24px; letter-spacing: 1px; }
+header .sub { color: var(--mute); }
+header a { color: var(--accent); margin-left: auto; font-weight: 600; text-decoration: none; }
+header a:hover { text-decoration: underline; }
+.fixes { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; margin: 0 0 16px; padding: 0; list-style: none; }
+.fixes li { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-size: 13px; line-height: 1.5; min-width: 0; }
+.fixes b { display: inline-block; min-width: 22px; margin-right: 4px; color: var(--accent); }
+.fixes .ids { color: var(--mute); }
+.main { display: grid; grid-template-columns: minmax(280px, 360px) minmax(0, 1fr); gap: 18px; align-items: start; }
+.list { display: flex; flex-direction: column; gap: 6px; max-height: calc(100vh - 40px); overflow: auto; position: sticky; top: 12px; padding-right: 4px; }
+.item { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 2px 10px; text-align: left; border: 1px solid var(--line); background: var(--panel); color: inherit; border-radius: 8px; padding: 8px 10px; cursor: pointer; font: inherit; }
+.item:hover { border-color: var(--accent); }
+.item.on { background: var(--sel); border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+.item .id { grid-row: span 2; align-self: center; font-weight: 800; font-size: 17px; color: var(--accent); }
+.item .nm { font-weight: 650; min-width: 0; }
+.item .wh { color: var(--mute); font-size: 12.5px; line-height: 1.45; min-width: 0; }
+.fixchip { display: inline-block; margin-left: 6px; padding: 0 6px; border-radius: 9px; background: var(--chip); color: var(--chip-ink); font-size: 11.5px; font-weight: 600; vertical-align: 1px; white-space: nowrap; }
+.player { min-width: 0; }
+.screen { position: relative; width: 100%; aspect-ratio: 16 / 9; max-width: 100%; background: var(--stage); border-radius: 8px; overflow: hidden; }
+.screen iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+.veil { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; background: var(--veil); color: #f2ead2; font-size: 16px; text-align: center; padding: 16px; }
+.veil[hidden] { display: none; }
+.veil small { color: #b9c4c0; font-size: 13px; }
+.veil .spin { width: 26px; height: 26px; border: 3px solid rgba(242,234,210,.25); border-top-color: #e8c46a; border-radius: 50%; animation: sp 0.9s linear infinite; }
+@keyframes sp { to { transform: rotate(360deg); } }
+.bar { height: 4px; background: var(--line); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: var(--accent); }
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
+.controls .grp { display: inline-flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
+button.b { font: inherit; border: 1px solid var(--line); background: var(--panel); color: var(--ink); padding: 6px 12px; border-radius: 7px; cursor: pointer; }
+.grp button.b { border: 0; border-radius: 0; border-right: 1px solid var(--line); }
+.grp button.b:last-child { border-right: 0; }
+button.b:hover { border-color: var(--accent); }
+button.b.on { background: var(--accent); color: var(--accent-ink); font-weight: 650; }
+button.b.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 650; }
+.controls .pair { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+.controls .lbl { color: var(--mute); font-size: 13px; margin-left: 6px; }
+.detail { margin-top: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+.detail h2 { margin: 0 0 2px; font-size: 20px; }
+.detail .when { color: var(--mute); margin-bottom: 10px; }
+.detail .link { color: var(--mute); font-size: 12.5px; margin: -6px 0 10px; overflow-wrap: anywhere; }
+.detail .link code { user-select: all; }
+.detail h3.sec { margin: 12px 0 4px; font-size: 13px; letter-spacing: 1px; color: var(--mute); }
+.variants { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.ba { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+.ba div { min-width: 0; border-left: 3px solid var(--line); padding: 2px 0 2px 10px; }
+.ba .bf { border-color: var(--before); }
+.ba .af { border-color: var(--after); }
+.ba h3 { margin: 0 0 2px; font-size: 13px; letter-spacing: 1px; }
+.ba .bf h3 { color: var(--before); }
+.ba .af h3 { color: var(--after); }
+code { font: 12.5px ui-monospace, Menlo, monospace; background: var(--chip); color: var(--chip-ink); padding: 0 4px; border-radius: 4px; }
+.tags { margin-top: 12px; }
+.tags h3 { margin: 0 0 6px; font-size: 13px; color: var(--mute); font-weight: 600; }
+.taglog { display: flex; flex-wrap: wrap; gap: 6px; min-height: 30px; }
+.taglog span { display: inline-flex; gap: 6px; align-items: baseline; background: var(--tag); color: var(--tag-ink); border: 1px solid transparent; border-radius: 6px; padding: 2px 8px; font-size: 13px; }
+.taglog span b { color: #e8c46a; }
+.taglog span.hit { border-color: var(--tag-hit); }
+.taglog span i { font-style: normal; color: #9fe0d0; font-size: 12px; }
+.taglog .none { color: var(--mute); font-size: 13px; }
+.group { margin: 10px 0 2px; padding: 0 2px; font-size: 13px; font-weight: 700; color: var(--mute); letter-spacing: 1px; }
+.group:first-child { margin-top: 0; }
+.group small { display: block; font-weight: 500; letter-spacing: 0; font-size: 12px; }
+.fixes li.gh { grid-column: 1 / -1; background: none; border: 0; padding: 4px 2px 0; font-weight: 700; color: var(--mute); letter-spacing: 1px; }
+.feel { margin: 0 0 10px; }
+.feel em { font-style: normal; color: var(--mute); margin-right: 6px; }
+.watch { margin: 0; padding-left: 20px; }
+.watch li { margin: 2px 0; }
+.watch b, .ba b { color: var(--accent); }
+.snds { margin-top: 10px; }
+.snds .taglog span { background: transparent; color: var(--ink); border-color: var(--line); }
+.snds .taglog span b { color: var(--accent); }
+.snds .taglog span i { color: var(--mute); }
+.note { color: var(--mute); font-size: 12.5px; margin-top: 12px; line-height: 1.6; }
+.unlock { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 2; font: inherit; font-size: 14px; font-weight: 650; padding: 8px 14px; border-radius: 8px; border: 1px solid #e8c46a; background: rgba(8,16,18,.88); color: #f2ead2; cursor: pointer; max-width: calc(100% - 24px); }
+.unlock:hover { background: rgba(30,44,46,.95); }
+.unlock[hidden] { display: none; }
+@media (max-width: 900px) {
+  .main { grid-template-columns: minmax(0, 1fr); }
+  .list { position: static; max-height: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>沉债 · 效果单</h1>
+    <span class="sub">第 9 轮 · 效果清单第 5 节，十四批按顺序列在左边 · 每条都能用 <code>effects.html?fx=编号</code> 直接打开并播放（指定一种放法写 <code>?fx=W2:reverse</code>）</span>
+    <a href="game-tagged.html" target="_blank" rel="noopener">打开带标签的游戏 ↗</a>
+  </header>
+  <ul class="fixes" id="fixes"></ul>
+  <div class="main">
+    <nav class="list" id="list" aria-label="编号"></nav>
+    <section class="player">
+      <div class="screen">
+        <iframe id="stage" src="fx-stage.html" allow="autoplay; fullscreen" title="效果播放台"></iframe>
+        <div class="veil" id="veil"><div class="spin"></div><div id="veilText">游戏载入中…</div><small id="veilSub">第一次要十几秒（编译着色器）</small></div>
+        <button class="unlock" id="unlock" hidden>🔇 浏览器还没让这页出声：点这里开声音，从头再放一遍</button>
+      </div>
+      <div class="bar"><i id="prog"></i></div>
+      <div class="controls">
+        <button class="b primary" id="replay">▶ 重播</button>
+        <span class="pair"><span class="lbl">速度</span>
+        <span class="grp" id="rates"><button class="b on" data-r="1">1×</button><button class="b" data-r="0.5">½×</button><button class="b" data-r="0.25">¼×</button></span></span>
+        <span class="pair"><span class="lbl">声音</span>
+        <span class="grp"><button class="b on" id="sound">开</button></span></span>
+        <button class="b" id="pause">暂停</button>
+      </div>
+      <div class="detail" id="detail"></div>
+      <div class="tags">
+        <h3>这一遍放出来的效果（游戏里角上写的编号和名字；金边是这一条的）</h3>
+        <div class="taglog" id="taglog"><span class="none">还没放</span></div>
+      </div>
+      <div class="tags snds">
+        <h3>这一遍响的每一声（声音的名字，后面是第几秒，游戏时间）</h3>
+        <div class="taglog" id="sndlog"><span class="none">还没放</span></div>
+      </div>
+      <p class="note">每条都在真实的游戏里放：同一片海，先新开一趟、快进摆好场面（不出声），停在效果前一两秒，然后实时放。慢放时画面、界面动画、定时器一起变慢，每一声在它该响的那一刻响起，一下一下的声音按同样的倍数拉长（音高不变）。暂停时画面和声音一起停住。配乐关掉了，只听效果（只有 A3「风吹过的和弦」那一条开着配乐——它就是配乐）。</p>
+    </section>
+  </div>
+</div>
+<script src="fx/scenes.js"></script>
+<script src="fx/scenes-b7.js"></script>
+<script src="fx/scenes-b9.js"></script>
+<script src="fx/scenes-b10.js"></script>
+<script src="fx/scenes-b11.js"></script>
+<script src="fx/scenes-b12.js"></script>
+<script src="fx/scenes-b13.js"></script>
+<script src="fx/scenes-b14.js"></script>
+<script>
+(() => {
+  const SC = window.FX_SCENES;
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+  const md = (s) => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+  const frame = $('stage');
+  const st = { ready: false, entry: null, k: null, rate: 1, sound: true, paused: false, pending: null };
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem('fx-effects-r9') || '{}'); } catch (e) { saved = {}; }
+  if (saved.rate) st.rate = saved.rate;
+  if (saved.sound === false) st.sound = false;
+  const remember = () => { try { localStorage.setItem('fx-effects-r9', JSON.stringify({ rate: st.rate, sound: st.sound })); } catch (e) { /* 记不住就算了 */ } };
+
+  // 上面：两批各修了什么
+  $('fixes').innerHTML = SC.batches.map((B) => `<li class="gh">${esc(B.title)}：${esc(B.sub)}</li>` + B.fixes.map(([n, t, ids]) => `<li><b>${esc(n)}</b>${esc(t)}${ids ? ` <span class="ids">→ ${esc(ids)}</span>` : ''}</li>`).join('')).join('');
+  // 左边：按批列编号
+  const chip = (e) => (e.fix != null ? `<span class="fixchip">修 ${esc(e.fix)}</span>` : e.tier ? `<span class="fixchip">${esc(e.tier.split(' · ')[0])}</span>` : '');
+  // 编号都挪到后面几批的批次（第二批）列表里不列；它修过的几件还写在“修了什么”里
+  $('list').innerHTML = SC.batches.filter((B) => SC.entries.some((e) => e.batch === B.n)).map((B) => `<div class="group">${esc(B.title)}<small>${esc(B.sub)}</small></div>` + SC.entries.filter((e) => e.batch === B.n).map((e) => `<button class="item" data-id="${e.id}"><span class="id">${e.id}</span><span class="nm">${esc(e.name)}${chip(e)}</span><span class="wh">${esc(e.when)}</span></button>`).join('')).join('');
+  $('list').addEventListener('click', (ev) => { const b = ev.target.closest('.item'); if (b) select(b.dataset.id, null, true); });
+
+  const send = (m) => { try { frame.contentWindow.postMessage({ to: 'fxstage', ...m }, '*'); } catch (e) { /* 框还没好 */ } };
+  const qOf = (e, k) => '?fx=' + e.id + (k && k !== e.variants[0].k ? ':' + k : '');
+  function select(id, k, play) {
+    const e = SC.entries.find((x) => x.id === id) || SC.entries[0];
+    st.entry = e; st.k = k && e.variants.some((v) => v.k === k) ? k : e.variants[0].k;
+    for (const b of document.querySelectorAll('.item')) b.classList.toggle('on', b.dataset.id === e.id);
+    const B = SC.batches.find((x) => x.n === e.batch);
+    const V = e.variants.find((v) => v.k === st.k);
+    // 有什么写什么：感受（档、类）；看什么（按时间先后）；改前（量到的）和改后。
+    // 第一批、第七批：感受 + 看什么；第二批：改前 + 改后；第三、六、八批：改前 + 看什么（并排，看什么就是改后）；第四、五、九批：三样都有
+    const feel = e.feel ? `<p class="feel"><em>感受</em>${md(e.feel)}${e.tier ? `　<em>档</em>${esc(e.tier)}` : ''}${e.kind ? `　<em>类</em>${esc(e.kind)}` : ''}</p>` : '';
+    const list = e.watch ? `<ol class="watch">${e.watch.map((w) => `<li>${md(w)}</li>`).join('')}</ol>` : '';
+    const bf = e.before ? `<div class="bf"><h3>改前（量到的）</h3>${md(e.before)}</div>` : '';
+    const body = feel + (e.after
+      ? `<div class="ba">${bf}<div class="af"><h3>改后</h3>${md(e.after)}</div></div>` + (list ? `<h3 class="sec">放的时候看（按时间先后）</h3>${list}` : '')
+      : bf && list ? `<div class="ba">${bf}<div class="af"><h3>改后：看什么</h3>${list}</div></div>`
+      : bf ? `<div class="ba">${bf}</div>` : list);
+    const link = 'effects.html' + qOf(e, st.k);
+    $('detail').innerHTML = `<h2>${e.id} ${esc(e.name)} ${chip(e)}</h2>
+      <div class="when">${B ? esc(B.title) + ' · ' : ''}${esc(e.when)}</div>
+      <div class="link">直接打开这一条：<code>${esc(link)}</code></div>
+      <div class="variants">${e.variants.map((v) => `<button class="b${v.k === st.k ? ' on' : ''}" data-k="${v.k}">${esc(v.label)}</button>`).join('')}</div>
+      ${V && V.note ? `<p class="feel"><em>注</em>${esc(V.note)}</p>` : ''}${body}`;
+    $('detail').querySelector('.variants').onclick = (ev) => { const b = ev.target.closest('button'); if (b) select(e.id, b.dataset.k, true); };
+    // 地址栏跟着换成 ?fx=编号（不是第一种放法时加 :放法），复制下来就能直接打开并播放这一条；本地文件不让改查询串时退回 #编号
+    const q = qOf(e, st.k);
+    if (location.search !== q || location.hash) { try { history.replaceState(null, '', q); } catch (err) { try { history.replaceState(null, '', '#' + e.id); } catch (e2) { /* 改不了地址就算了 */ } } }
+    const it = document.querySelector(`.item[data-id="${e.id}"]`); if (it && it.scrollIntoView) it.scrollIntoView({ block: 'nearest' });
+    if (play) { st.badWant = null; go(); }
+  }
+  function go() {
+    if (!st.entry) return;
+    $('taglog').innerHTML = '<span class="none">摆场面…</span>';
+    $('sndlog').innerHTML = '<span class="none">摆场面…</span>';
+    $('prog').style.width = '0';
+    setPausedBtn(false);
+    if (!st.ready) { st.pending = true; return; }
+    send({ type: 'play', id: st.entry.id, k: st.k, rate: st.rate, sound: st.sound });
+  }
+  const veil = (on, text, sub) => { $('veil').hidden = !on; if (text) $('veilText').textContent = text; $('veilSub').textContent = sub || ''; };
+
+  $('replay').onclick = go;
+  $('rates').onclick = (ev) => {
+    const b = ev.target.closest('button'); if (!b) return;
+    st.rate = Number(b.dataset.r); remember();
+    for (const x of $('rates').children) x.classList.toggle('on', x === b);
+    send({ type: 'rate', rate: st.rate });
+  };
+  for (const x of $('rates').children) x.classList.toggle('on', Number(x.dataset.r) === st.rate);
+  const soundBtn = $('sound');
+  const showSound = () => { soundBtn.textContent = st.sound ? '开' : '关'; soundBtn.classList.toggle('on', st.sound); };
+  soundBtn.onclick = () => { st.sound = !st.sound; remember(); showSound(); send({ type: 'sound', on: st.sound }); };
+  showSound();
+  const setPausedBtn = (p) => { st.paused = p; $('pause').textContent = p ? '继续' : '暂停'; $('pause').classList.toggle('on', p); };
+  $('pause').onclick = () => { if (!playing && !st.paused) return; setPausedBtn(!st.paused); send({ type: 'pause', on: st.paused }); };
+  // 浏览器要先点一下页面才肯出声（直接用 ?fx= 打开、自动放的时候）：播放台说声音挂着，就在画面上亮一个按钮；
+  // 点按钮：开声音、从头再放一遍。点页面别的地方（或按键）也顺手把声音接上，只是不重放。
+  const unlock = () => send({ type: 'unlock' });
+  $('unlock').onclick = () => { $('unlock').hidden = true; if (!st.sound) { st.sound = true; remember(); showSound(); send({ type: 'sound', on: true }); } unlock(); go(); };
+  let gestured = false;
+  const wake = () => { if (gestured) return; gestured = true; unlock(); };
+  addEventListener('pointerdown', wake, true); addEventListener('keydown', wake, true);
+
+  let tags = [], snds = [];
+  const drawTags = () => {
+    if (!tags.length) { $('taglog').innerHTML = '<span class="none">这一遍没有放出带编号的效果</span>'; return; }
+    $('taglog').innerHTML = tags.map((t) => `<span class="${st.entry && t.id === st.entry.id ? 'hit' : ''}"><b>${esc(t.id)}</b>${esc(t.name)}<i>${t.at}</i></span>`).join('');
+  };
+  const drawSnds = () => {
+    if (!snds.length) { $('sndlog').innerHTML = '<span class="none">这一遍没有响</span>'; return; }
+    $('sndlog').innerHTML = snds.map((s) => `<span><b>${esc(s.name)}</b><i>${s.at}</i></span>`).join('');
+  };
+  let playT0 = 0, playing = false;
+  const at = (t) => '+' + Math.max(0, t - playT0).toFixed(2) + ' 秒'; // 游戏时间：慢放时也是效果本身的节拍
+  addEventListener('message', (ev) => {
+    const m = ev.data; if (!m || typeof m !== 'object') return;
+    if (m.type === 'fxtag') {
+      if (!playing) return;
+      tags.push({ id: m.id, name: m.name, at: at(m.t) }); drawTags(); return;
+    }
+    if (m.from !== 'fxstage') return;
+    if (m.type === 'snd') {
+      if (!playing) return;
+      snds.push({ name: m.name, at: at(m.t) }); if (snds.length > 80) snds.shift(); drawSnds(); return;
+    }
+    if (m.type === 'audio') { $('unlock').hidden = !(m.locked && st.sound); return; }
+    if (m.type === 'ready') {
+      st.ready = true;
+      if (m.resumed) { veil(true, '摆场面…', '回到标题'); return; }
+      if (st.pending) { st.pending = false; go(); }
+      else if (st.badWant) veil(true, '没有这一条：' + st.badWant, '左边列着能放的编号；点一条就放');
+      else veil(true, '点左边的编号，或按「▶ 重播」', '每条都在真实的游戏里放');
+    } else if (m.type === 'staging') {
+      playing = false; tags = []; snds = [];
+      veil(true, m.reload ? '回到标题…' : '摆场面…', '快进到效果前一刻（不出声）');
+    } else if (m.type === 'playing') {
+      veil(false); playing = true; playT0 = m.t0 || 0; tags = []; snds = []; drawTags(); drawSnds();
+    } else if (m.type === 'tick') {
+      $('prog').style.width = (100 * m.t / m.dur).toFixed(1) + '%';
+    } else if (m.type === 'done') {
+      playing = false; $('prog').style.width = '100%'; drawTags(); drawSnds(); setPausedBtn(false);
+    } else if (m.type === 'error') {
+      veil(true, '这一条没放成', m.msg.split('\n')[0]);
+    }
+  });
+  // 打开哪一条：effects.html?fx=编号 直接选中并播放那一条（编号不分大小写）；放法写 ?fx=编号:放法，也认 &k=放法、&v=放法；
+  // 以前的 #编号 只选中不放；没有的编号说一声
+  const qs = new URLSearchParams(location.search), want = (qs.get('fx') || '').trim();
+  if (want) {
+    const [wid, wk] = want.split(':');
+    const e = SC.entries.find((x) => x.id.toLowerCase() === wid.trim().toLowerCase());
+    const k = (wk || qs.get('k') || qs.get('v') || '').trim() || null;
+    if (e) select(e.id, k, true);
+    else { st.badWant = want; select(SC.entries[0].id, null, false); veil(true, '没有这一条：' + want, '左边列着能放的编号；点一条就放'); }
+  } else select((location.hash || '').slice(1) || SC.entries[0].id, null, false);
+})();
+</script>
+</body>
+</html>

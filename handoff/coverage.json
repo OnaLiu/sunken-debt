@@ -1,0 +1,26 @@
+{
+  "slug": "salvage",
+  "sessions": 2,
+  "auxiliary_files": 172,
+  "project_files": 1564,
+  "raw_auxiliary_bytes": 56736878,
+  "unique_payload_bytes": 56692937,
+  "archive_bytes": 29869438,
+  "archive_parts": 1,
+  "redactions": [],
+  "omitted": [
+    {
+      "path": "completed_auxiliary_sessions_and_historical_recordings",
+      "reason": "User selected continuation materials only; original files and full local package retained."
+    }
+  ],
+  "regenerable_exclusions": [
+    "node_modules",
+    "__pycache__",
+    ".DS_Store",
+    ".ai/site"
+  ],
+  "source_preservation": "All collected source sizes and mtimes unchanged after read-only packaging.",
+  "shared_source_policy": "Reference only; no credentials, global configuration installation or agent startup.",
+  "platform_validation": "macOS execution pending; Windows and Claude resume compatibility require receiver validation."
+}

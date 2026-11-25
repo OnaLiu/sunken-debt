@@ -1,0 +1,11 @@
+{
+  "slug": "salvage",
+  "archive_and_project_sha256": "passed",
+  "alternate_project_path": "passed",
+  "unique_destinations_and_path_escape": "passed",
+  "utf8_lf_crlf": "passed",
+  "macos_full_install_and_idempotency_and_nonoverwrite": "passed",
+  "windows": "conditional: static path and CRLF fixtures only; no Windows host available",
+  "claude_ui_resume": "unverified on recipient account",
+  "business_build_or_game_test": "not run; transport-only task"
+}

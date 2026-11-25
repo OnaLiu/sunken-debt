@@ -1,0 +1,76 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><title>第 0 轮 · 照设计文档，从零做出一个只有打捞的可玩切片，把文档写的整套打 · 沉债</title><style>
+:root{--bg:#f6f3ec;--panel:#fffdf8;--ink:#1f1b16;--soft:#5d5448;--line:#e2dacb;--brass:#9a6a1c;--brass-ink:#fff;--sky:#2f6f8f;--code:#f0ebe0}
+@media (prefers-color-scheme:dark){:root{--bg:#14120f;--panel:#1d1a16;--ink:#efe9de;--soft:#b3a893;--line:#3a332a;--brass:#d39b3c;--brass-ink:#1a1408;--sky:#7fb7d4;--code:#2a251e}}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif}
+main{max-width:980px;margin:0 auto;padding:28px 16px 80px}
+a{color:var(--sky)}h1{font-size:clamp(1.5rem,4.5vw,2.1rem);line-height:1.3;margin:.2em 0 .3em}
+h2{font-size:1.25rem;margin:1.6em 0 .5em}h3{font-size:1.08rem;margin:1.4em 0 .4em}h4,h5,h6{font-size:1rem;margin:1.2em 0 .3em}
+.sub{color:var(--soft);margin:0 0 1.2em}.nav{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.92rem;margin-bottom:10px}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 6px}
+.btn{display:inline-flex;align-items:center;gap:.45em;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:600;border:1px solid var(--line);color:var(--ink);background:var(--panel)}
+.btn.main{background:var(--brass);border-color:var(--brass);color:var(--brass-ink)}.btn:hover{filter:brightness(1.06)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px 20px 14px;margin:16px 0}
+.cols{display:grid;grid-template-columns:1fr;gap:16px}@media (min-width:900px){.cols.two{grid-template-columns:1fr 1fr}main.wide{max-width:1400px}}
+.tag{display:inline-block;font-size:.78rem;padding:1px 8px;border-radius:99px;border:1px solid var(--line);color:var(--soft);margin-left:6px;vertical-align:middle;font-weight:500}
+details{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin:12px 0;padding:0 16px}
+summary{cursor:pointer;padding:12px 0;font-weight:600}details[open] summary{border-bottom:1px solid var(--line);margin-bottom:10px}
+code{background:var(--code);padding:1px 5px;border-radius:5px;font-size:.9em;word-break:break-all}
+pre{background:var(--code);padding:12px;border-radius:10px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;font-size:.88rem;line-height:1.6}
+pre code{background:none;padding:0}
+.shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;padding-bottom:14px}
+.shots figure{margin:0}.shots img{width:100%;border-radius:8px;border:1px solid var(--line);image-rendering:pixelated;display:block}
+.shots figcaption{font-size:.85rem;color:var(--soft);margin-top:4px}
+.tbl{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.93rem;margin:8px 0}
+th,td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}th{background:var(--code)}
+ul,ol{padding-left:1.4em}li{margin:.15em 0}.files{font-size:.9rem;columns:2 260px;padding-bottom:12px}.files div{break-inside:avoid}
+.rounds{list-style:none;padding:0;margin:0}.rounds li{border-top:1px solid var(--line);padding:14px 0;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline}
+.rounds .what{flex:1 1 320px}.rounds .what b{display:block}.rounds .what span{color:var(--soft);font-size:.93rem}
+.rounds .go{display:flex;gap:8px;flex-wrap:wrap}.rounds .go a{font-size:.9rem;padding:6px 12px}
+.muted{color:var(--soft)}footer{margin-top:40px;color:var(--soft);font-size:.85rem}
+.pair{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:14px 0}
+.pair p{margin:0 0 8px;font-weight:600}.pair .ab{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pair .one{grid-template-columns:1fr}
+.pair figure{margin:0}.pair img,.pair video{width:100%;border-radius:8px;border:1px solid var(--line);display:block;background:#000}
+.pair figcaption{font-size:.82rem;color:var(--soft);margin-top:3px}@media (max-width:640px){.pair .ab{grid-template-columns:1fr}}
+</style></head><body><main><div class="nav"><a href="../../index.html">← 全部轮次</a><a href="../002-r01-autoplay/index.html">下一轮：自动演示（并进了第 0 轮） ›</a></div><h1>第 0 轮 · 照设计文档，从零做出一个只有打捞的可玩切片，把文档写的整套打<span class="tag">001-r00-free</span></h1><p class="sub">沉债 · 先看这一轮变了什么；能玩的是最新一版。</p><h2>这一轮变了什么</h2><div class="pair"><p>第一次做出来的打捞船在归潮沙湾航行：海水是透的，能直接看清海底的沙地、礁石和前方侧卧的木帆商船，靠眼睛读海底来找下网的位置。</p><div class="ab one"><figure><a href="changes/01-sail.png" target="_blank"><img loading="lazy" src="changes/01-sail.png" alt=""></a><figcaption></figcaption></figure></div></div><div class="pair"><p>作业时转镜头、把伸缩臂从 5.8 m 推到 11.8 m，落点投影一路贴着海底和船体走：空海底是白圈，压上船舷变黄、提示高低不平，进了船舱标出“落在船体内”，下网前就知道会碰到什么。</p><div class="ab one"><figure><video src="changes/02-aim.mp4" controls muted loop playsinline preload="metadata"></video><figcaption></figcaption></figure></div></div><div class="pair"><p>按 A 后网竖直沉下去，触底扬起泥沙、合网，再自动起吊、转回甲板，中间不用再操作（自动演示录像）。</p><div class="ab one"><figure><video src="changes/03-drop.mp4" controls muted loop playsinline preload="metadata"></video><figcaption></figcaption></figure></div></div><div class="pair"><p>捞上来先是一团厚泥，船员拿水管一层层冲开，露出银币匣后给一次大展示和右侧说明卡，随即拉回大视野：东西留在甲板上让船员去搬，船不等他们，已经开到下一网的位置。</p><div class="ab one"><figure><video src="changes/04-reveal.mp4" controls muted loop playsinline preload="metadata"></video><figcaption></figcaption></figure></div></div><div class="pair"><p>四片海域连成一条航线，同一机位下海底和沉船各不相同：沙湾里侧卧的商船、海草里翻扣的桨帆船、白礁上断成两截的船、黑泥里只露出船尾的高艉楼帆船。</p><div class="ab one"><figure><a href="changes/05-seas.png" target="_blank"><img loading="lazy" src="changes/05-seas.png" alt=""></a><figcaption></figcaption></figure></div></div><details><summary>它自己的汇报</summary><div class="card"><p>照设计文档从零做出了只有打捞的可玩切片（单机、风格化 3D，美术和声音全部用代码生成），没有用以前任何版本的代码。</p>
+<ul><li>
+船从港外的航路出发，离沉船约 280 米；先经过通透浅滩（半个铜筒、零件、锚和拖痕），顺着沙底的船板才找到侧卧的中世纪木帆商船，要绕到另一面才看得见翻开的舱盖和甲板破口里的货。
+</li><li>
+调伸缩臂、按 A 垂直下网：完整甲板、翻扣船底、礁顶会挡网，舱里的货要从露天破口进；蟹会在固定几处停下翻泥，泥下本来埋着的印章会露出来；网闭合时真在网里的活物才算捞到。
+</li><li>
+每一网：下放、触底扬泥、收口、出水滴泥、转回甲板；一整团厚泥落到清洗位，船员冲洗（普通 4.2 秒、珍贵 5.4 秒，空格加快），泥退去后才揭晓（2.25／3.2 秒），1.25 秒拉回大视野；船员各搬一件同时下舱，搬运不挡开船和下一网。
+</li><li>
+燃油：移动和每一网扣油，观察、转镜头、调臂免费，下网时预付整次作业油，右上角一直显示返航余量；回泊位补给，旧现场（空位、网痕、压痕）和累计收获一直保留。
+</li><li>
+往东依次是海草覆舟、白礁断船、黑泥沉舟，之后按四种结构生成新的海域变体，同一张海图、同一份存档。
+</li><li>
+标题和暂停菜单里都能开自动演示：约 23 秒第一网，约 60 秒揭开货舱里的银币匣；返港补给后接着出海，不停；Esc 随时接管，不碰手动存档。
+</li><li>
+45 项无头自动检查全部通过，包括 2400 秒的长演示（四次补给、八片海域、63 件收获）。
+</li></ul>
+<p>占位和还没做的：声音是程序合成的占位音色；船员是方块人；港口只有一张简洁账单；只有中文界面。</p></div></details><details><summary>用时</summary><p>用时 3 小时 50 分 · 花费 $87.85</p></details><details><summary>改了哪些文件（比起起点：新加 53 · 改动 0 · 删掉 0）</summary><div class="files"><div>＋ .gitignore</div><div>＋ design.md</div><div>＋ game.js</div><div>＋ index.html</div><div>＋ notes.md</div><div>＋ package-lock.json</div><div>＋ package.json</div><div>＋ src/audio.js</div><div>＋ src/core/geo.js</div><div>＋ src/core/input.js</div><div>＋ src/core/noise.js</div><div>＋ src/core/rng.js</div><div>＋ src/eco/creatures.js</div><div>＋ src/game/aimviz.js</div><div>＋ src/game/boat.js</div><div>＋ src/game/bot.js</div><div>＋ src/game/crew.js</div><div>＋ src/game/game.js</div><div>＋ src/game/net.js</div><div>＋ src/game/reveal.js</div><div>＋ src/game/salvage.js</div><div>＋ src/main.js</div><div>＋ src/render/materials.js</div><div>＋ src/render/particles.js</div><div>＋ src/render/post.js</div><div>＋ src/render/view.js</div><div>＋ src/ui/hud.js</div><div>＋ src/world/decor.js</div><div>＋ src/world/flora.js</div><div>＋ src/world/items.js</div><div>＋ src/world/layout.js</div><div>＋ src/world/region.js</div><div>＋ src/world/sites.js</div><div>＋ src/world/terrain.js</div><div>＋ src/world/world.js</div><div>＋ src/world/wreck.js</div><div>＋ style.css</div><div>＋ tools/build.mjs</div><div>＋ tools/carry-shot.mjs</div><div>＋ tools/demo-run.mjs</div><div>＋ tools/density.json</div><div>＋ tools/diag.mjs</div><div>＋ tools/econ.mjs</div><div>＋ tools/flow.mjs</div><div>＋ tools/keyplay.mjs</div><div>＋ tools/record-changes.mjs</div><div>＋ tools/reveal-seq.mjs</div><div>＋ tools/shot.mjs</div><div>＋ tools/test-headless.mjs</div><div>＋ tools/test-results.json</div><div>＋ tools/topmap.mjs</div><div>＋ tools/tour.mjs</div><div>＋ tools/wreckshots.mjs</div></div></details><details><summary>这一轮收到的 prompt</summary><pre># 沉债 · 对比模式简报
+
+设计文档：`design.md`（在你的文件夹里；SHA-256 34fe986bc04db07a0052d6c5364f8f20e6f73a92003cdcfc23e1a6e437e20d0f）。这份文档是用户和设计师一起定下的，是这个游戏的设计依据。
+
+用户对自己每个游戏都有的要求：
+- Steam 上的 PC 游戏，横屏，网页技术做，打包成 Windows 和 macOS 版。
+- 美术全部用代码画，默认像素风，不用任何外部生图工具。
+- 开发期界面只做中文，上线时再加语言。
+- 试玩版和正式版都有在线联机。
+- 代码放 GitHub 时一律建私有库，不建公开库，不用 GitHub Pages 发网页。
+
+工作方式：
+- 不问用户任何问题：自己决定，把每个假设写进 `notes.md`。
+- 交付物放在你自己的文件夹里：能在浏览器里玩的 `index.html`（或能打开的构建）、设计文档、`notes.md`（试什么、哪些是占位、做了哪些假设）。
+- 不要读别的文件夹里的东西，也不要去找别的会话的结果。
+- 本机：Chrome 在 /Applications/Google Chrome.app，Node 和 Python 3 在 PATH 上。任何自动试跑都要无头，不要在用户屏幕上弹窗口。
+- 这一段不往网上推送或发布任何东西（不建远程仓库、不部署），都留在本机。
+- 没有时间和轮数限制，做完为止。
+
+
+这一段的目标：第 1 段：照设计文档，从零做出一个只有打捞的可玩切片，把文档写的整套打捞完整走通，并把它做到极好：从远离沉船的航路开船探索，读海底、地形和生物，换角观察，调伸缩臂、按 A 垂直下网，自动起吊，厚泥洗开后才揭晓、伟大的获得展示后马上拉回大视野，船员各搬一件并行入舱且不卡任何操作，燃油、返航余量和返港补给，四种海域连续探索、旧现场和累计收获一直保留，标题和游戏里都能开的自动演示（尽快放出精彩部分，Esc 随时接管）。这不是整款游戏，只做打捞这一个玩法。美术照文档是风格化 3D，全部用代码画。单机，不做联机。文档里提到的以前的版本编号已经作废，你看不到，也不要去找。做完停下。
+
+简报和设计文档都在你当前的文件夹里。
+
+用户这次的原话（这一轮最优先的事）：
+1、按照设计文档，使用金牌制作人L2链路，把纯打捞这套玩法给我做出来。2、注意，你不要被以前的游戏干扰，以前那个游戏做的不好，所以我才让你按照设计文档重做的，以前的那个可以删掉了。3、不需要，这个不是完整的游戏，我只是要打磨一个极好的，伟大的打捞玩法。用你全部能力去打磨好他。</pre></details></main></body></html>
