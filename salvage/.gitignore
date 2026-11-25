@@ -1,0 +1,5 @@
+# 库里只收游戏本身；其余是 rounds.py 跑轮次的记录
+/*
+!/.gitignore
+!/game/
+/game/design.md

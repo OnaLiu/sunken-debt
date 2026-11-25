@@ -1,0 +1,234 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><title>第 5 轮 · 效果清单 · 沉债</title><style>
+:root{--bg:#f6f3ec;--panel:#fffdf8;--ink:#1f1b16;--soft:#5d5448;--line:#e2dacb;--brass:#9a6a1c;--brass-ink:#fff;--sky:#2f6f8f;--code:#f0ebe0}
+@media (prefers-color-scheme:dark){:root{--bg:#14120f;--panel:#1d1a16;--ink:#efe9de;--soft:#b3a893;--line:#3a332a;--brass:#d39b3c;--brass-ink:#1a1408;--sky:#7fb7d4;--code:#2a251e}}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif}
+main{max-width:980px;margin:0 auto;padding:28px 16px 80px}
+a{color:var(--sky)}h1{font-size:clamp(1.5rem,4.5vw,2.1rem);line-height:1.3;margin:.2em 0 .3em}
+h2{font-size:1.25rem;margin:1.6em 0 .5em}h3{font-size:1.08rem;margin:1.4em 0 .4em}h4,h5,h6{font-size:1rem;margin:1.2em 0 .3em}
+.sub{color:var(--soft);margin:0 0 1.2em}.nav{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.92rem;margin-bottom:10px}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 6px}
+.btn{display:inline-flex;align-items:center;gap:.45em;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:600;border:1px solid var(--line);color:var(--ink);background:var(--panel)}
+.btn.main{background:var(--brass);border-color:var(--brass);color:var(--brass-ink)}.btn:hover{filter:brightness(1.06)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px 20px 14px;margin:16px 0}
+.cols{display:grid;grid-template-columns:1fr;gap:16px}@media (min-width:900px){.cols.two{grid-template-columns:1fr 1fr}main.wide{max-width:1400px}}
+.tag{display:inline-block;font-size:.78rem;padding:1px 8px;border-radius:99px;border:1px solid var(--line);color:var(--soft);margin-left:6px;vertical-align:middle;font-weight:500}
+details{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin:12px 0;padding:0 16px}
+summary{cursor:pointer;padding:12px 0;font-weight:600}details[open] summary{border-bottom:1px solid var(--line);margin-bottom:10px}
+code{background:var(--code);padding:1px 5px;border-radius:5px;font-size:.9em;word-break:break-all}
+pre{background:var(--code);padding:12px;border-radius:10px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;font-size:.88rem;line-height:1.6}
+pre code{background:none;padding:0}
+.shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;padding-bottom:14px}
+.shots figure{margin:0}.shots img{width:100%;border-radius:8px;border:1px solid var(--line);image-rendering:pixelated;display:block}
+.shots figcaption{font-size:.85rem;color:var(--soft);margin-top:4px}
+.tbl{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.93rem;margin:8px 0}
+th,td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}th{background:var(--code)}
+ul,ol{padding-left:1.4em}li{margin:.15em 0}.files{font-size:.9rem;columns:2 260px;padding-bottom:12px}.files div{break-inside:avoid}
+.rounds{list-style:none;padding:0;margin:0}.rounds li{border-top:1px solid var(--line);padding:14px 0;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline}
+.rounds .what{flex:1 1 320px}.rounds .what b{display:block}.rounds .what span{color:var(--soft);font-size:.93rem}
+.rounds .go{display:flex;gap:8px;flex-wrap:wrap}.rounds .go a{font-size:.9rem;padding:6px 12px}
+.muted{color:var(--soft)}footer{margin-top:40px;color:var(--soft);font-size:.85rem}
+.pair{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:14px 0}
+.pair p{margin:0 0 8px;font-weight:600}.pair .ab{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pair .one{grid-template-columns:1fr}
+.pair figure{margin:0}.pair img,.pair video{width:100%;border-radius:8px;border:1px solid var(--line);display:block;background:#000}
+.pair figcaption{font-size:.82rem;color:var(--soft);margin-top:3px}@media (max-width:640px){.pair .ab{grid-template-columns:1fr}}
+</style></head><body><main><div class="nav"><a href="../../index.html">← 全部轮次</a><a href="../015-r00-free/index.html">‹ 上一轮：第 0 轮 · 加一步：照改过的设计文档（打捞玩法演示）把游戏删成演示版，只删不加：</a><a href="../017-r09-fx-batch/index.html">下一轮：第 7 轮 · 效果 ›</a></div><h1>第 5 轮 · 效果清单<span class="tag">016-r08-fx-list</span></h1><p class="sub">沉债 · 先看这一轮变了什么；能玩的是最新一版。</p><p class="muted">这一轮没有交「改前 / 改后」的例子（这个办法 2026-10-14 才开始用），看下面它自己的汇报。</p><details open><summary>它自己的汇报</summary><div class="card"><p>效果清单写好了：<code>效果清单.md</code>。这一轮只列了表，没做任何效果，也没改游戏代码；新加的只有 <code>tools/</code> 里几个量测脚本。</p>
+<p><strong>怎么量的</strong></p>
+<ul><li>
+自动演示在后台不开窗口连跑了 3 趟多，约 505 秒游戏时间。
+</li><li>
+演示走不到的场面另外摆出来测了，比如浅滩、搁浅、油发黄发红、空网、撞到埋着的硬物、三种收工、再来一次、暂停。
+</li><li>
+还用真实时间录了一段，量音乐和帧率。
+</li><li>
+截图在 <code>tools/fx-shots/</code>，汇总数字在 <code>tools/fx-summary.txt</code>。
+</li></ul>
+<p><strong>表里有什么</strong></p>
+<ul><li>
+按从常见到少见排：每一秒的 8 条、每一网的 23 条、逼近的威胁 6 条、每一趟的 12 条、局外 5 条、联机 1 条、第一次 10 条、开场 5 条。
+</li><li>
+每条都有「现在」一栏，写的是实测结果。
+</li><li>
+设计文档点名要的效果标了【设计】。联机和局外成长设计写明不做，表里注明了。
+</li></ul>
+<p><strong>标志时刻（5 个）</strong></p>
+<ol><li>
+珍品确认（全表唯一的「最重」）。
+</li><li>
+网触底。
+</li><li>
+珍品搬进船舱。
+</li><li>
+收获单落下总价。
+</li><li>
+第一次看清沉船。
+</li></ol>
+<p>少见的手法只在珍品确认用了两次：爆发前把声音全抽掉 0.4 秒，爆发时世界褪色只留它的颜色。</p>
+<p><strong>量出来的主要毛病</strong></p>
+<ul><li>
+<strong>一个 bug：</strong> 按「再来一次」以后，结果卡飞向总数的小币和小火花都没了（第 1 趟各 5 次，第 2、3 趟 0 次）。原因是界面记着「看过的卡」，这份记录没有跟卡片编号一起清零，新卡被当成了旧卡。
+</li><li>
+<strong>看不见：</strong>
+<ul><li>
+落甲板的震屏发生在镜头飞过去的半路，只有 1–3 像素。
+</li><li>
+搬进船舱完全没声音。
+</li><li>
+珍品冲洗到 90% 时已经一眼认出，憋不住。
+</li><li>
+搁浅没有声音，也不震。
+</li></ul>
+</li><li>
+<strong>一声当几声用：</strong> 同一个「不行」声管着 4 种意思，连浅滩预警也用它；<code>find</code> 声写好了却从没响过，发现东西都是静悄悄的。
+</li><li>
+<strong>挤成一片：</strong> 珍品确认 0.3 秒里挤了 12 样，最多 44 个发声体同时响。
+</li><li>
+<strong>常见却演得重：</strong> 普通揭晓一趟 4 次，每次都闪白加震屏，震得比落甲板还大 2–4 倍。时长是设计定的，不动；要减的是强度。
+</li><li>
+<strong>威胁不分远近：</strong> 浅滩和油都只有一种颜色，没有心跳。
+</li></ul>
+<p><strong>做的顺序</strong></p>
+<ul><li>
+<strong>第一批</strong>：网触底、珍品确认、油见底逼近（三种分量，各是一个种类），先试方向。
+</li><li>
+<strong>第二批</strong>：量出来的 6 件毛病。
+</li><li>
+<strong>第三到第十四批</strong>：按种类分，每批 4–6 个，每一条都排进去了，包括第一次和开场。
+</li></ul>
+<p>交付前把整套测试完整跑了一遍，42 项全部通过。</p></div></details><details><summary>用时</summary><p>用时 38 分钟 · 花费 $10.06</p></details><details><summary>改了哪些文件（比起 015-r00-free：新加 66 · 改动 1 · 删掉 0）</summary><div class="files"><div>＋ tools/fx-analyze.mjs</div><div>＋ tools/fx-measure-demo.json</div><div>＋ tools/fx-measure-realtime.json</div><div>＋ tools/fx-measure-staged.json</div><div>＋ tools/fx-measure.mjs</div><div>＋ tools/fx-probe.mjs</div><div>＋ tools/fx-recorder.js</div><div>＋ tools/fx-shots/demo-00-sail.jpg</div><div>＋ tools/fx-shots/demo-01-site-near.jpg</div><div>＋ tools/fx-shots/demo-02-work.jpg</div><div>＋ tools/fx-shots/demo-03-splash.jpg</div><div>＋ tools/fx-shots/demo-04-touch.jpg</div><div>＋ tools/fx-shots/demo-05-surface.jpg</div><div>＋ tools/fx-shots/demo-06-land.jpg</div><div>＋ tools/fx-shots/demo-07-wash-mid.jpg</div><div>＋ tools/fx-shots/demo-08-wash-late.jpg</div><div>＋ tools/fx-shots/demo-09-confirm.jpg</div><div>＋ tools/fx-shots/demo-10-pull.jpg</div><div>＋ tools/fx-shots/demo-11-site-far.jpg</div><div>＋ tools/fx-shots/demo-12-dig.jpg</div><div>＋ tools/fx-shots/demo-13-p-land.jpg</div><div>＋ tools/fx-shots/demo-14-p-wash-75.jpg</div><div>＋ tools/fx-shots/demo-15-p-wash-90.jpg</div><div>＋ tools/fx-shots/demo-16-p-confirm.jpg</div><div>＋ tools/fx-shots/demo-17-p-show.jpg</div><div>＋ tools/fx-shots/demo-18-p-pull.jpg</div><div>＋ tools/fx-shots/demo-19-p-cheer.jpg</div><div>＋ tools/fx-shots/demo-20-haul.jpg</div><div>＋ tools/fx-shots/demo-21-demo-nudge.jpg</div><div>＋ tools/fx-shots/demo-22-takeover.jpg</div><div>＋ tools/fx-shots/staged-00-title-0.3s.jpg</div><div>＋ tools/fx-shots/staged-01-title-1.5s.jpg</div><div>＋ tools/fx-shots/staged-02-start-fade.jpg</div><div>＋ tools/fx-shots/staged-03-start-0.jpg</div><div>＋ tools/fx-shots/staged-04-intro-arrow.jpg</div><div>＋ tools/fx-shots/staged-05-sail-wake.jpg</div><div>＋ tools/fx-shots/staged-06-shoal-omen.jpg</div><div>＋ tools/fx-shots/staged-07-grounded.jpg</div><div>＋ tools/fx-shots/staged-08-work-first.jpg</div><div>＋ tools/fx-shots/staged-09-aim-limit.jpg</div><div>＋ tools/fx-shots/staged-10-empty-net.jpg</div><div>＋ tools/fx-shots/staged-11-anchor-land.jpg</div><div>＋ tools/fx-shots/staged-12-anchor-confirm.jpg</div><div>＋ tools/fx-shots/staged-13-card-dismiss.jpg</div><div>＋ tools/fx-shots/staged-14-bell-confirm.jpg</div><div>＋ tools/fx-shots/staged-15-crab-confirm.jpg</div><div>＋ tools/fx-shots/staged-16-crab-tank.jpg</div><div>＋ tools/fx-shots/staged-17-dig.jpg</div><div>＋ tools/fx-shots/staged-18-hazard-aim.jpg</div><div>＋ tools/fx-shots/staged-19-obstacle.jpg</div><div>＋ tools/fx-shots/staged-20-rel-wash-late.jpg</div><div>＋ tools/fx-shots/staged-21-rel-confirm.jpg</div><div>＋ tools/fx-shots/staged-22-rel-show.jpg</div><div>＋ tools/fx-shots/staged-23-rel-pull.jpg</div><div>＋ tools/fx-shots/staged-24-rel-cheer.jpg</div><div>＋ tools/fx-shots/staged-25-fuel-warn.jpg</div><div>＋ tools/fx-shots/staged-26-fuel-bad.jpg</div><div>＋ tools/fx-shots/staged-27-haul-fuel.jpg</div><div>＋ tools/fx-shots/staged-28-restart.jpg</div><div>＋ tools/fx-shots/staged-29-pause.jpg</div><div>＋ tools/fx-shots/staged-30-settings.jpg</div><div>＋ tools/fx-shots/staged-31-hud-hidden.jpg</div><div>＋ tools/fx-shots/staged-32-haul-done.jpg</div><div>＋ tools/fx-shots/staged-33-haul-quit.jpg</div><div>＋ tools/fx-summary.txt</div><div>＋ 效果清单.md</div><div>～ tools/test-results.json</div></div></details><details><summary>这一轮收到的 prompt</summary><pre>这是第 8 轮打磨：列效果清单。游戏和设计文档都在当前文件夹。
+范围：整个演示：打捞这一圈。
+
+- 把游戏里玩家看到东西发生的每一个地方找出来，从最频繁到最稀有一层层过：每一秒的核心动作、每一场、每一局、局外、联机、每个「第一次」（第一次升级、第一次稀有、第一次首领）、开场（标题和进入游戏也是仪式）；再按种类查一遍有没有漏：进入和仪式、命中、破坏、揭晓、获得、变身、结算、界面。站着不动看也要爽。设计文档里明确要求的效果照写进去。
+- 列成一张表，存成 `效果清单.md`：编号、时刻、想要的感受、一句话的样子、哪一档（轻、中、重、最重）、用下面哪一类（没有合适的写「新」）。
+- 先量现在的样子：在无头浏览器里让自动演示跑几局，再把自动演示碰不到的场面一个个摆出来，记下每一处效果出没出来、多久一次、同一时刻起几声。表里加一列「现在」。量出来的毛病单独列出来：看不见的、一声当几声用的、同一时刻挤成一片的、很常见却演得很重的。
+- 标出三到五个标志时刻：游戏的承诺落在这里，按最高标准做。
+- 逼近的威胁也列进去：要让玩家一直感觉到，远时颜色平常，近了发黄，再近发红，心跳越来越快。
+- 最后排出做的顺序：表里每一种效果切片里都要做到成品（构筑、刷宝、局外、「第一次」、开场都算）。先挑 3 个不同种类的当第一批，试方向；量出来的毛病排第二批；其余按种类分批，每批和第一批差不多大（三到六个），让每个效果都分得到第一批那样的工夫。
+- 这一轮只列表，不做效果。
+
+下面附的是效果的种类和手感灵感库。
+
+——以下是「效果的种类」——
+
+| 类 | 用在 |
+|---|---|
+| 砸脸横幅 | 到站、进战斗、精英和头目出场、章节标题 |
+| 慢揭晓 | 抽卡、二选一、升品、开奖、点化 |
+| 炸开 | 开箱、开宝、掉落、拆包 |
+| 进场 | 部队、角色入场，主角落地，选角色，队友加入 |
+| 撕碎 | 撕牌、解除诅咒、完成任务牌 |
+| 命中与击杀 | 射击、近战、击杀、连杀、载具上的武器 |
+| 标题亮相 | 标题画面、章节名、大场景的名字第一次出现 |
+| 吞没 | 威胁逼近、失败被吞没 |
+| 开局 | 开始新的一局，到出发上路 |
+| 地图揭示 | 选岔路、新区域出现、路线图展开 |
+| 号令 | 撤退号、集合、号召 |
+| 清点 | 撤离清点、结算、回仓库、捡东西、图鉴点亮 |
+| 技能出手 | 技能自动放、主动技能、大招 |
+| 撞飞 | 开车撞敌人、冲撞技能、推倒一排东西 |
+| 出场 | 精英出场、头目出场、强敌登场 |
+| 终结一击 | 头目最后一击、打倒强敌 |
+| 倒计时冲锋 | 攻坚倒计时和冲锋、开战前的集结 |
+| 掉落揭示 | 掉落的品质光柱、装备出了顶天的词条 |
+| 套装凑齐 | 套装凑齐、收集齐一组 |
+| 升级 | 升级、等级提升 |
+| 选中注入 | 选中馈赠、装上强化、吸收能力 |
+| 锻造 | 锻造升级、强化装备 |
+| 烙印 | 命运牌浮现、诅咒落下、契约成立 |
+| 抹杀 | 期限到了被抹杀、彻底失败 |
+| 变形 | 载具变形、角色进化、建筑变成新形态 |
+| 胜利抵达 | 章节胜利、抵达终点、通关 |
+| 揭幕 | 解锁新角色、新载具、新区域 |
+| 界面反馈 | 按钮、不能做、打开面板、装备对比、画区域 |
+| 联机提示 | 一起撤离、队友出了好东西、队友做了大事 |
+| 救起 | 救起倒下的队友、复活 |
+| 冲出 | 最后一刻冲出、撤离 |
+
+——「效果的种类」到此——
+
+——以下是「手感与仪式灵感库」——
+
+
+先想清楚哪些时刻要什么感受、效果怎么做（五拍、爆发的层次、分档），再从这里挑少见的手法。
+
+给打磨打击感、爽感和大时刻演出用的启发：每一下命中怎么有分量，升级、开箱、击败首领、通关这些时刻怎么配得上它的分量。不是菜单，也不是规范；具体数值自己推，再按截帧调。
+
+用法：
+1. 基本功（多通道命中、分档、磁吸、连续升调、数字滚动、稀有度预告、首领最后一击、可关震屏）每个游戏都要做到。设计稿里要写清它们在这个世界里的样子。核心动作的每一下命中写全：停顿（按轻重分档）、闪成什么颜色、受击反应或击退、材质声和挥空声的对比、碎屑、手柄震动。玩家最常骂的就是打击没反馈：频繁的命中可以轻快，但不能没有分量。
+2. 这里只管“让手感长在这个世界里”：先回答下面“这个世界摸起来什么样”的问题；再从“少见的手法”里最多挑一两个，只用在最重要的一两个时刻，其余时刻用基本功做扎实。一条在哪个游戏里都能原样成立的，说明它还没改成这个游戏的。
+3. 分档：越频繁越轻，越稀有越重；每个稀有时刻按五拍做（预兆、憋住、爆发、余波、余韵；仪式的四拍加爆发前憋住的一拍）。
+4. 迭代：标志性时刻做出你认为伟大的版本，再告诉自己“相信自己，更进一步”，至少再来两轮（L3 第 9 轮做效果时）；每一轮从这里找一个新手法。
+5. 范围与分寸：几个时刻做到极致，胜过每个时刻都堆满特效。写清最频繁的反馈怎么保持轻快、不挡视线，哪些效果可以在设置里关掉。
+
+设计稿里只写结果，不写挑选过程；库里点名的游戏是别人的答案，照搬会被玩家认出来。
+
+收尾时，这个游戏调出来的、玩家夸过的手法，一行一条加进来。
+
+## 这个世界摸起来什么样
+
+每个问题至少答一个具体的东西：
+- 这个世界的材质是什么？命中、碎裂、拾取、倒下各发出什么声音（撕纸、敲钟、齿轮咬合、泥土翻开）？
+- 最常做的那个动作，在这个世界里像什么（拧发条、犁地、翻书页）？手感就往那个动作上靠。
+- 变强的时候，画面上长出什么（纸飞机多折了一道、藤蔓爬满农具）？
+- 这个世界的大时刻是什么仪式（钟敲十二下、花一起开、书合上）？
+- 失败在这个世界里是什么样子（纸被揉皱、钟停摆）？
+- 联机时，几个人的反馈能不能合在一起（打击声叠成和声、各自的颜色）？
+
+## 玩家怎么评判手感
+
+玩家骂的：
+- 打击反馈弱，不知道打没打中、有没有挨打（26）。量：逐帧看，命中后一帧内有反馈；九成五以上的命中有三个以上反馈通道。
+- 操作不跟手：输入延迟、吞指令、掉帧（20）。量：输入到画面的延迟和掉帧率。
+- 移动手感别扭：速度、重量、惯性不对（20）。
+- 重复操作磨人、点击太多（18）；成长只是小数字，没有质变（18）；后摇太长、被连控、闪避没有保护（16）。
+- 特效让人难受或看不清：闪烁、晕动、遮挡预警（16）。量：震屏、闪光、动态模糊都能关。
+- 音效刺耳、缺失或失控（12）；长演出不能跳过（10）；大时刻缺席或虎头蛇尾（9）。
+
+玩家夸的：
+- 操作跟手、输入不丢（30，最多）。
+- 动画多、过渡顺、特效有质感（26）。
+- 移动的流畅和速度感（16）；看着世界因自己而改变（16）。
+- 连锁结算和大数字爆发（15）；割草清屏的碾压感（14）。
+- 音效本身就上瘾（13）；物理和混乱的喜剧效果（13）；通关、首领、结算的大时刻演出（13）；掉落和升级的多巴胺（11）；需要时机的精通回报（10）。
+
+## 少见的手法
+
+- 命中的瞬间画面降到逐格的低帧率，像老胶片的顿挫，当作停顿；
+- 致命一击时画面去色，只留击杀者和目标的颜色；
+- 菜单、面板、图标和世界用同一套物理，会晃、会弹、会撞；
+- 战斗结束后把整场自动剪成一段连贯的动作片回放；
+- 每完成一段进程，配乐永久多一件乐器或一个声部，最后凑成完整的主题；
+- 打击和音乐的拍子对上，踩在拍子上的命中更响；
+- 首领倒下后，世界当场恢复生机（停摆的钟重新走、枯枝发芽）；
+- 联机时自己的反馈全彩，队友的半透明，屏幕再乱也认得出自己；
+- 几个人同时打中一个目标，打击声叠成和声；
+- 换角色、换武器的动作直接接进当前连招；
+- 每个升级都在每一发攻击上看得见，满级换一个新样子；
+- 结算画面不是静态的，玩家还能继续放礼炮、到处乱飞；
+- 一把武器按情境变成几种东西（矛、盾、踏板、桩子），同一个键；
+- 物理本身就是笑点：被打飞的敌人弹来弹去、撞倒一排；
+- 越接近宝箱它抖得越厉害、光越亮；
+- 失败的瞬间也有一个好看的样子，让人愿意马上再来一局。
+
+## 学自近期被夸手感的游戏
+
+别人的答案，只看它们从哪里长出来，不要搬。依据：研究里手感被夸得最多的游戏，2025-01 至 2026-09 发售。
+
+- ZOE Begone!：命中瞬间画面降到逐格手绘的低帧率，像老胶片的顿挫，当作打击停顿；击破时迸出和画风一致的墨水。
+- Whirlwind Magician：帽子 360° 投出去攻击，人瞬移到帽子那里，一次投掷既是攻击也是位移。
+- ChainStaff：蓄力投出的长矛把敌人当场劈成两半；同一个键按情境变成矛、盾、踏板、桩子。
+- Haste：顺着斜坡贴地落下就加速，落地失误掉速；身后的世界在崩塌，跑得快就是活下去。
+- 2 Fights in 2 Tight Spaces：回合制出牌结束后，整场战斗自动剪成一段连贯的动作片回放；被打飞的敌人用物理翻滚。
+- FUMES：菜单、面板、图标和世界用同一套物理，会晃、会弹、会撞；开机不进教程，直接把你放进车里开打。
+- Greedland：开局火力弱，升级叠起来变成全自动移动炮台；被围时召唤机甲碾过精英。
+- Morbid Metal：实时切换角色，切换动作直接接进连招；连招表现全程打分。
+- All Hands on Deck：两个玩家的手比石头剪刀布：石头捶、布抓、剪刀剪；两人都出布就是击掌开机关。
+- Super Alloy Crush：普攻去掉多余前后摇，每次命中厚重音效加震屏；双人技能互相接成连段。
+- Key Fairy、Code Velocity：探索时舒缓，一进战斗几秒内切到紧张的曲子。
+- Territory Control 2：用起重机把保险箱甩飞摔开，用绞盘把掉进沟里的队友拖出来：靠物理工具，不靠按钮。
+- 拾荒之翼：首领倒下，战利品一件接一件扇形喷开、各一道光柱，先停在空中让人读名字，过两秒才一起吸进货舱；之前一喷出来就被吸走，评审根本没看到这一下。
+
+——「手感与仪式灵感库」到此——
+
+自动试跑都无头，不在屏幕上开窗口；不问问题，自己决定；不往网上推送。
+只在当前文件夹里看和改：不要打开上一级文件夹，也不要看别的轮次的文件夹，也不要去看 … 里的技能和规则（这一轮要的都写在上面；带 prompt 的和只给目标的两份要互相看不见）。</pre></details></main></body></html>

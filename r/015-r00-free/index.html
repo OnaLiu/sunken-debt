@@ -1,0 +1,98 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><title>第 0 轮 · 加一步：照改过的设计文档（打捞玩法演示）把游戏删成演示版，只删不加： · 沉债</title><style>
+:root{--bg:#f6f3ec;--panel:#fffdf8;--ink:#1f1b16;--soft:#5d5448;--line:#e2dacb;--brass:#9a6a1c;--brass-ink:#fff;--sky:#2f6f8f;--code:#f0ebe0}
+@media (prefers-color-scheme:dark){:root{--bg:#14120f;--panel:#1d1a16;--ink:#efe9de;--soft:#b3a893;--line:#3a332a;--brass:#d39b3c;--brass-ink:#1a1408;--sky:#7fb7d4;--code:#2a251e}}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif}
+main{max-width:980px;margin:0 auto;padding:28px 16px 80px}
+a{color:var(--sky)}h1{font-size:clamp(1.5rem,4.5vw,2.1rem);line-height:1.3;margin:.2em 0 .3em}
+h2{font-size:1.25rem;margin:1.6em 0 .5em}h3{font-size:1.08rem;margin:1.4em 0 .4em}h4,h5,h6{font-size:1rem;margin:1.2em 0 .3em}
+.sub{color:var(--soft);margin:0 0 1.2em}.nav{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.92rem;margin-bottom:10px}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 6px}
+.btn{display:inline-flex;align-items:center;gap:.45em;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:600;border:1px solid var(--line);color:var(--ink);background:var(--panel)}
+.btn.main{background:var(--brass);border-color:var(--brass);color:var(--brass-ink)}.btn:hover{filter:brightness(1.06)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px 20px 14px;margin:16px 0}
+.cols{display:grid;grid-template-columns:1fr;gap:16px}@media (min-width:900px){.cols.two{grid-template-columns:1fr 1fr}main.wide{max-width:1400px}}
+.tag{display:inline-block;font-size:.78rem;padding:1px 8px;border-radius:99px;border:1px solid var(--line);color:var(--soft);margin-left:6px;vertical-align:middle;font-weight:500}
+details{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin:12px 0;padding:0 16px}
+summary{cursor:pointer;padding:12px 0;font-weight:600}details[open] summary{border-bottom:1px solid var(--line);margin-bottom:10px}
+code{background:var(--code);padding:1px 5px;border-radius:5px;font-size:.9em;word-break:break-all}
+pre{background:var(--code);padding:12px;border-radius:10px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;font-size:.88rem;line-height:1.6}
+pre code{background:none;padding:0}
+.shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;padding-bottom:14px}
+.shots figure{margin:0}.shots img{width:100%;border-radius:8px;border:1px solid var(--line);image-rendering:pixelated;display:block}
+.shots figcaption{font-size:.85rem;color:var(--soft);margin-top:4px}
+.tbl{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.93rem;margin:8px 0}
+th,td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}th{background:var(--code)}
+ul,ol{padding-left:1.4em}li{margin:.15em 0}.files{font-size:.9rem;columns:2 260px;padding-bottom:12px}.files div{break-inside:avoid}
+.rounds{list-style:none;padding:0;margin:0}.rounds li{border-top:1px solid var(--line);padding:14px 0;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline}
+.rounds .what{flex:1 1 320px}.rounds .what b{display:block}.rounds .what span{color:var(--soft);font-size:.93rem}
+.rounds .go{display:flex;gap:8px;flex-wrap:wrap}.rounds .go a{font-size:.9rem;padding:6px 12px}
+.muted{color:var(--soft)}footer{margin-top:40px;color:var(--soft);font-size:.85rem}
+.pair{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:14px 0}
+.pair p{margin:0 0 8px;font-weight:600}.pair .ab{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pair .one{grid-template-columns:1fr}
+.pair figure{margin:0}.pair img,.pair video{width:100%;border-radius:8px;border:1px solid var(--line);display:block;background:#000}
+.pair figcaption{font-size:.82rem;color:var(--soft);margin-top:3px}@media (max-width:640px){.pair .ab{grid-template-columns:1fr}}
+</style></head><body><main><div class="nav"><a href="../../index.html">← 全部轮次</a><a href="../014-r15-lean/index.html">‹ 上一轮：少字（并进了看得懂那一轮）</a><a href="../016-r08-fx-list/index.html">下一轮：第 5 轮 · 效果清单 ›</a></div><h1>第 0 轮 · 加一步：照改过的设计文档（打捞玩法演示）把游戏删成演示版，只删不加：<span class="tag">015-r00-free</span></h1><p class="sub">沉债 · 先看这一轮变了什么；能玩的是最新一版。</p><h2>这一轮变了什么</h2><div class="pair"><p>开局的航行画面：改前右下有小海图，燃油条上有回港锚标，码头有泊位虚线圈，船员脚下有阵营圈，油箱 100；改后只剩模式、按键和燃油条，油箱改成 60（认真捞完这一处还略有余），画面上只留打捞要看的东西。</p><div class="ab"><figure><a href="changes/1-start-before.png" target="_blank"><img loading="lazy" src="changes/1-start-before.png" alt="改前"></a><figcaption>改前</figcaption></figure><figure><a href="changes/1-start-after.png" target="_blank"><img loading="lazy" src="changes/1-start-after.png" alt="改后"></a><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>作业时的作业栏：改前把这一网的花费折成钱，写“−12”，螃蟹脚下还有阵营圈；改后直接写这一网要预付的作业油“−2.3”，和燃油条右端那截斜纹是同一个数，油成了这一趟唯一要算的东西。</p><div class="ab"><figure><a href="changes/2-work-before.png" target="_blank"><img loading="lazy" src="changes/2-work-before.png" alt="改前"></a><figcaption>改前</figcaption></figure><figure><a href="changes/2-work-after.png" target="_blank"><img loading="lazy" src="changes/2-work-after.png" alt="改后"></a><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>同一处、同一时刻，网口对着沉船下坡：改前有一条“逆流的大轮廓”从网口游过，鱼群四散；改后海底只剩蟹和鱼群。这是按简报删掉蟹和鱼群以外的生物，是和设计文档唯一的冲突，已记在 notes。</p><div class="ab"><figure><video src="changes/3-creature-before.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改前</figcaption></figure><figure><video src="changes/3-creature-after.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>沙湾东边那片海（藏起界面俯瞰）：改前是草湾泊位的房子和码头，还有另一条沉船和一地散落物；改后只是一片普通海底。整个演示只剩归潮沙湾这一片海，别的海域和港口都删了。</p><div class="ab"><figure><a href="changes/4-east-before.png" target="_blank"><img loading="lazy" src="changes/4-east-before.png" alt="改前"></a><figcaption>改前</figcaption></figure><figure><a href="changes/4-east-after.png" target="_blank"><img loading="lazy" src="changes/4-east-after.png" alt="改后"></a><figcaption>改后</figcaption></figure></div></div><div class="pair"><p>一趟的收尾（同样两件货，同一处码头外）：改前按空格靠泊，港口结算、补满油再出海，没有尽头；改后从暂停菜单选“结束这一趟”，弹出收获单，列出捞到什么、一共值多少，按一下黑场，同一片海从头再来。</p><div class="ab"><figure><video src="changes/5-ending-before.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改前</figcaption></figure><figure><video src="changes/5-ending-after.mp4" controls muted loop playsinline preload="metadata"></video><figcaption>改后</figcaption></figure></div></div><details><summary>它自己的汇报</summary><div class="card"><p>按方案改完了：现在只剩打捞这一圈，加上设计要求的收尾和一个自动演示入口。42 项无头测试全部通过（约 20 秒）。</p>
+<p><strong>怎么玩</strong></p>
+<ul><li>
+双击 <code>index.html</code>，选“开始航程”。
+</li><li>
+流程：从码头出发 → 浅滩的线索 → 顺着船板找到沉船 → 下几网 → 货舱的银币匣（珍贵揭晓）→ 船员把货搬进舱 → 下坡还有一件最值钱的镀金珐琅匣。
+</li><li>
+网都下完或油不够再下一网时，出一张收获单：列出每一件和总价值，按 Ⓐ（空格）再来一次，海底和收获从头来过。
+</li><li>
+标题上的“自动演示”大约 2 分 40 秒一圈：约 25 秒下第一网，约 1 分半揭出银币匣，收获单后自己再来一圈。任何时候按 Esc 接管，接着当前这一趟玩。
+</li></ul>
+<p><strong>删了什么</strong></p>
+<ul><li>
+另外三片海、港口和补油、航次账、航迹账、备用油柜、回港线。
+</li><li>
+海图、小海图、现场浮标、收获册、把活物放回海里。
+</li><li>
+蟹和鱼群以外的生物、存档读档、<code>demo.html</code>、船员名字、阵营圈。
+</li><li>
+<code>tools/</code> 里的 47 个脚本只剩打包和一个测试，旧的合并设计稿 <code>design-merged.md</code> 也删了。
+</li><li>
+源码约 1.6 万行 → 1.13 万行。<code>design.md</code> 没动。
+</li></ul>
+<p><strong>画面和界面</strong><br>改动前后各拍了一组无头截图对照（标题、开局、作业、揭晓）。除了按要求删掉的东西，画面、声音、界面一致。新加的收获单用的是原来那套黄铜铭牌样式。</p>
+<p><strong>需要你知道的几个决定</strong></p>
+<ul><li>
+<strong>逆流的大轮廓删了。</strong> 设计文档第 4 节写着它（只出现、不能捕），但简报要求“蟹和鱼群以外的生物删掉”，我按简报删了。这是和设计文档唯一的冲突。
+</li><li>
+<strong>自动演示用暂停菜单的“结束这一趟”收工</strong>，收获单上写“提前收工”。两三分钟走不完 8 个网位，这是玩家也能做的同一个操作，不是给演示开的后门。
+</li><li>
+<strong>油箱从 100 改成 60</strong>，数字取自机器人全清实测，按设计“认真捞完这一处还略有余”定的。机器人全清这一处（9 网、12 件）约 5 分 20 秒、用油约 36。
+</li><li>
+<strong>作业栏改写作业油。</strong> 原来写的是折成钱的花费，现在没有钱了，直接写这一网要花的作业油。
+</li><li>
+<strong>每一趟都是同一片海，银币匣必在。</strong>
+</li><li>
+<strong>海星留着当装饰。</strong> 它不是生物；拿掉会让整片海草和石头全部挪位，画面就变了。
+</li></ul>
+<p>所有假设和占位都写在 <code>notes.md</code> 里。联机和 Windows/macOS 打包不在这次范围内，也记在里面。全部留在本机，没有推送或发布任何东西。</p></div></details><details><summary>用时</summary><p>用时 50 分钟 · 花费 $22.60</p></details><details><summary>改了哪些文件（比起 014-r15-lean：新加 0 · 改动 33 · 删掉 47）</summary><div class="files"><div>～ design.md</div><div>～ game.js</div><div>～ notes.md</div><div>～ package.json</div><div>～ src/audio.js</div><div>～ src/core/input.js</div><div>～ src/eco/creatures.js</div><div>～ src/eco/director.js</div><div>～ src/eco/looks.js</div><div>～ src/game/aimviz.js</div><div>～ src/game/boat.js</div><div>～ src/game/bot.js</div><div>～ src/game/crew.js</div><div>～ src/game/crewlook.js</div><div>～ src/game/game.js</div><div>～ src/game/hold.js</div><div>～ src/game/reveal.js</div><div>～ src/game/salvage.js</div><div>～ src/main.js</div><div>～ src/render/view.js</div><div>～ src/render/warmup.js</div><div>～ src/ui/hud.js</div><div>～ src/ui/keys.js</div><div>～ src/ui/overlay.js</div><div>～ src/world/decor.js</div><div>～ src/world/items.js</div><div>～ src/world/layout.js</div><div>～ src/world/region.js</div><div>～ src/world/sites.js</div><div>～ src/world/world.js</div><div>～ style.css</div><div>～ tools/test-headless.mjs</div><div>～ tools/test-results.json</div><div>－ demo.html</div><div>－ design-merged.md</div><div>－ src/render/rings.js</div><div>－ tools/boat-shots.mjs</div><div>－ tools/carry-shot.mjs</div><div>－ tools/clue-watch.mjs</div><div>－ tools/crew-shots.mjs</div><div>－ tools/crisp-shot.mjs</div><div>－ tools/deck-shot.mjs</div><div>－ tools/demo-keys.mjs</div><div>－ tools/demo-run.mjs</div><div>－ tools/demo-shots.mjs</div><div>－ tools/density.json</div><div>－ tools/diag.mjs</div><div>－ tools/eco-shots.mjs</div><div>－ tools/econ.mjs</div><div>－ tools/flow.mjs</div><div>－ tools/fly-seq.mjs</div><div>－ tools/gen-bench.mjs</div><div>－ tools/gen-golden.mjs</div><div>－ tools/hold-shot.mjs</div><div>－ tools/keyplay.mjs</div><div>－ tools/long-run.mjs</div><div>－ tools/perf-probe.mjs</div><div>－ tools/pilot-run.mjs</div><div>－ tools/place-shots.mjs</div><div>－ tools/reveal-seq.mjs</div><div>－ tools/reveal-shots.mjs</div><div>－ tools/seed-sweep.mjs</div><div>－ tools/shell-shots.mjs</div><div>－ tools/shot.mjs</div><div>－ tools/test-drop-results.json</div><div>－ tools/test-drop.mjs</div><div>－ tools/test-eco-results.json</div><div>－ tools/test-eco.mjs</div><div>－ tools/test-fx-results.json</div><div>－ tools/test-fx.mjs</div><div>－ tools/test-places-results.json</div><div>－ tools/test-places.mjs</div><div>－ tools/test-readable-results.json</div><div>－ tools/test-readable.mjs</div><div>－ tools/test-voyage-results.json</div><div>－ tools/test-voyage.mjs</div><div>－ tools/topmap.mjs</div><div>－ tools/tour.mjs</div><div>－ tools/ui-tour.mjs</div><div>－ tools/wreckshots.mjs</div></div></details><details><summary>这一轮收到的 prompt</summary><pre># 沉债 · 对比模式简报
+
+设计文档：`design.md`（在你的文件夹里；SHA-256 5e984e77916d3b1c8e173a03b7571fca11b53384344a46046a6dfb6bf69ef963）。这份文档是用户和设计师一起定下的，是这个游戏的设计依据。
+
+用户对自己每个游戏都有的要求：
+- Steam 上的 PC 游戏，横屏，网页技术做，打包成 Windows 和 macOS 版。
+- 美术全部用代码画，默认像素风，不用任何外部生图工具。
+- 开发期界面只做中文，上线时再加语言。
+- 试玩版和正式版都有在线联机。
+- 代码放 GitHub 时一律建私有库，不建公开库，不用 GitHub Pages 发网页。
+
+工作方式：
+- 不问用户任何问题：自己决定，把每个假设写进 `notes.md`。
+- 交付物放在你自己的文件夹里：能在浏览器里玩的 `index.html`（或能打开的构建）、设计文档、`notes.md`（试什么、哪些是占位、做了哪些假设）。
+- 不要读别的文件夹里的东西，也不要去找别的会话的结果。
+- 本机：Chrome 在 /Applications/Google Chrome.app，Node 和 Python 3 在 PATH 上。任何自动试跑都要无头，不要在用户屏幕上弹窗口。
+- 这一段不往网上推送或发布任何东西（不建远程仓库、不部署），都留在本机。
+- 没有时间和轮数限制，做完为止。
+
+
+这一段的目标：照改过的设计文档（打捞玩法演示）把游戏删成演示版，只删不加：只留归潮沙湾一片海、侧卧的中世纪商船和浅滩、沉船、下坡三处现场（6—8 个网位，银币匣一定出现），蟹和鱼群，看海底、调臂、垂直下网、厚泥揭晓、船员搬运、油量读数，加上设计文档写的收尾（网下完或油见底出收获单、再来一次）和一个入口两三分钟走完一圈的自动演示。删掉：另外三片海和之后生成的新海域及地名、港口泊位补给航次账航迹账备用油柜回港线、海图小海图现场记录浮标收获册放回海里、蟹和鱼群以外的生物和相关细节、存档读档接管存档、第二个演示入口、船员头顶的名字和阵营圈、各地方各一套的暂停图例（只留一页简单的操作说明）、远处海域的内存释放、密度和收益核算，以及这些对应的测试和工具（留一小套检查这一圈走得通的测试）。已经做好的画面、声音、手感和界面样子不动。
+
+简报和设计文档都在你当前的文件夹里。
+
+用户这次的原话（这一轮最优先的事）：
+就做一个打捞的玩法，就花了这么长时间和token……我只是要给人看一下这个打捞的玩法，所以，不需要太多内容，现在的打捞玩法，是不是太庞大了。你判断一下，需要保留哪些与打捞有关的核心内容，向我确认一下，其他的都可以删掉。可以，就按方案改。</pre></details></main></body></html>
