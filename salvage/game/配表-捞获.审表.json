@@ -1,0 +1,17 @@
+{
+ "id": "sd-laohuo",
+ "kind": "build",
+ "title": "捞获",
+ "say": "海底能捞上来的东西：揭晓那一刻名牌上的名字、价值和底下那一行说明。",
+ "source": "配表.md#捞获",
+ "key": "id",
+ "columns": {
+  "id": {"hide": true},
+  "名字": {"player": true},
+  "价值": {"player": true},
+  "说明": {"player": true},
+  "珍贵": {},
+  "重": {}
+ },
+ "game": "表/生成/捞获.js"
+}
