@@ -1,0 +1,176 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><title>设计文档 · 沉债</title><style>
+:root{--bg:#f6f3ec;--panel:#fffdf8;--ink:#1f1b16;--soft:#5d5448;--line:#e2dacb;--brass:#9a6a1c;--brass-ink:#fff;--sky:#2f6f8f;--code:#f0ebe0}
+@media (prefers-color-scheme:dark){:root{--bg:#14120f;--panel:#1d1a16;--ink:#efe9de;--soft:#b3a893;--line:#3a332a;--brass:#d39b3c;--brass-ink:#1a1408;--sky:#7fb7d4;--code:#2a251e}}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif}
+main{max-width:980px;margin:0 auto;padding:28px 16px 80px}
+a{color:var(--sky)}h1{font-size:clamp(1.5rem,4.5vw,2.1rem);line-height:1.3;margin:.2em 0 .3em}
+h2{font-size:1.25rem;margin:1.6em 0 .5em}h3{font-size:1.08rem;margin:1.4em 0 .4em}h4,h5,h6{font-size:1rem;margin:1.2em 0 .3em}
+.sub{color:var(--soft);margin:0 0 1.2em}.nav{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.92rem;margin-bottom:10px}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 6px}
+.btn{display:inline-flex;align-items:center;gap:.45em;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:600;border:1px solid var(--line);color:var(--ink);background:var(--panel)}
+.btn.main{background:var(--brass);border-color:var(--brass);color:var(--brass-ink)}.btn:hover{filter:brightness(1.06)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px 20px 14px;margin:16px 0}
+.cols{display:grid;grid-template-columns:1fr;gap:16px}@media (min-width:900px){.cols.two{grid-template-columns:1fr 1fr}main.wide{max-width:1400px}}
+.tag{display:inline-block;font-size:.78rem;padding:1px 8px;border-radius:99px;border:1px solid var(--line);color:var(--soft);margin-left:6px;vertical-align:middle;font-weight:500}
+details{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin:12px 0;padding:0 16px}
+summary{cursor:pointer;padding:12px 0;font-weight:600}details[open] summary{border-bottom:1px solid var(--line);margin-bottom:10px}
+code{background:var(--code);padding:1px 5px;border-radius:5px;font-size:.9em;word-break:break-all}
+pre{background:var(--code);padding:12px;border-radius:10px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;font-size:.88rem;line-height:1.6}
+pre code{background:none;padding:0}
+.shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;padding-bottom:14px}
+.shots figure{margin:0}.shots img{width:100%;border-radius:8px;border:1px solid var(--line);image-rendering:pixelated;display:block}
+.shots figcaption{font-size:.85rem;color:var(--soft);margin-top:4px}
+.tbl{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.93rem;margin:8px 0}
+th,td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}th{background:var(--code)}
+ul,ol{padding-left:1.4em}li{margin:.15em 0}.files{font-size:.9rem;columns:2 260px;padding-bottom:12px}.files div{break-inside:avoid}
+.rounds{list-style:none;padding:0;margin:0}.rounds li{border-top:1px solid var(--line);padding:14px 0;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline}
+.rounds .what{flex:1 1 320px}.rounds .what b{display:block}.rounds .what span{color:var(--soft);font-size:.93rem}
+.rounds .go{display:flex;gap:8px;flex-wrap:wrap}.rounds .go a{font-size:.9rem;padding:6px 12px}
+.muted{color:var(--soft)}footer{margin-top:40px;color:var(--soft);font-size:.85rem}
+.pair{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:14px 0}
+.pair p{margin:0 0 8px;font-weight:600}.pair .ab{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pair .one{grid-template-columns:1fr}
+.pair figure{margin:0}.pair img,.pair video{width:100%;border-radius:8px;border:1px solid var(--line);display:block;background:#000}
+.pair figcaption{font-size:.82rem;color:var(--soft);margin-top:3px}@media (max-width:640px){.pair .ab{grid-template-columns:1fr}}
+</style></head><body><main><div class="nav"><a href="index.html">← 全部轮次</a></div><h2>沉债｜打捞玩法演示 · 设计</h2>
+<p>状态：<strong>用户 2026-10-14 定：只给人看打捞这一个玩法，按玩法演示的规模做；不是整款游戏。以前做的版本（001—038）做得不好，已删除。</strong> 更新于 2026-10-14。</p>
+<p>本文件是《沉债》打捞玩法演示的唯一设计文档，原地打磨。只有打捞：船员配队、鉴宝、战斗、债务、装备与换船都不做；以前那版综合玩法和持续探索的设计只在 Git 历史里。</p>
+<p>用户已定：3D、诡异海洋冒险、单机、固定 1920×1080 横版；移动和下网消耗燃料；重网直上直下；玩家调臂后按 A，回收和洗泥自动进行；任何值得尝试的打捞目标都有参考；浅水能看见海底，越深越难辨认；目标是真实沉船这样的具体事物；活物在海底真实活动；海底有自己的生态。</p>
+<h3>0. 演示的范围</h3>
+<ul><li>
+<strong>给谁看：</strong> 一个人坐下来两三分钟，看懂并看爽打捞这一个玩法。
+</li><li>
+<strong>一个地方：</strong> 归潮沙湾一片海，一艘侧卧在缓坡上的中世纪木帆商船。三处现场：通透浅滩、沉船、下坡。一共 6—8 个能下网的地方。
+</li><li>
+<strong>一圈：</strong> 从港外航路开船出发 → 浅滩上的线索 → 顺着线索找到沉船 → 下几网 → 至少一次珍贵物的揭晓 → 船员搬运入舱 → 网都下完或油见底时，出一张这一趟的收获单（捞上了什么）→ 可以再来一次。
+</li><li>
+<strong>保证：</strong> 至少一件珍贵物（铁箍小匣里的银币匣）一定在这一圈里出现。
+</li><li>
+<strong>自动演示：</strong> 一个入口，点一下就从头自己玩，两三分钟走完一圈，尽快放出精彩的部分；Esc 随时接管。
+</li><li>
+<strong>不做：</strong> 其他海域和新生成的海域；港口、补给、航次账、海图和小海图、收获册；蟹和鱼群以外的生物；存档和读档；局外成长、经济、联机、商店。
+</li></ul>
+<h3>1. 玩家在享受什么</h3>
+<p><strong>开船经过一片活着的海底，看出值得打捞的东西，选好船位和时机，把自己看中的那一网带上来。</strong></p>
+<p>玩家应该能说：「那条沉船的货物顺着坡滚下去了」「蟹刚才翻出了一个硬东西」。三种满足感：</p>
+<ul><li>
+<strong>看懂了：</strong> 从地形、残骸和生物行为中发现机会，有依据地改变判断。
+</li><li>
+<strong>捞准了：</strong> 停对船位，臂端覆盖合适的一组东西，或等到活物停在容易捕获的位置。
+</li><li>
+<strong>真的带回来了：</strong> 海底少了刚才那件东西，甲板上多了对应的实物；泥退去后，完整外形比水下看到的更丰富。
+</li></ul>
+<p>基本观察始终免费。一次判断失误损失的是已经预告的作业油和这次机会。</p>
+<h3>2. 一圈打捞</h3>
+<p><strong>航行发现线索 → 换角观察实物、地形和活动 → 选船位与作业面 → 调吊臂 → A 下网 → 自动垂直起吊 → 船员洗去厚泥 → 揭晓并展示整网收获 → 快速回到大视野，立刻决定下一网；船员同时在后台搬运入舱。</strong></p>
+<div class=tbl><table><thead><tr><th>阶段</th><th>玩家做什么</th><th>得到什么信息</th><th>代价</th></tr></thead><tbody><tr><td>观察</td><td>停船、转动观察角度</td><td>位置、轮廓、遮挡、活动</td><td>免费；观察时船保持位置</td></tr><tr><td>移船</td><td>为视线、臂展或垂直通路选船位</td><td>新的观察面、可覆盖区域</td><td>航行油</td></tr><tr><td>调臂</td><td>旋转和伸缩，让臂端对准落点</td><td>网口足迹、估计触底面、这一网的作业油</td><td>免费</td></tr><tr><td>下网</td><td>按 A</td><td>入水和沉降的真实过程</td><td>预先确认的整次作业油</td></tr><tr><td>回收</td><td>看网收紧、提起、转回甲板</td><td>网包体量、活动迹象，内容仍被泥遮着</td><td>自动完成，不追加操作或扣费</td></tr><tr><td>揭宝</td><td>看船员冲洗</td><td>逐步露出的线索，后段确认完整实物</td><td>自动完成；A 加快冲洗</td></tr><tr><td>继续</td><td>下一网，或结束这一趟</td><td>已捞的地方、剩下的机会</td><td>由下一次移动或下网决定</td></tr></tbody></table></div>
+<p><strong>收尾：</strong> 6—8 个网位都捞过、或油不够再下一网时，这一趟结束：出一张收获单，列出这一趟捞上的每一件和总价值，按一下重新开始。油的总量按「认真捞完这一处还略有余」来定，不用来卡人。</p>
+<h3>3. 水下信息：从实物逐渐退成轮廓</h3>
+<p><strong>深浅连续变化。</strong> 水面通透程度、水下可辨距离和物体大小共同决定能看见什么，连续过渡，不会跨过一条线整件变黑或消失。</p>
+<div class=tbl><table><thead><tr><th>环境</th><th>看见什么</th><th>主要判断</th><th>仍然未知</th></tr></thead><tbody><tr><td>透水浅滩</td><td>沙纹、石头、海草、散落货物，生物的朝向和活动</td><td>捞哪一组、从哪里下网</td><td>箱内内容、泥下部分</td></tr><tr><td>坡与中层水</td><td>大体结构可辨，细节偏蓝、边缘变软，前后遮挡仍成立</td><td>是残骸还是地形，哪一面露得更多</td><td>材质、残缺程度、结构里藏的东西</td></tr><tr><td>下坡深处</td><td>船身走势、较大的轮廓；近灯处有局部证据</td><td>结合大结构和散落方向缩小落点</td><td>大部分身份和完整形态</td></tr><tr><td>局部泥水或密草</td><td>泥云、草叶挡住视线</td><td>换角度、换作业面，或先捞旁边看得清的</td><td>被遮住的那一块</td></tr></tbody></table></div>
+<p>「阴影」分开做：物体本身模糊的轮廓、物体投在底面的影子、深水地形的暗区、海草和泥云的遮蔽，各有自己的形状和变化原因。</p>
+<p><strong>角度变化有空间依据。</strong> 镜头围着船和作业区转：换角能看清船肋之间的货物、发现坡后露出的棱角、避开水面反光。物体随透视改变投影，世界位置不变。折射和波纹的晃动以能持续判断落点为准，不靠盯住一瞬间的几像素缝隙下网。浅水的东西不会等网口悬在上方才突然出现；深水的未知物也不会因为准星扫过就漏出名字或身价。</p>
+<p><strong>始终有参考。</strong> 参考先回答「为什么值得看这里」，再回答「网落哪儿」：暴露物看自身轮廓和相对位置；半埋物看突出的硬边、泥脊、刮痕和连着残骸的散片；深处看船体走势和浅处连续的残骸；活物看位置变化、停留点、爬痕和被翻动的泥；纯地形也能看出「这里没有值得下网的证据」。基础回声测深只给粗略区域、深度和在不在动，不给价值、品质或推荐落点。</p>
+<h3>4. 现场：中世纪木帆商船</h3>
+<p><strong>船要像船。</strong> 一艘宽腹中世纪西方木帆商船侧卧在缓坡上：弯曲的木船壳、龙骨和外露的肋骨、抬高的首尾楼、断桅和残留帆索，破损但连贯；从几个角度看都认得出船首、船尾和有深度的船腹。</p>
+<p><strong>先找到它。</strong> 一圈从尚未看到沉船的港外航路开始：船真的开过去、真的耗油，先遇到浅滩的线索和散落物，再沿线认出沉船。不把船摆在沉船正上方，不瞬移，不预先列出作业点。</p>
+<p><strong>三处现场，三种选择：</strong></p>
+<ol><li>
+<strong>通透浅滩：</strong> 沙纹、摆动的海草和小鱼；泥里露出半个铜筒，旁边是看得清的零件，几米外躺着一副锚。一网可以稳妥地兜走一小组，也可以把覆盖留给半埋的主件。
+</li><li>
+<strong>沉船：</strong> 外侧散货看得清、容易覆盖；甲板缺口和两道露天舱口里的货引人好奇，但要找网能垂直进去的船位；有顶的船舱从外面看得见货，网却穿不过甲板，只能走露天缺口。蟹在舱沿和船首之间觅食。
+</li><li>
+<strong>下坡：</strong> 沿货物滚落的方向往坡下，有一处被泥盖住、证据较弱但有来源可追的半埋件，旁边还埋着一截船材（硬物）。
+</li></ol>
+<p><strong>打捞对象。</strong> 独立物件（铜筒、陶罐、铜件、旧缆）、一组同源的货、和活物（蟹）。东西在进入这片海时就生成并固定，不在按 A 后临时抽奖；伴随物和主物有因果（商船旁是信筒、封存货袋、舱口碎片，散落沿坡和船体缺口分布）。超出网口、被固定在结构上的部分是沉船本体，不能整件捞走。</p>
+<p><strong>疏密。</strong> 宝物少，普通货撑起这一趟；三处之间是草床、沙坡和礁脊，共享同一场事故的线索，不是三座奖品岛。单个船位通常只有一处值得下网。货取走后留下空位和网痕，不会补回来。</p>
+<p><strong>用场景引出想象。</strong> 船头还朝着岸边，货舱门却向外翻开；几个信筒顺坡散落，泥里又找到一件同款。诡异感来自少量违反常理的现象：看懂了普通生物以后，才看见一个逆流移动的大轮廓经过（只出现、不攻击、不能捕）。</p>
+<h3>5. 下网</h3>
+<p><strong>重网怎么工作。</strong> 配重网架从臂端正下方垂直下沉，到达选定作业面后底沿自动内收，兜住网内能收的东西和表层泥，再垂直提起；回到安全高度后吊臂才把它转回甲板。玩家只操作船位、观察角度、臂端水平位置和下网时机；A 前可以反复调整，A 后位置锁定。没有张力、连按、反应或拉扯小游戏。网口足迹表示物理覆盖范围，不显示「保证命中」。</p>
+<p><strong>空间判定。</strong></p>
+<ul><li>
+静态物件按闭网时的实际位置、体积和能不能收来判断；小件完整落在网口里才算收到。同一网可以收到多件真实存在的东西。
+</li><li>
+大物伸出网外时只收走附近的独立碎件。
+</li><li>
+半埋物只有露出部分和埋深允许时才能收；深埋的大件给看得懂的限制，不诱导连续空投。
+</li><li>
+沉船本体和固定结构事先说明不能整件收。碰到事先看不清的硬物，设备自动停止深入并收回，保留已兜住的小件；这一网的作业油已经花掉，不追加罚款。
+</li><li>
+作业时船保持位置；燃油在确认时保证整次收放，不会因为油不够让网卡在水下。
+</li></ul>
+<p><strong>活物按闭网时的位置结算。</strong> 按 A 时不锁定生物，也不先算出结果再播逃跑。网下沉期间生物照常行动；闭网时真正在网里的才收进来，之后在网里挣动。蟹每次停留的时间够这个水深下一网还有余量；不会一按 A 就读到输入瞬间闪开。</p>
+<p><strong>燃油。</strong> 停船观察、等生物、转镜头、调臂都免费；开船和每一网扣油。屏幕上一直看得见当前油量和这一网的作业油。停船时船位稳定，不漂移。</p>
+<h3>6. 活物和生态</h3>
+<p>这里只做两种生物和一条看得见的因果：</p>
+<div class=tbl><table><thead><tr><th>生物</th><th>自己在做什么</th><th>玩家读到的信号</th><th>和打捞的关系</th></tr></thead><tbody><tr><td>翻泥的蟹</td><td>在船首、舱沿和散货之间往返，停下翻泥，受惊就退回遮蔽</td><td>移动的身体、划痕、渐散的泥团</td><td>翻开原本就埋着的小件（一枚印章）；自己也能被兜上来</td></tr><tr><td>海草间的小鱼群</td><td>在草边聚散，船或网靠近时成片让开，再慢慢回来</td><td>成片的避让</td><td>说明哪里有动静；不是哪里有鱼哪里就有宝</td></tr></tbody></table></div>
+<p><strong>一条因果：</strong> 水流推动草叶和悬沙 → 草和残骸给遮蔽 → 蟹在遮蔽和食源之间活动、翻泥露出东西 → 船和网的扰动让它们短暂改变行动。生物在玩家没瞄准时也在动；切换视角不重置，暂停才冻结。翻泥只露出原本就埋着的东西，不凭空生成物品。</p>
+<p><strong>作业留下什么：</strong> 网触底扬起局部泥沙、压倒草叶，在回收和冲洗期间恢复可见度；取走的东西真的离开海底，留下空位和网痕；被挡住的一小片可能露出来。</p>
+<h3>7. 揭宝</h3>
+<p><strong>期待分三层：</strong> 那是一条什么船、货为什么散在这里；这一网能带走哪几件，泥里的弧面是器物的一角还是一块壳；上船后外层退去，实物完整吗、多大、同网还有什么。水下能看清大致类别和体积，不能提前交出最终答案；水下看到的和最终实物对应，不会在洗泥时把锚变成另一件宝物。</p>
+<p><strong>连续的揭晓过程。</strong> 上甲板的是一整团被厚泥、结壳、旧网和杂物包住的收获，不是几件干净模型盖一层薄泥。玩家认得出水下那一角，但还不能确认是什么：前段冲掉外壳，中段露出局部轮廓和材质，后段才露出关键特征和完整物件。名字、品质和价值到揭晓时才出现，字幕和列表都不提前说。</p>
+<p>珍贵物的五个连续画面：</p>
+<ul><li>
+<strong>预兆：</strong> 网包落下的重量和动静，让人意识到这一网不一样。
+</li><li>
+<strong>露头：</strong> 水流冲掉表层，露出和水下观察对得上的一角。
+</li><li>
+<strong>确认：</strong> 泥垢洗净，主物外形露全；一个伟大的揭宝高光，镜头、声音和特效一起服务于「终于知道是什么」，清楚地亮出实物和名字。
+</li><li>
+<strong>展开：</strong> 给完整收获稳定的观看时间，同网的伴随物也看得清；普通物件也有明确的获得反馈。
+</li><li>
+<strong>留下：</strong> 展示结束，快速回到能看船和海的大视野、恢复操作；船员各搬一件，几个人同时走过去、拿起、搬进船舱，货物经过舱口遮挡后才离开甲板。船可以马上开走或再下网。
+</li></ul>
+<p><strong>时长：</strong> 普通清洗 4.2 秒、珍贵 5.4 秒；展示停留普通 2.25 秒、珍贵 3.2 秒；拉回大视野 1.25 秒。清洗自动进行，A 加快。</p>
+<p><strong>搬运只是动画。</strong> 收获在揭晓那一刻一次记入，搬运不重复增加或丢失物件。搬运的数量、排队和动画完成与否，不影响开船、油、臂端、下网、回收或下一次洗泥，不以「甲板没清空」「船员正忙」禁用任何操作。船移动时搬运跟着甲板走。开船和停船时，船员有值守、整理缆绳、巡视和检查设备的动作，不站着发呆。捞上来的蟹由船员放进甲板上的水槽，只作画面。</p>
+<h3>8. 自动演示</h3>
+<ul><li>
+一个入口：点一下，机器人从头开始玩这一圈，用的就是玩家的操作（摇杆、调臂、A），不瞬移、不发奖、不读隐藏的网位。
+</li><li>
+尽快放出精彩部分：开局不久就有第一网，一圈里经过浅滩、找到沉船、下几网、一次珍贵揭晓、船员搬运，两三分钟走完；一圈完了出收获单，接着再来一圈。
+</li><li>
+Esc 随时接管：保留船位、油、收获、海底和船员的样子，正在进行的那一网自然做完，机器人不再接回。
+</li></ul>
+<h3>9. 画面和操作</h3>
+<ul><li>
+固定 <strong>1920×1080、16:9</strong> 逻辑画面，窗口只整体等比缩放留边，看见的世界范围不变。风格化 3D，全部用代码画，世界里的东西有真实体积、前后遮挡和水下的空间关系。
+</li><li>
+作业视角兼顾船、吊臂末端和目标海底；转动观察改变视线，镜头不能穿进沉船内部。近景冲洗镜头和作业镜头之间方向连贯，回来时沿用下网前的方向。
+</li><li>
+手柄动作少而稳定：开船、换角观察、调臂端、A 下网；观察、开船、调臂有清楚的模式提示，避免为转视角误开船烧油。
+</li><li>
+常驻只留当前要的：油量、臂端作业范围、估计水深、明显的作业限制；收获时再显示这一网。目标的身份和品质不靠水下界面提前泄露。
+</li><li>
+关键判断靠大轮廓、运动方向、结构关系和简短文字，不只靠微小闪光、颜色或音效。晃动和折射强度可调。
+</li></ul>
+<h3>10. 验收</h3>
+<p>通过规则检查只能证明一致；想不想看海底、想不想下网、想不想看收获，以实际试玩为准。</p>
+<ul><li>
+一圈从港外航路开始，实际开船后才发现沉船；从两侧都认得出中世纪木帆船的船壳、首尾楼和断桅，露天舱口仍能垂直下网。
+</li><li>
+浅水看到锚和半埋铜筒，能主动选其中一个；两者不是一团相同的黑影。
+</li><li>
+从另一面看到货舱里的物件，仍要找到网能垂直进去的位置；有顶的船舱网穿不过。
+</li><li>
+活物在按 A 前后连续运动：下网时它在原地、闭网时已离开，结果是没捕到它，旁边覆盖到的东西照样带回。
+</li><li>
+蟹翻泥露出事先埋着的东西，玩家能指出新证据来自哪个动作；东西不会因翻泥凭空生成。
+</li><li>
+网包上船和清洗前段仍看不清最终身份，关键特征在后段露出；揭晓后能说清获得了什么，并亲眼看到镜头拉远、船员各搬一件入舱。
+</li><li>
+两个船员各搬一件时立刻开船，并在新落点下网；搬运不取消、不锁操作、不延迟收获、不重复结算。
+</li><li>
+网都下完或油见底时出收获单，重新开始后海底和收获从头来过。
+</li><li>
+自动演示点一下就开始，两三分钟内有珍贵揭晓，一圈完了接着下一圈；Esc 接管后状态不变、机器人不再接回。
+</li></ul>
+<h3>附：用户原话</h3>
+<p>2026-10-14（试玩旧版以后）：</p>
+<p>&gt; 1、打捞上来的物品，泥垢太少，没有开箱的那种感觉。虽然在海底，能看见个大概，但是还是要等打捞上来后，泥垢冲净，才能知道最终是什么，要有这种期待感。2、要做自动模式。而且这版做的时候，要尽快把精彩的部分展示出来。不用跟真实游戏一样，循序渐进。<br>&gt;<br>&gt; 还有，当东西清楚后，要有一个伟大的效果，展示获得了什么，显示获得后，就回到大视野，并且船员会把物品搬进船舱，而不是一闪就消失了。</p>
+<p>&gt; 1、泥开的速度再快一倍。2、物品展示完就可以快一些进行下一步，现在展示完停的时间有些长了，减一半。3、别一开始就在沉船上，要通过移动船的探索以后找到沉船。而且你这个不是沉船，是沉默平台，沉船要用中世纪西方那种沉船模型。4、一个船员一动一件，可以同时搬运，而且船员搬运就是个动画，不要因为这个动画，卡住后续流程，船该开还开，该捞还捞，船员自动搬运。也不要因为没搬完影响下网，你只需要记住，这就是个动画，没有任何影响。而且开船的时候，船员也别傻站着，做点船员该做的事情。</p>
+<p>重做（2026-10-14）：</p>
+<p>&gt; 按照设计文档，使用金牌制作人L2链路，把纯打捞这套玩法给我做出来。<br>&gt;<br>&gt; 注意，你不要被以前的游戏干扰，以前那个游戏做的不好，所以我才让你按照设计文档重做的，以前的那个可以删掉了。<br>&gt;<br>&gt; 不需要，这个不是完整的游戏，我只是要打磨一个极好的，伟大的打捞玩法。用你全部能力去打磨好他。</p>
+<p>关口一（用户看过从零重做的第 0 轮）：</p>
+<p>&gt; 玩法我觉得没问题了，继续后续的轮次吧</p>
+<p>缩成玩法演示：</p>
+<p>&gt; 就做一个打捞的玩法，就花了这么长时间和token……我只是要给人看一下这个打捞的玩法，所以，不需要太多内容，现在的打捞玩法，是不是太庞大了。<br>&gt;<br>&gt; 你判断一下，需要保留哪些与打捞有关的核心内容，向我确认一下，其他的都可以删掉<br>&gt;<br>&gt; 可以，就按方案改。</p></main></body></html>
