@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>展示页</title>
+<!--
+展示页的壳（所有游戏共用，kit/zongtai/zhan.html；chain.py show 把它和这一页的内容 展示.json 拼成挂出去的 展示.html）。
+用户 2026-11-13 认的设计：给他看的字、图、视频、自动演示（效果图、对比、挑一套这类）都画在和总台一样的 1080 宽、1920 高竖屏画布上，整块等比缩放到放得下、
+居中，版面不随窗口重排，手机和电脑上长得一样；里面不能手动操作游戏。轮次只交内容，排版由这个壳做。横的图和视频占满画布的宽，图点一下满屏看大的（手机竖着拿时横过来铺满，返回、Esc 退回来）；要挑一套的几套标上甲乙丙；
+自动演示在画布里是一扇横的小窗，点了满屏横着放（手机竖着拿时整层转过来，横过来看就是正的），电脑上旁边能点开自己玩这一段。
+画布按 360×640 排（1080×1920 的三倍图，和 tools/pageshot.mjs 截的手机竖屏同一个尺寸），字号是微信那几档：正文 17、小字 14、大标题 22、二级标题 20。
+内容（展示.json）：{"title": 标题, "look": 一句看什么、判什么, "items": [一样一项]}，一项是下面之一（路径都在这一页的文件夹里）：
+  {"text": 一段字}　{"h": 小标题}
+  {"image": 图, "caption": 说明}　{"video": 视频, "poster": 封面图, "caption": 说明}
+  {"audio": 一段声音（.mp3/.m4a/.ogg；Safari 不放 .ogg；要循环放的给 .mp3，.m4a 尾巴上补的一小段静音在接缝处空一下）, "caption": 说明, "loop": true 时循环放（听接缝）}
+  {"demo": 自动演示的地址, "play": 自己玩这一段的地址（可不写）, "caption": 说明}
+  {"sets": [{"name": 这一套叫什么, "items": [同上]}…]}　几套并排挑一套，依次标甲乙丙丁…
+-->
+<style>
+  html, body { margin: 0; height: 100%; background: #0d0f13; overflow: hidden; -webkit-text-size-adjust: 100%; }
+  body { font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; color: #e8e6e1; }
+  figure.au audio { width: 100%; height: 40px; display: block; }
+  #stage { position: absolute; left: 0; top: 0; width: 360px; height: 640px; transform-origin: 0 0; background: #15181e; overflow: hidden; box-shadow: 0 0 0 1px #262a33; }
+  #scroll { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 0 12px 72px; box-sizing: border-box; }
+  #scroll::-webkit-scrollbar { width: 0; }
+  header { padding: 16px 0 6px; }
+  h1 { font-size: 22px; line-height: 30px; margin: 0; font-weight: 700; }
+  .look { margin: 10px 0 4px; padding: 8px 10px; border-radius: 8px; background: #20262f; border-left: 3px solid #f0b44c; font-size: 17px; line-height: 25px; }
+  .look b { color: #f0b44c; font-weight: 700; }
+  h2 { font-size: 20px; line-height: 28px; margin: 18px 0 6px; font-weight: 700; }
+  p.t { font-size: 17px; line-height: 26px; margin: 10px 0; white-space: pre-wrap; }
+  figure { margin: 12px 0; }
+  figure img, figure video { display: block; width: 336px; height: auto; border-radius: 6px; background: #000; }
+  figcaption { font-size: 14px; line-height: 20px; color: #a9adb6; margin-top: 4px; }
+  .demo { position: relative; width: 336px; height: 189px; border-radius: 6px; overflow: hidden; background: #000; cursor: pointer; }
+  .demo iframe { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; border: 0; transform-origin: 0 0; transform: scale(0.175); pointer-events: none; }
+  .demo .cover { position: absolute; inset: 0; display: flex; align-items: flex-end; justify-content: flex-end; padding: 6px; box-sizing: border-box; }
+  .demo .cover span { font-size: 14px; line-height: 20px; padding: 2px 8px; border-radius: 10px; background: rgba(0, 0, 0, .62); color: #fff; }
+  .row { display: flex; gap: 10px; align-items: center; margin-top: 4px; }
+  .row figcaption { flex: 1; margin: 0; }
+  .self { flex: none; box-sizing: border-box; width: 102px; text-align: center; font-size: 14px; line-height: 20px; color: #9fc4ff; text-decoration: none; white-space: nowrap; border: 1px solid #36506f; border-radius: 10px; padding: 1px 0; }
+  .self.off { color: #8a8f99; border-color: #2e333c; }
+  .set { margin: 16px 0; padding: 10px 10px 4px; border-radius: 10px; background: #1b2028; border: 1px solid #2a313c; }
+  .set > h2 { margin: 0 0 4px; }
+  .set > h2 i { font-style: normal; display: inline-block; min-width: 28px; height: 28px; line-height: 28px; text-align: center; border-radius: 14px; background: #f0b44c; color: #1a1a1a; margin-right: 8px; }
+  .set figure img, .set figure video { width: 316px; }
+  .set .demo { width: 316px; height: 177.75px; }
+  .set .demo iframe { transform: scale(0.16458); }
+  /* 满屏横着放：盖住整个窗口（不在画布里），游戏照 1920×1080 排、整块缩放；手机竖着拿时整层转 90°，横过来就是正的 */
+  #full { position: fixed; inset: 0; background: #000; z-index: 10; display: none; }
+  #full.on { display: block; }
+  #fbox { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; }
+  #fbox iframe { width: 1920px; height: 1080px; border: 0; display: block; }
+  #fcover { position: absolute; inset: 0; }
+  #fbar { position: absolute; left: 0; top: 0; display: flex; flex-wrap: nowrap; gap: 6px; align-items: center; padding: 6px; z-index: 2; box-sizing: border-box; white-space: nowrap; pointer-events: none; }
+  #fbar > * { pointer-events: auto; }
+  #fbar button, #fbar a { font: inherit; font-size: 17px; line-height: 24px; padding: 6px 12px; border-radius: 18px; border: 0; background: rgba(0, 0, 0, .82); color: #fff; cursor: pointer; text-decoration: none; }
+  #fbar .note { font-size: 14px; line-height: 20px; padding: 4px 10px; border-radius: 12px; background: rgba(0, 0, 0, .82); color: #ddd; }
+  #fbar.dim button, #fbar.dim a, #fbar.dim .note { opacity: .55; }
+  #fbar .hide { display: none; }
+  /* 点图看大的：盖住整个窗口，图整张放得下；手机竖着拿、图是横的时整层转 90°，横过来看是正的 */
+  figure img { cursor: zoom-in; }
+  #pic { position: fixed; inset: 0; background: #000; z-index: 11; display: none; }
+  #pic.on { display: block; }
+  #pic img { position: absolute; left: 0; top: 0; transform-origin: 0 0; max-width: none; }
+  #pic button { position: absolute; z-index: 2; font: inherit; font-size: 17px; line-height: 24px; padding: 6px 12px; border-radius: 18px; border: 0; background: rgba(0, 0, 0, .7); color: #fff; cursor: pointer; }
+  #paused { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 20px; line-height: 28px; padding: 10px 18px; border-radius: 22px; background: rgba(0, 0, 0, .6); color: #fff; display: none; z-index: 2; }
+  #full.paused #paused { display: block; }
+</style>
+</head>
+<body>
+<div id="stage"><div id="scroll"></div></div>
+<div id="pic"></div>
+<div id="full"><div id="fbox"></div><div id="fbar"></div><div id="paused">暂停了，点一下接着放</div></div>
+<script type="application/json" id="zhan-data">{"__empty": true, "title": "展示页", "items": []}</script>
+<script>
+(() => {
+  const D0 = JSON.parse(document.getElementById('zhan-data').textContent || '{}');
+  // 没拼进内容（游戏 kit/ 里这一份、本机预览）：读地址里 ?data= 指的那份，默认旁边的 展示.json（要用本机的 http 打开，file:// 读不到）
+  if (D0.__empty) {
+    const src = new URLSearchParams(location.search).get('data') || '展示.json';
+    const at = new URL(src, location.href), base = document.createElement('base');
+    base.href = new URL('.', at).href; document.head.prepend(base);  // 内容里的图、演示照 展示.json 所在的文件夹找，和挂上去以后一样
+    fetch(at.href).then(r => r.json()).then(start).catch(e => start({ title: '读不到内容', look: String(src) + '：' + e, items: [] }));
+  } else start(D0);
+  function start(D) {
+  const W = 360, H = 640, stage = document.getElementById('stage'), scroll = document.getElementById('scroll');
+  const TOUCH = (() => { try { return matchMedia('(pointer: coarse)').matches && !matchMedia('(any-pointer: fine)').matches; } catch (e) { return false; } })();
+  const h = (tag, attrs, ...kids) => {
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) if (v != null && v !== false) { if (k.startsWith('on')) el.addEventListener(k.slice(2), v); else el.setAttribute(k, v); }
+    for (const k of kids.flat()) if (k != null && k !== false) el.append(k.nodeType ? k : String(k));
+    return el;
+  };
+  // 画布整块等比缩放、居中：窗口怎么变，画布上东西的位置和换行都不变
+  function place() {
+    const k = Math.min(innerWidth / W, innerHeight / H);
+    stage.style.transform = `translate(${(innerWidth - W * k) / 2}px,${(innerHeight - H * k) / 2}px) scale(${k})`;
+    if (full.classList.contains('on')) fit();
+    if (pic.classList.contains('on')) fitPic();
+  }
+  document.title = D.title || '展示页';
+  const demos = [];
+  function item(x, inSet) {
+    if (x.h) return h('h2', {}, x.h);
+    if (x.text) return h('p', { class: 't' }, x.text);
+    if (x.image) return h('figure', {}, h('img', { src: x.image, alt: x.caption || '', loading: 'lazy', onclick: e => openPic(e.currentTarget) }), x.caption ? h('figcaption', {}, x.caption) : null);
+    // 一段声音（配乐、音效挑一个）：手机上点得到的播放条，放一个时别的停下；循环的那一段一直放，听得出接缝在哪
+    if (x.audio) return h('figure', { class: 'au' }, h('audio', Object.assign({ src: x.audio, controls: '', preload: 'none', onplay: e => document.querySelectorAll('audio').forEach(m => { if (m !== e.currentTarget) m.pause(); }) }, x.loop ? { loop: '' } : {})), x.caption ? h('figcaption', {}, x.caption) : null);
+    if (x.video) return h('figure', {}, h('video', { src: x.video, poster: x.poster, controls: '', playsinline: '', muted: '', loop: '', preload: 'metadata' }), x.caption ? h('figcaption', {}, x.caption) : null);
+    if (x.demo) {
+      const i = demos.length; demos.push(x);
+      const fr = h('iframe', { src: x.demo, title: x.caption || '自动演示', loading: 'lazy', allow: 'autoplay', tabindex: '-1' });
+      x.small = fr;
+      const box = h('div', { class: 'demo', role: 'button', tabindex: '0', 'aria-label': '满屏看这段演示', onclick: () => openFull(i) },
+        fr, h('div', { class: 'cover' }, h('span', {}, '⛶ 满屏看')));
+      fr.addEventListener('load', () => mute(fr));
+      // 电脑上：点开自己玩这一段；触屏上同一个位置、同样大小写着要到电脑上玩（版面在哪都一样）
+      const self = !x.play ? null : TOUCH ? h('span', { class: 'self off' }, '电脑上能玩')
+        : h('a', { class: 'self', href: '#', onclick: e => { e.preventDefault(); openFull(i, true); } }, '自己玩这一段');
+      return h('figure', {}, box, x.caption || self ? h('div', { class: 'row' }, h('figcaption', {}, x.caption || ''), self) : null);
+    }
+    if (x.sets) {
+      const NAMES = '甲乙丙丁戊己庚辛';
+      return x.sets.map((s, n) => h('section', { class: 'set' }, h('h2', {}, h('i', {}, NAMES[n] || String(n + 1)), s.name || ''), (s.items || []).map(y => item(y, true))));
+    }
+    return null;
+  }
+  const look = D.look ? h('p', { class: 'look' }, h('b', {}, '看什么、判什么：'), D.look) : null;
+  scroll.append(h('header', {}, h('h1', {}, D.title || ''), look), ...(D.items || []).map(x => item(x)).flat().filter(Boolean));
+
+  // 小窗里的演示不出声：一页好几扇在放，满屏看的那一扇才出声
+  function mute(fr) { try { fr.contentDocument.querySelectorAll('video,audio').forEach(m => { m.muted = true; }); } catch (e) {} }
+
+  // ---- 满屏横着放
+  const full = document.getElementById('full'), fbox = document.getElementById('fbox'), fbar = document.getElementById('fbar');
+  let cur = -1, selfPlay = false, held = null, dimT = 0;
+  function fit() {
+    const vw = innerWidth, vh = innerHeight, rot = TOUCH && vh > vw;  // 手机竖着拿：整层转 90°，横过来看是正的
+    const B = 48;  // 顶上那一条按钮让出来，不盖在游戏自己的字上
+    const k = rot ? Math.min(vh / 1920, (vw - B) / 1080) : Math.min(vw / 1920, (vh - B) / 1080);
+    if (rot) { const x = (vw - B + 1080 * k) / 2, y = (vh - 1920 * k) / 2; fbox.style.transform = `translate(${x}px,${y}px) rotate(90deg) scale(${k})`; }
+    else fbox.style.transform = `translate(${(vw - 1920 * k) / 2}px,${B + (vh - B - 1080 * k) / 2}px) scale(${k})`;
+    full.classList.toggle('rot', rot);
+    fbar.style.transform = rot ? `translate(${vw}px,0) rotate(90deg)` : ''; fbar.style.transformOrigin = '0 0';
+    fbar.style.width = (rot ? vh : vw) + 'px';  // 转过来时这一条照横着的宽排，不挤成一列
+    const ps = document.getElementById('paused'); ps.style.transform = rot ? 'translate(-50%,-50%) rotate(90deg)' : '';
+  }
+  function bar() {
+    const x = demos[cur], many = demos.length > 1;
+    fbar.replaceChildren(...[
+      h('button', { type: 'button', onclick: closeFull }, '退出'),
+      many ? h('button', { type: 'button', onclick: () => go(-1) }, '上一段') : null,
+      many ? h('button', { type: 'button', onclick: () => go(1) }, '下一段') : null,
+      !TOUCH && x.play && !selfPlay ? h('button', { type: 'button', onclick: () => load(cur, true) }, '自己玩这一段') : null,
+      !TOUCH && selfPlay ? h('button', { type: 'button', onclick: () => load(cur, false) }, '看演示') : null,
+      h('span', { class: 'note' + (TOUCH ? '' : ' hide') }, '手机上只看演示，自己玩请在电脑上打开')].filter(Boolean));
+    fbar.classList.remove('dim'); clearTimeout(dimT); dimT = setTimeout(() => fbar.classList.add('dim'), 3000);
+  }
+  function load(i, self) {
+    hold(false);
+    cur = i; selfPlay = !!self;
+    const x = demos[i], fr = h('iframe', { src: self ? x.play : x.demo, title: x.caption || '自动演示', allow: 'autoplay; fullscreen' });
+    fbox.replaceChildren(fr);
+    if (!self) fbox.append(h('div', { id: 'fcover', onclick: tap }));  // 演示：手指、鼠标都不进游戏，点一下只是暂停、接着放
+    if (self) setTimeout(() => { try { fr.focus(); } catch (e) {} }, 300);
+    bar(); fit();
+  }
+  // 换小窗里放的：换一扇新的框，不在原来那扇里跳（跳一次多一条浏览记录，返回就退不到总台了）
+  function swap(x, src) {
+    const n = x.small.cloneNode(false); n.src = src;
+    if (src !== 'about:blank') n.addEventListener('load', () => mute(n));
+    x.small.replaceWith(n); x.small = n;
+  }
+  function go(d) { load((cur + d + demos.length) % demos.length, false); }
+  function openFull(i, self) {
+    for (const x of demos) if (x.small) swap(x, 'about:blank');  // 满屏时小窗不再白跑
+    full.classList.add('on');
+    load(i, self);
+    try { history.pushState({ zhan: 1 }, ''); } catch (e) {}
+  }
+  function closeFull(fromPop) {
+    if (!full.classList.contains('on')) return;
+    hold(false);
+    full.classList.remove('on', 'paused'); fbox.replaceChildren(); cur = -1;
+    for (const x of demos) if (x.small) swap(x, x.demo);
+    if (fromPop !== true && history.state && history.state.zhan) history.back();
+  }
+  // 暂停：游戏的画面照 requestAnimationFrame 走，先攒着不给它，接着放时一起还回去；声音、视频跟着停
+  function hold(on) {
+    const fr = fbox.querySelector('iframe');
+    let w = null; try { w = fr && fr.contentWindow; } catch (e) {}
+    if (on && w && !held) {
+      try {
+        const raf = w.requestAnimationFrame, q = [];
+        w.requestAnimationFrame = f => { q.push(f); return 0; };
+        w.document.querySelectorAll('video,audio').forEach(m => m.pause());
+        held = { w, raf, q };
+      } catch (e) { return; }
+      full.classList.add('paused');
+    } else if (!on && held) {
+      try { held.w.requestAnimationFrame = held.raf; held.q.splice(0).forEach(f => held.raf.call(held.w, f)); held.w.document.querySelectorAll('video,audio').forEach(m => m.play().catch(() => {})); } catch (e) {}
+      held = null; full.classList.remove('paused');
+    }
+  }
+  function tap() { hold(!held); bar(); }
+  // ---- 点图看大的：整张放得下、居中；手机竖着拿、图是横的，整层转 90°（和满屏看演示一样，横过来看是正的）
+  const pic = document.getElementById('pic');
+  function fitPic() {
+    const im = pic.querySelector('img'), b = pic.querySelector('button');
+    if (!im || !im.naturalWidth) return;
+    const vw = innerWidth, vh = innerHeight, iw = im.naturalWidth, ih = im.naturalHeight, rot = TOUCH && vh > vw && iw > ih;
+    const k = rot ? Math.min(vh / iw, vw / ih) : Math.min(vw / iw, vh / ih);
+    im.style.width = iw + 'px'; im.style.height = ih + 'px';
+    im.style.transform = rot ? `translate(${(vw + ih * k) / 2}px,${(vh - iw * k) / 2}px) rotate(90deg) scale(${k})` : `translate(${(vw - iw * k) / 2}px,${(vh - ih * k) / 2}px) scale(${k})`;
+    b.style.transformOrigin = '0 0';
+    b.style.transform = rot ? `translate(${vw - 8}px,8px) rotate(90deg)` : '';
+    b.style.left = rot ? '0' : '8px'; b.style.top = rot ? '0' : '8px';
+  }
+  function openPic(el) {
+    const im = h('img', { src: el.currentSrc || el.src, alt: el.alt || '' });
+    im.addEventListener('load', fitPic);
+    pic.replaceChildren(im, h('button', { type: 'button', onclick: e => { e.stopPropagation(); closePic(); } }, '退出'));
+    pic.onclick = () => closePic();
+    pic.classList.add('on'); fitPic();
+    try { history.pushState({ zhan: 2 }, ''); } catch (e) {}
+  }
+  function closePic(fromPop) {
+    if (!pic.classList.contains('on')) return;
+    pic.classList.remove('on'); pic.replaceChildren();
+    if (fromPop !== true && history.state && history.state.zhan === 2) history.back();
+  }
+  addEventListener('popstate', () => { closePic(true); closeFull(true); });
+  addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    if (pic.classList.contains('on')) { e.preventDefault(); closePic(); return; }
+    if (!full.classList.contains('on')) return;
+    e.preventDefault(); closeFull();  // 先退满屏；没在满屏时 Esc 交给总台（退回总台）
+  });
+  addEventListener('resize', place);
+  place();
+  }
+})();
+</script>
+</body>
+</html>
