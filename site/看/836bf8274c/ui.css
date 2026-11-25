@@ -1,0 +1,600 @@
+html, body { margin: 0; height: 100%; background: #05080a; overflow: hidden; }
+#frame { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+#stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; background: #0b1418; }
+#view { position: absolute; inset: 0; width: 1920px; height: 1080px; image-rendering: pixelated; display: block; }
+#ui { position: absolute; inset: 0; pointer-events: none; font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans SC", sans-serif; color: #f3ead8; -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums; }
+#ui * { box-sizing: border-box; }
+.sh { text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.72); }
+/* 面板：青铁皮，黑描边、上左受光的边框、四角铜铆钉（像素画在 pixelart.js），按场景 3 像素一格 */
+.panel { background: linear-gradient(180deg, rgba(150, 220, 214, 0.07) 0 3px, transparent 3px 40%, rgba(0, 0, 0, 0.16)), repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.022) 0 3px, transparent 3px 6px), rgba(10, 21, 25, 0.9); border: 3px solid #23414a; border-image: var(--px-iron) 12 / 12px / 3px stretch; image-rendering: pixelated; filter: drop-shadow(6px 6px 0 rgba(0, 0, 0, 0.42)); }
+.plate { border: 3px solid #e8b04a; border-image: var(--px-brass) 12 fill / 12px / 3px stretch; image-rendering: pixelated; background: none; color: #2a1806; text-shadow: 0 3px 0 rgba(255, 238, 190, 0.5); filter: drop-shadow(6px 6px 0 rgba(0, 0, 0, 0.42)); }
+.fade { transition: opacity 0.35s ease; }
+.hide { opacity: 0 !important; }
+/* 收工：界面慢慢淡下去 */
+.fading > * { opacity: 0 !important; transition: opacity 1.4s ease !important; }
+.gone { display: none !important; }
+.ic { width: 1em; height: 1em; display: inline-block; vertical-align: -0.14em; flex: none; }
+.ic.px { position: relative; width: round(nearest, 1em, 12px); height: round(nearest, 1em, 12px); }
+.ic.px > i { position: absolute; inset: 0; background: currentColor; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; image-rendering: pixelated; }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-9px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-6px); } 80% { transform: translateX(4px); } }
+
+/* —— 左上：到了一处新地方，海图上的地名：比例尺一节节画出来，名字从左边滑进来 —— */
+#place { position: absolute; left: 56px; top: 44px; opacity: 0; transition: opacity 0.5s ease, transform 0.6s cubic-bezier(.2,.9,.3,1); transform: translateX(-36px); }
+#place.on { opacity: 1; transform: none; }
+#place .n { font-size: 50px; font-weight: 700; letter-spacing: 6px; text-shadow: 3px 0 0 #061014, -3px 0 0 #061014, 0 3px 0 #061014, 0 -3px 0 #061014, 6px 6px 0 rgba(0,0,0,.5); }
+#place .bar { position: relative; width: 0; height: 9px; margin: 0 0 14px 3px; background: repeating-linear-gradient(90deg, #e8b04a 0 24px, #f3ead8 24px 48px); box-shadow: 0 0 0 3px #061014, 6px 6px 0 3px rgba(0,0,0,.4); transition: width 0.9s cubic-bezier(.25,.8,.3,1) 0.15s; }
+#place .bar::before, #place .bar::after { content: ''; position: absolute; bottom: -3px; width: 3px; height: 18px; background: #f3ead8; box-shadow: 0 0 0 3px #061014; }
+#place .bar::before { left: 0; }
+#place .bar::after { right: 0; }
+#place.on .bar { width: 192px; }
+/* 第一眼看见沉船：大一号，比例尺画得更长 */
+#place.big .n { font-size: 74px; letter-spacing: 12px; }
+#place.big .bar { transition-duration: 1.3s; }
+#place.big.on .bar { width: 264px; }
+
+/* —— 右上：油。铜管箍着的一根油位玻璃管，里面的油随着晃 —— */
+#fuel { position: absolute; right: 52px; top: 44px; width: 510px; padding: 12px 16px; display: flex; align-items: center; gap: 14px; }
+#fuel .fi { font-size: 40px; color: #e8b04a; line-height: 0; filter: drop-shadow(3px 3px 0 rgba(0,0,0,.6)); }
+#fuel .track { position: relative; flex: 1; height: 27px; background: linear-gradient(180deg, #06100f 0 3px, #0c1c1f 3px); border-style: solid; border-width: 3px 9px; border-color: #b98b3e; border-top-color: #e0b866; border-bottom-color: #6a4719; box-shadow: 0 0 0 3px #04090b; overflow: hidden; }
+#fuel .track::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,.35) 0 3px, transparent 3px calc(100% - 3px), rgba(0,0,0,.35) 0); z-index: 3; }
+#fuel .fill { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(180deg, #fff0b8 0 3px, #f2be55 3px 9px, #d99a32 9px 15px, #a8701f 15px); box-shadow: inset -3px 0 0 #fff4c8; transition: width 0.25s linear; overflow: hidden; }
+/* 油面上一道光慢慢扫过去 */
+#fuel .fill::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 0 40%, rgba(255,250,220,.38) 40% calc(40% + 6px), transparent calc(40% + 6px) calc(40% + 12px), rgba(255,250,220,.22) calc(40% + 12px) calc(40% + 15px), transparent calc(40% + 15px)); background-size: 260px 100%; animation: shimmer 2.6s linear infinite; }
+@keyframes shimmer { from { background-position: -260px 0; } to { background-position: 260px 0; } }
+#fuel .cost { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(90deg, #fff1c8 0 6px, #ffd36a 6px 9px); opacity: 0; transition: opacity 0.2s; animation: blink 0.9s steps(2) infinite; z-index: 1; }
+#fuel .cost.on { opacity: 0.95; }
+#fuel .cost.poor { background: repeating-linear-gradient(90deg, #ff6a4d 0 6px, #ffd3a0 6px 9px); }
+/* 这一网会用掉最后一网：红、暗相间的一截加一道亮边，像要被抽空——剩 1 网时油条本身已经是红的，靠这个分开 */
+#fuel .cost.last { background: repeating-linear-gradient(90deg, #ff3a28 0 5px, #2a0806 5px 9px); box-shadow: inset 0 0 0 2px #ffe8d4, 0 0 0 1px #2a0806; }
+/* 玻璃：上沿一道反光，底下每十分之一一道刻度 */
+#fuel .glass { position: absolute; inset: 0; z-index: 2; background: linear-gradient(180deg, rgba(255,255,255,.26) 0 3px, transparent 3px), linear-gradient(90deg, transparent calc(100% - 3px), rgba(4,9,11,.55) 0) 0 100% / 10% 9px repeat-x; }
+#fuel .fv { font-size: 32px; font-weight: 700; min-width: 58px; text-align: right; }
+/* W01 还够几网：剩 3 网发黄，2 网橙红、1 网红，油位管一闪一闪 */
+#fuel .glass::after { content: ''; position: absolute; inset: 0; background: transparent; transition: background 0.4s; }
+#fuel.w3 .glass::after { background: rgba(255, 222, 80, 0.2); }
+#fuel.w2 .glass::after { background: rgba(255, 130, 60, 0.22); }
+#fuel.w1 .glass::after { background: rgba(255, 70, 50, 0.26); }
+#fuel.w2 .fill { background: linear-gradient(180deg, #ffe0b0 0 3px, #ffa04a 3px 9px, #e0702e 9px 15px, #9a4418 15px); box-shadow: inset -3px 0 0 #ffe4c0; }
+#fuel.w1 .fill { background: linear-gradient(180deg, #ffd0b8 0 3px, #ff7a5a 3px 9px, #d4503a 9px 15px, #8a2a1c 15px); box-shadow: inset -3px 0 0 #ffd8c8; }
+#fuel.w2 .fi, #fuel.w2 .fv { color: #ffa060; }
+#fuel.w1 .fi, #fuel.w1 .fv { color: #ff8a6a; }
+#fuel.w2 .track { animation: lowglass2 1.7s steps(2) infinite; }
+#fuel.w1 .track { animation: lowglass 0.9s steps(2) infinite; }
+@keyframes lowglass2 { 50% { box-shadow: 0 0 0 3px #04090b, 0 0 0 6px rgba(255,150,70,.4); } }
+@keyframes lowglass { 50% { box-shadow: 0 0 0 3px #04090b, 0 0 0 6px rgba(255,106,77,.45); } }
+/* 油还够在这儿下几网 */
+#fuel .nl { display: flex; align-items: center; gap: 4px; padding-left: 14px; border-left: 3px solid #081215; box-shadow: -3px 0 0 #2b474b; font-size: 28px; font-weight: 700; color: #cfe3df; min-width: 92px; }
+#fuel .nl .ic { font-size: 34px; }
+#fuel.w3 .nl { color: #ffd84a; }
+#fuel.w2 .nl { color: #ff9548; }
+#fuel.w1 .nl { color: #ff5a44; }
+#fuel .nl.tick b { display: inline-block; animation: nldrop 0.55s cubic-bezier(.3,.7,.4,1); }
+@keyframes nldrop { 0% { transform: translateY(-22px); opacity: 0; } 55% { transform: translateY(4px); opacity: 1; } 75% { transform: translateY(-2px); } 100% { transform: none; } }
+@keyframes tick { 0% { transform: translateY(-10px); opacity: 0.2; } 100% { transform: none; opacity: 1; } }
+@keyframes blink { 50% { filter: brightness(1.5); } }
+
+/* 一位一位滚的数字 */
+.roll { display: inline-flex; justify-content: flex-end; }
+.roll .d { display: inline-block; }
+.roll .d.r { position: relative; overflow: hidden; vertical-align: top; }
+.roll .d.r i { display: block; font-style: normal; text-align: center; }
+.roll .d.r i:first-child { position: absolute; left: 0; right: 0; top: 0; }
+.roll .d.r.dn i:first-child { animation: rollOutDn 0.26s ease-in forwards; }
+.roll .d.r.dn i:last-child { animation: rollInDn 0.26s ease-out; }
+.roll .d.r.up i:first-child { animation: rollOutUp 0.26s ease-in forwards; }
+.roll .d.r.up i:last-child { animation: rollInUp 0.26s ease-out; }
+@keyframes rollOutDn { to { transform: translateY(100%); } }
+@keyframes rollInDn { from { transform: translateY(-100%); } }
+@keyframes rollOutUp { to { transform: translateY(-100%); } }
+@keyframes rollInUp { from { transform: translateY(100%); } }
+
+/* —— 船上的件数和总价值：收获时滑进来，收上来的东西一件件飞进货格子；暂停时一直在 —— */
+#tally { position: absolute; right: 52px; top: 124px; padding: 8px 18px; display: flex; align-items: center; gap: 22px; font-size: 28px; opacity: 0; transform: translateX(60px); transition: opacity 0.35s, transform 0.45s cubic-bezier(.2,1.3,.4,1); }
+#tally.on, .paused #tally:not(.empty) { opacity: 1; transform: none; }
+#tally .it { display: flex; align-items: center; gap: 10px; }
+/* 揭晓后：这一网的每一件一格（格里是那件的小图，3 倍），旁边是这一网的价值；暂停时换成整趟的件数和总价值 */
+#tally .net, #tally .trip { display: flex; align-items: center; gap: 22px; }
+#tally .trip, .paused #tally .net { display: none; }
+.paused #tally .trip { display: flex; }
+#tally .slots { display: flex; gap: 8px; }
+#tally .slots .cell { width: 78px; height: 78px; }
+#tally .slots .cell img.th { display: block; width: 72px; height: 72px; image-rendering: pixelated; }
+#tally .slots .cell.p { box-shadow: inset 3px 3px 0 #000, inset -3px -3px 0 #c9965a; background: #1a1408; }
+#tally .nv { color: #ffe1a0; font-size: 36px; font-weight: 800; text-shadow: 3px 3px 0 rgba(0,0,0,.72); }
+#tally .it .ic { font-size: 30px; }
+#tally .cell { display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; background: #050d10; box-shadow: inset 3px 3px 0 #000, inset -3px -3px 0 #2b474b; color: #c9965a; }
+#tally .cell .ic { font-size: 27px; }
+#tally .cell.bump { animation: bump 0.28s ease-out; }
+@keyframes bump { 0% { transform: scale(1.3); background: #6a4a20; } 100% { transform: none; } }
+#tally .it:nth-child(2) .ic { color: #ffd36a; }
+#tally b { font-weight: 700; }
+#fly { position: absolute; inset: 0; }
+#fly .fl { position: absolute; left: 0; top: 0; width: 72px; height: 72px; image-rendering: pixelated; transform-origin: 36px 36px; filter: drop-shadow(0 0 0 #fff) drop-shadow(3px 3px 0 rgba(0,0,0,.6)); }
+
+/* —— 底部：现在摇杆管什么（铜牌）；第一次到这个模式时给出要按的键 —— */
+#modebar { position: absolute; left: 50%; bottom: 40px; transform: translateX(-50%); width: max-content; display: flex; align-items: stretch; }
+#modebar .chip { position: relative; z-index: 1; display: flex; align-items: center; gap: 10px; white-space: nowrap; padding: 10px 22px; font-size: 26px; font-weight: 700; letter-spacing: 3px; color: #2a1806; border: 3px solid #e8b04a; border-image: var(--px-brass) 12 fill / 12px / 3px stretch; image-rendering: pixelated; text-shadow: 0 3px 0 rgba(255, 238, 190, 0.55); filter: drop-shadow(6px 6px 0 rgba(0,0,0,.42)); transform-origin: 50% 0; }
+#modebar .chip .mi { font-size: 30px; line-height: 0; filter: drop-shadow(0 3px 0 rgba(255,238,190,.55)); }
+#modebar .chip.shake { animation: shake 0.42s linear; }
+#modebar .chip.flip { animation: flip 0.42s cubic-bezier(.3,1.5,.5,1); }
+#modebar .chip .qr, #modebar .chip .qn { display: none; }
+#modebar .chip.quit .mi, #modebar .chip.quit .mn { display: none; }
+#modebar .chip.quit .qr { display: block; width: 39px; height: 39px; margin: -6px 0; image-rendering: pixelated; filter: drop-shadow(0 3px 0 rgba(255,238,190,.55)); }
+#modebar .chip.quit .qn { display: inline; }
+@keyframes flip { 0% { transform: perspective(300px) rotateX(-95deg); } 100% { transform: none; } }
+#modebar .keys { padding: 10px 20px 10px 24px; font-size: 22px; display: flex; gap: 22px; align-items: center; white-space: nowrap; margin-left: -3px; }
+#modebar .keys:not(.gone) { animation: slidein 0.32s cubic-bezier(.2,1.2,.4,1); }
+/* F01 自己按过了：按的那个键亮一下、往下一按，这一排往左收进模式牌里 */
+#modebar .keys.learned { animation: keysout 0.34s cubic-bezier(.5,0,.8,.4) forwards; }
+@keyframes keysout { 0%, 40% { transform: none; opacity: 1; } 100% { transform: translateX(-34px); opacity: 0; } }
+#modebar .keys.learned .key.a { animation: keyok 0.26s ease-out; }
+@keyframes keyok { 0% { filter: brightness(1.9); transform: translateY(4px) scale(0.9); } 100% { filter: none; transform: none; } }
+@keyframes slidein { from { transform: translateX(-24px); opacity: 0; } }
+#modebar .keys .off { opacity: 0.38; }
+#modebar .why { position: absolute; left: 50%; bottom: calc(100% + 14px); transform: translateX(-50%) translateY(8px); white-space: nowrap; padding: 8px 20px; font-size: 24px; color: #ffd3a0; opacity: 0; transition: opacity 0.2s, transform 0.2s; border-image-source: var(--px-iron-red); }
+#modebar .why.on { opacity: 1; transform: translateX(-50%); }
+.paused #modebar .keys { display: none; }
+/* 按键帽：亮顶、厚底边、黑描边 */
+.key { display: inline-block; min-width: 34px; padding: 2px 9px 6px; margin: 0 11px 0 3px; text-align: center; font-size: 19px; font-weight: 700; line-height: 1.25; color: #10181b; background: #dfe9e5; box-shadow: inset 0 3px 0 #ffffff, inset -3px 0 0 #b7c9c4, inset 0 -6px 0 #6f8a86, 0 0 0 3px #060b0d; text-shadow: none; }
+.key.a { background: #84e08c; box-shadow: inset 0 3px 0 #d6ffd2, inset -3px 0 0 #5fbf6a, inset 0 -6px 0 #2f7a3a, 0 0 0 3px #060b0d; }
+.key.b { background: #ff8f70; box-shadow: inset 0 3px 0 #ffe0d4, inset -3px 0 0 #e06a4e, inset 0 -6px 0 #93392a, 0 0 0 3px #060b0d; }
+
+/* —— 臂端标签：这一网要的油；下不了网时灰掉打叉、边框锈红，按了 A 说原因 —— */
+#tip { position: absolute; left: 0; top: 0; padding: 6px 14px; font-size: 26px; white-space: nowrap; transition: opacity 0.15s; display: flex; align-items: center; gap: 10px; }
+/* 小样：这一处按哪个键、按了是什么，写在最前面 */
+#tip .do { display: none; align-items: center; font-size: 24px; font-weight: 700; letter-spacing: 1px; color: #f3ead8; padding-right: 12px; border-right: 3px solid #081215; box-shadow: 3px 0 0 #2b474b; }
+#tip.act .do { display: flex; }
+#tip .do .key { margin: 0 8px 0 0; }
+#tip.lite .c { display: none; }
+#tip.lite .n { padding-right: 0; border-right: 0; box-shadow: none; }
+#tip .c { display: flex; align-items: center; gap: 6px; }
+#tip .n { display: flex; align-items: center; gap: 6px; color: #ffd36a; font-weight: 700; padding-right: 10px; border-right: 3px solid #081215; box-shadow: 3px 0 0 #2b474b; }
+#tip .n .ic { font-size: 26px; color: #c9965a; }
+#tip.none .n { opacity: 0.4; color: #f3ead8; }
+#tip.bad .n { display: none; }
+#tip .c .fi { color: #e8b04a; font-size: 26px; line-height: 0; }
+#tip .c b { font-weight: 700; }
+#tip .x { display: none; color: #ff6a4d; font-size: 26px; line-height: 0; }
+#tip > .r { display: none; font-size: 24px; color: #ffb39a; }
+#tip.bad, #tip.poor { border-image-source: var(--px-iron-red); }
+#tip.bad .c { opacity: 0.42; }
+#tip.bad .x { display: block; }
+#tip.poor .c b, #tip.poor .c .fi { color: #ff8a6a; }
+#tip.why > .r { display: block; }
+#tip.shake .c, #tip.shake .x, #tip.shake > .r { animation: shake 0.42s linear; }
+/* 按了下网、吊臂还在路上：铜边、这一网的油一亮一暗地等着，到了就下 */
+#tip.wait { border-image-source: var(--px-brass); }
+#tip.wait .c { animation: blink 0.5s steps(2) infinite; }
+
+/* —— 下网预告：套在看得见的东西上的圈 —— */
+/* 圈、牌子、蟹的虚线都画在一张 640×360 的像素画布上，屏幕上整 3 倍（见 hud.js paintMarks、pixring.js） */
+#marks { position: absolute; inset: 0; pointer-events: none; }
+#marks canvas { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; image-rendering: pixelated; }
+.paused #marks { visibility: hidden; }
+
+/* —— 测深：一台小显像管。上方只有水深，嵌在一格暗窗里 —— */
+#sonar { position: absolute; left: 52px; bottom: 40px; width: 354px; padding: 8px 12px 12px; }
+#sonar .t { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-bottom: 9px; color: #a9c8c4; font-size: 20px; }
+#sonar .t .di { font-size: 24px; color: #7fd8d0; line-height: 0; margin-right: 4px; }
+#sonar .t b { color: #bff5ea; font-size: 26px; min-width: 66px; padding: 0 9px; text-align: right; background: #04100f; box-shadow: inset 3px 3px 0 #000, inset -3px -3px 0 #1d3a3c; text-shadow: 0 0 9px rgba(120,255,225,.55); }
+#sonar .scr { position: relative; width: 306px; height: 150px; box-shadow: 0 0 0 3px #04090b, 0 0 0 6px #6a4719, -3px -3px 0 6px #e0b866, 3px 3px 0 6px #4a3010, 0 0 0 9px #04090b; margin: 9px 9px 6px; }
+#sonar canvas { width: 306px; height: 150px; image-rendering: pixelated; display: block; }
+/* 扫描线、玻璃反光、四角暗下去 */
+#sonar .scr .glass { position: absolute; inset: 0; background: linear-gradient(150deg, rgba(220,255,250,.06) 0 9%, transparent 9% 12%, rgba(220,255,250,.035) 12% 14%, transparent 14%), repeating-linear-gradient(180deg, rgba(0,0,0,.22) 0 1px, transparent 1px 3px), radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0,0,0,.45) 100%); }
+/* 写入的那一列：一道亮线，左边拖一点余辉 */
+#sonar .scr .head { position: absolute; top: 0; bottom: 0; right: 0; width: 30px; background: linear-gradient(90deg, transparent, rgba(120,255,225,.10) 27px, rgba(170,255,235,.45) 27px); animation: head 0.18s steps(2) infinite; }
+@keyframes head { 50% { opacity: 0.7; } }
+
+/* —— 下一处线索的方向：船旁边的箭头 —— */
+#lead { position: absolute; left: 0; top: 0; width: 84px; height: 84px; opacity: 0; color: #ffd36a; filter: drop-shadow(3px 0 0 #3a2006) drop-shadow(-3px 0 0 #3a2006) drop-shadow(0 3px 0 #3a2006) drop-shadow(0 -3px 0 #3a2006) drop-shadow(4px 4px 0 rgba(0,0,0,.5)); }
+#lead.on { opacity: 1; }
+#lead .a { width: 84px; height: 84px; font-size: 84px; line-height: 0; animation: nudge 1.1s ease-in-out infinite; }
+@keyframes nudge { 0%, 100% { transform: translateX(-8px); } 50% { transform: translateX(10px); } }
+
+/* —— 进度圈：铜边小表盘，网、冲洗，跟着它本身 —— */
+#prog { position: absolute; left: 0; top: 0; width: 84px; height: 84px; opacity: 0; transform-origin: 42px 42px; transition: opacity 0.25s; filter: drop-shadow(3px 3px 0 rgba(0,0,0,.55)); }
+#prog.on { opacity: 1; }
+/* 28×28 格的像素表盘（pixring.js drawProg），屏幕上整 3 倍 */
+#prog canvas { display: block; width: 84px; height: 84px; image-rendering: pixelated; }
+
+/* —— 揭晓：物件的货签，一件一件挂出来 —— */
+.card { position: absolute; left: 0; top: 0; padding: 7px 18px 9px 34px; font-size: 26px; font-weight: 700; white-space: nowrap; opacity: 0; transition: opacity 0.25s, margin 0.3s cubic-bezier(.2,1.6,.4,1); margin-top: 18px; text-align: center; display: flex; align-items: center; gap: 12px; color: #2e2112; border: 3px solid #e8d3a0; border-image: var(--px-tag) 12 fill / 12px / 3px stretch; image-rendering: pixelated; text-shadow: 0 2px 0 rgba(255,250,230,.5); filter: drop-shadow(6px 6px 0 rgba(0,0,0,.4)); }
+.card.on { opacity: 1; margin-top: 0; }
+/* 淡出时原地淡掉，不往下掉（掉下去会压到下面那张签） */
+.card.out { margin-top: 0; }
+/* 签孔：铜圈，穿出一截麻绳 */
+.card .eye { position: absolute; left: 9px; top: 50%; width: 18px; height: 18px; margin-top: -9px; background: var(--px-eye) 0 0 / 18px 18px; image-rendering: pixelated; }
+.card .nm { font-weight: 700; }
+.card .v { color: #7a4a12; font-weight: 800; display: flex; align-items: center; gap: 5px; padding-left: 12px; box-shadow: -3px 0 0 rgba(90,60,20,.25); }
+.card .v .ic { color: #c8902a; }
+.card.p { border-image-source: var(--px-tag-gold); color: #3a2006; }
+.card.small { font-size: 21px; padding: 6px 14px 7px 32px; }
+
+/* —— 珍贵物：金字两边卷草，扫一道光；价值挂在一条红绸上 —— */
+#big { position: absolute; left: 0; right: 0; top: 118px; text-align: center; opacity: 0; transform: scale(1.25); transition: opacity 0.35s ease, transform 0.5s cubic-bezier(.2,1.6,.4,1); }
+#big.on { opacity: 1; transform: none; }
+#big .n { position: relative; display: inline-block; font-size: 112px; font-weight: 800; letter-spacing: 18px; padding-left: 18px; color: #ffd36a; text-shadow: 0 6px 0 #7a4a12, 4px 0 0 #3a1e04, -4px 0 0 #3a1e04, 0 -4px 0 #3a1e04, 6px 12px 0 rgba(0,0,0,.6); }
+#big .n .gl { position: absolute; left: 18px; right: 0; top: 0; font-style: normal; color: transparent; text-shadow: none; background: linear-gradient(105deg, transparent 0 42%, rgba(255,252,230,.95) 42% 47%, transparent 47% 53%, rgba(255,252,230,.6) 53% 55%, transparent 55%) 0 0 / 300% 100% no-repeat; -webkit-background-clip: text; background-clip: text; pointer-events: none; }
+#big.on .n .gl { animation: glint 2.2s ease-in-out 0.35s infinite; }
+@keyframes glint { 0% { background-position: 100% 0; } 55%, 100% { background-position: 0 0; } }
+#big .n::before, #big .n::after { content: ''; position: absolute; top: 50%; width: 120px; height: 33px; margin-top: -10px; background: var(--px-flourish-l) center / 120px 33px no-repeat; image-rendering: pixelated; filter: drop-shadow(4px 6px 0 rgba(0,0,0,.5)); transition: transform 0.6s cubic-bezier(.2,1.4,.4,1) 0.15s, opacity 0.4s 0.15s; opacity: 0; }
+#big .n::before { right: 100%; margin-right: 6px; transform: translateX(40px); }
+#big .n::after { left: 100%; margin-left: -12px; background-image: var(--px-flourish-r); transform: translateX(-40px); }
+#big.on .n::before, #big.on .n::after { opacity: 1; transform: none; }
+#big .v { position: relative; display: inline-flex; align-items: center; gap: 12px; margin-top: 14px; padding: 6px 54px 9px; font-size: 44px; font-weight: 800; color: #ffe1a0; text-shadow: 3px 3px 0 #3a0c06; background: linear-gradient(180deg, #e0624a 0 3px, #b4352a 3px 70%, #86241c 70% calc(100% - 3px), #3a0c06 calc(100% - 3px)); clip-path: polygon(0 0, 100% 0, calc(100% - 24px) 50%, 100% 100%, 0 100%, 24px 50%); }
+#big .v .ic { color: #ffd36a; filter: drop-shadow(3px 3px 0 #3a0c06); }
+
+/* —— 自动演示：铁牌上一盏一闪一闪的红灯 —— */
+#demo { position: absolute; z-index: 20; left: 50%; top: 36px; transform: translateX(-50%); padding: 8px 22px; font-size: 22px; letter-spacing: 2px; display: flex; gap: 12px; align-items: center; white-space: nowrap; }
+#demo .key { margin: 0 3px; }
+/* 收获单上：让到左上角 */
+#demo.side { left: 40px; transform: none; }
+#demo .dot { width: 15px; height: 15px; background: #ff6a4d; box-shadow: inset 3px 3px 0 #ffd0c0, inset -3px -3px 0 #a8321e, 0 0 0 3px #04090b, 0 0 12px 3px rgba(255,106,77,.6); animation: blink2 1.2s steps(2) infinite; }
+@keyframes blink2 { 50% { opacity: 0.25; box-shadow: inset 3px 3px 0 #ffd0c0, inset -3px -3px 0 #a8321e, 0 0 0 3px #04090b; } }
+
+/* —— 标题：描边的大字，下面一道带锚的线；菜单是铜牌 —— */
+#title { position: absolute; inset: 0; pointer-events: auto; background: linear-gradient(180deg, rgba(4,10,14,0.55) 0%, rgba(4,10,14,0.0) 38%, rgba(4,10,14,0.0) 60%, rgba(4,10,14,0.75) 100%); transition: opacity 0.7s; }
+#title .logo { position: absolute; left: 120px; top: 120px; opacity: 0; }
+/* G01「沉债」压着锚线砸下来：越落越快，砸下去一压，锚线从锚两边甩开，锚晃两下 */
+#title.drop .logo { animation: logodrop 0.78s forwards; }
+@keyframes logodrop {
+  0% { opacity: 0; transform: translateY(-320px); animation-timing-function: cubic-bezier(.55,0,1,.55); }
+  12% { opacity: 1; }
+  62% { opacity: 1; transform: translateY(0); animation-timing-function: ease-out; }
+  74% { transform: translateY(14px) scaleY(0.95); animation-timing-function: ease-in-out; }
+  100% { opacity: 1; transform: none; }
+}
+#title .logo .rule i:first-child { transform-origin: 100% 50%; }
+#title .logo .rule i:last-child { transform-origin: 0 50%; }
+#title.drop .logo .rule i { animation: ruleout 0.42s cubic-bezier(.2,1.3,.4,1) 0.48s both; }
+@keyframes ruleout { from { transform: scaleX(0); } }
+#title.drop .logo .rule .ic { transform-origin: 50% 0; animation: anchorswing 1.1s ease-out 0.48s; }
+@keyframes anchorswing { 0% { rotate: 0deg; } 20% { rotate: 14deg; } 45% { rotate: -9deg; } 70% { rotate: 4deg; } 100% { rotate: 0deg; } }
+/* G01 选项一项项亮起；G02 自动演示那一行随浪轻轻起伏 */
+#title .menu .opt:not(.lit), #title .clickall:not(.lit) { opacity: 0; }
+#title .menu .opt.lit { animation: optlit 0.36s cubic-bezier(.2,1.3,.4,1) both; }
+@keyframes optlit { from { opacity: 0; translate: -40px 0; } }
+#title .clickall.lit { animation: optlit 0.4s cubic-bezier(.2,1.3,.4,1) both, bob 3.2s ease-in-out 0.4s infinite; }
+@keyframes bob { 0%, 100% { translate: 0 0; rotate: 0deg; } 30% { translate: 0 -7px; rotate: -0.7deg; } 65% { translate: 0 4px; rotate: 0.5deg; } }
+/* G03 出发：标题字沉进水里（往下沉、发绿、化开），选项先收 */
+#title.sink { opacity: 0; transition: opacity 0.9s 0.1s; pointer-events: none; }
+#title.sink .logo { animation: logosink 0.95s cubic-bezier(.5,0,.9,.5) forwards; }
+@keyframes logosink { 0% { opacity: 1; transform: none; filter: none; } 100% { opacity: 0; transform: translateY(110px) scaleY(1.06); filter: blur(5px) sepia(1) hue-rotate(120deg) saturate(1.6); } }
+#title.sink .menu, #title.sink .clickall { opacity: 0; transition: opacity 0.22s; }
+/* G03 界面从各自的边上滑进来 */
+.enter #fuel { animation: hudin-t 0.5s cubic-bezier(.2,1.2,.4,1) 0.55s both; }
+.enter #sonar { animation: hudin-l 0.5s cubic-bezier(.2,1.2,.4,1) 0.7s both; }
+.enter #modebar { animation: hudin-b 0.5s cubic-bezier(.2,1.2,.4,1) 0.85s both; }
+/* 甲板那一排跟在油量后面从上边落下来 */
+.enter #deckbar.on { animation: hudin-t 0.5s cubic-bezier(.2,1.2,.4,1) 0.65s both; }
+@keyframes hudin-t { from { opacity: 0; translate: 0 -70px; } }
+@keyframes hudin-l { from { opacity: 0; translate: -80px 0; } }
+@keyframes hudin-b { from { opacity: 0; translate: 0 80px; } }
+#title .logo .n { font-size: 168px; font-weight: 800; letter-spacing: 30px; color: #f3ead8; line-height: 1; text-shadow: 6px 0 0 #0a1a1e, -6px 0 0 #0a1a1e, 0 -6px 0 #0a1a1e, 0 6px 0 #0a1a1e, 6px 6px 0 #0a1a1e, -6px 6px 0 #0a1a1e, 6px -6px 0 #0a1a1e, -6px -6px 0 #0a1a1e, 0 15px 0 #1a3a40, 6px 15px 0 #1a3a40, -6px 15px 0 #1a3a40, 12px 24px 0 rgba(0,0,0,.45); }
+#title .logo .rule { display: flex; align-items: center; gap: 15px; margin-top: 30px; width: 360px; color: #e8b04a; font-size: 42px; line-height: 0; }
+#title .logo .rule i { flex: 1; height: 6px; background: #e8b04a; box-shadow: 0 0 0 3px #0a1a1e, 6px 6px 0 3px rgba(0,0,0,.4); }
+#title .logo .rule .ic { filter: drop-shadow(3px 0 0 #0a1a1e) drop-shadow(-3px 0 0 #0a1a1e) drop-shadow(0 3px 0 #0a1a1e) drop-shadow(0 -3px 0 #0a1a1e) drop-shadow(6px 6px 0 rgba(0,0,0,.4)); }
+#title .menu { position: absolute; left: 120px; bottom: 150px; display: flex; flex-direction: column; gap: 14px; }
+#title .opt { position: relative; font-size: 36px; padding: 12px 28px 14px 46px; letter-spacing: 6px; color: #a9c8c4; cursor: pointer; width: 420px; border: 3px solid transparent; transition: color 0.15s, transform 0.2s cubic-bezier(.2,1.4,.4,1); }
+#title .opt.on { color: #2a1806; font-weight: 700; text-shadow: 0 3px 0 rgba(255,238,190,.55); border-image: var(--px-brass) 12 fill / 12px / 3px stretch; image-rendering: pixelated; filter: drop-shadow(6px 6px 0 rgba(0,0,0,.42)); transform: translateX(12px); }
+#title .opt.on::before { content: ''; position: absolute; left: 18px; top: 50%; margin-top: -9px; border: 9px solid transparent; border-left: 12px solid #2a1806; animation: nudge2 0.9s ease-in-out infinite; }
+@keyframes nudge2 { 0%, 100% { transform: none; } 50% { transform: translateX(4px); } }
+#title .clickall { position: absolute; left: 50%; bottom: 120px; transform: translateX(-50%); display: flex; align-items: center; gap: 18px; font-size: 40px; letter-spacing: 8px; padding: 18px 46px; color: #2a1806; font-weight: 700; cursor: pointer; white-space: nowrap; border: 3px solid #e8b04a; border-image: var(--px-brass) 12 fill / 12px / 3px stretch; image-rendering: pixelated; text-shadow: 0 3px 0 rgba(255,238,190,.55); filter: drop-shadow(8px 8px 0 rgba(0,0,0,.45)); animation: bob 1.6s ease-in-out infinite; }
+#title .clickall .pl { display: flex; font-size: 38px; line-height: 0; animation: nudge2 0.9s ease-in-out infinite; }
+@keyframes bob { 0%, 100% { transform: translateX(-50%); } 50% { transform: translateX(-50%) translateY(-6px); } }
+
+/* —— 暂停：左边菜单，右边「这一屏上每个图标是什么、这里能按的键」 —— */
+#pause { position: absolute; inset: 0; background: rgba(4,10,14,0.6); pointer-events: auto; animation: dimin 0.25s ease-out; }
+@keyframes dimin { from { background: rgba(4,10,14,0); } }
+#pause .panel { background: linear-gradient(180deg, rgba(150, 220, 214, 0.07) 0 3px, transparent 3px 40%, rgba(0, 0, 0, 0.16)), repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.022) 0 3px, transparent 3px 6px), rgba(9, 18, 22, 0.97); }
+/* 暂停时，跟着世界走的标记（臂端标签、方向箭头、进度圈、物件名牌）收起来，不压在面板后面透出来 */
+.paused #tip, .paused #lead, .paused #prog, .paused .card, .paused #toast, .paused #fly { visibility: hidden; }
+#pause .wrap { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; align-items: stretch; gap: 24px; }
+#pause .box { width: 520px; padding: 30px 34px 30px; animation: panelin 0.3s cubic-bezier(.2,1.2,.4,1); }
+#pause .legend { animation: panelin 0.3s cubic-bezier(.2,1.2,.4,1) 0.06s backwards; }
+@keyframes panelin { from { opacity: 0; transform: translateY(36px); } }
+#pause .h { font-size: 40px; letter-spacing: 10px; margin-bottom: 22px; padding-bottom: 12px; background: linear-gradient(90deg, #e8b04a 0 96px, transparent 96px) 0 100% / 100% 6px no-repeat; }
+#pause .opt { position: relative; font-size: 28px; padding: 10px 18px 10px 18px; display: flex; justify-content: space-between; color: #a9c8c4; cursor: pointer; border: 3px solid transparent; transition: padding 0.15s; }
+#pause .opt.on { color: #2a1806; font-weight: 700; padding-left: 40px; text-shadow: 0 3px 0 rgba(255,238,190,.55); border-image: var(--px-brass) 12 fill / 12px / 3px stretch; image-rendering: pixelated; }
+#pause .opt.on::before { content: ''; position: absolute; left: 14px; top: 50%; margin-top: -8px; border: 8px solid transparent; border-left: 11px solid #2a1806; animation: nudge2 0.9s ease-in-out infinite; }
+#pause .opt .val { letter-spacing: 2px; }
+#pause .opt .val.tick { animation: valtick 0.22s cubic-bezier(.2,1.4,.4,1); }
+@keyframes valtick { from { transform: translateY(-9px); opacity: 0.3; } }
+/* D02 选中项换了：铜牌亮一下、往里一顶 */
+#pause .opt.on.pop { animation: optpop 0.2s ease-out; }
+#title .opt.on.pop { animation: optpopT 0.2s ease-out; }
+@keyframes optpop { 0% { filter: brightness(1.55); transform: translateX(7px); } 100% { filter: none; transform: none; } }
+@keyframes optpopT { 0% { filter: brightness(1.55) drop-shadow(6px 6px 0 rgba(0,0,0,.42)); transform: translateX(22px); } 100% { filter: drop-shadow(6px 6px 0 rgba(0,0,0,.42)); transform: translateX(12px); } }
+/* D03 停在「晃动和折射」上：压暗退开，看得见背后的水 */
+#pause { transition: background 0.3s; }
+#pause.peek { background: rgba(4,10,14,0.2); }
+/* D01 关上：反着来 */
+#pause.out { animation: dimout 0.2s ease-in forwards; }
+#pause.out .box, #pause.out .legend { animation: panelout 0.2s ease-in forwards; }
+@keyframes dimout { to { background: rgba(4,10,14,0); } }
+@keyframes panelout { to { opacity: 0; transform: translateY(36px); } }
+/* D04 接管：演示牌往上收起 */
+#demo.out { animation: demoout 0.4s cubic-bezier(.5,0,.8,.4) forwards; }
+@keyframes demoout { 0% { transform: translateX(-50%); opacity: 1; } 30% { transform: translateX(-50%) scale(1.08); opacity: 1; } 100% { transform: translateX(-50%) translateY(-60px) scale(0.8); opacity: 0; } }
+/* D05 / C16 「再来一趟」按下去 */
+#summary .again.press { animation: againpress 0.2s ease-out; }
+@keyframes againpress { 0% { transform: translateX(-50%); } 35% { transform: translateX(-50%) translateY(5px) scale(0.95); filter: brightness(0.85) drop-shadow(2px 2px 0 rgba(0,0,0,.35)); } 100% { transform: translateX(-50%); } }
+#pause .legend { width: 620px; padding: 26px 30px 26px; display: flex; flex-direction: column; gap: 12px; }
+#pause .legend .ph { font-size: 30px; font-weight: 700; letter-spacing: 6px; color: #e8b04a; margin-bottom: 4px; }
+#pause .legend .row { display: flex; align-items: center; gap: 24px; font-size: 23px; line-height: 1.35; }
+/* 一行里的一格：一个图标一句话，不折行 */
+#pause .legend .row .c { display: flex; align-items: center; gap: 12px; white-space: nowrap; }
+#pause .legend .row .g { min-width: 46px; flex: none; display: flex; justify-content: center; font-size: 34px; line-height: 0; }
+#pause .legend .sep { height: 6px; margin: 8px 0 4px; background: linear-gradient(180deg, #081215 0 3px, #2b474b 3px); }
+#pause .legend .keys { display: grid; grid-template-columns: auto 1fr auto 1fr; gap: 12px 14px; align-items: center; font-size: 22px; }
+#pause .legend .keys .key { justify-self: start; margin: 0 3px; }
+
+/* —— 收获单（C15 开舱清点）：舱里的东西是画面本身；上面一块总数牌，东西前面挂签，底下一行这一趟做到的事 —— */
+#summary { position: absolute; inset: 0; pointer-events: auto; opacity: 0; transition: opacity 0.4s; }
+#summary.on { opacity: 1; }
+#summary .head { position: absolute; left: 0; right: 0; top: 34px; text-align: center; display: flex; justify-content: center; align-items: baseline; gap: 22px; opacity: 0; transform: translateY(-14px); transition: opacity 0.4s 0.35s, transform 0.5s cubic-bezier(.2,1.4,.4,1) 0.35s; }
+#summary.on .head { opacity: 1; transform: none; }
+#summary .head .t { font-size: 34px; font-weight: 800; letter-spacing: 14px; padding-left: 14px; color: #e8b04a; text-shadow: 3px 0 0 #1a0e04, -3px 0 0 #1a0e04, 0 3px 0 #1a0e04, 0 -3px 0 #1a0e04, 4px 5px 0 rgba(0,0,0,.6); }
+#summary .head .why { font-size: 24px; color: #e8d3a0; text-shadow: 2px 2px 0 #1a0e04, 0 0 8px rgba(0,0,0,.8); }
+/* 总数：金字，两边卷草，进账一下跳一下 */
+#summary .tot { position: absolute; left: 0; right: 0; top: 82px; text-align: center; opacity: 0; transform: scale(1.2); transition: opacity 0.35s 0.45s, transform 0.5s cubic-bezier(.2,1.6,.4,1) 0.45s; }
+#summary.on .tot { opacity: 1; transform: none; }
+#summary .tot .lab { display: none; }
+#summary .tot .num { position: relative; display: inline-flex; align-items: center; gap: 18px; font-size: 104px; font-weight: 800; line-height: 1.05; color: #ffd36a; text-shadow: 0 6px 0 #7a4a12, 4px 0 0 #3a1e04, -4px 0 0 #3a1e04, 0 -4px 0 #3a1e04, 6px 12px 0 rgba(0,0,0,.6); }
+#summary .tot .num > .ic { font-size: 82px; color: #ffd36a; filter: drop-shadow(0 5px 0 #7a4a12) drop-shadow(3px 0 0 #3a1e04) drop-shadow(-3px 0 0 #3a1e04) drop-shadow(0 -3px 0 #3a1e04) drop-shadow(5px 9px 0 rgba(0,0,0,.55)); }
+#summary .tot .num b { min-width: 2.4ch; text-align: left; font-weight: 800; }
+#summary .tot .num::before, #summary .tot .num::after { content: ''; position: absolute; top: 50%; width: 120px; height: 33px; margin-top: -10px; background: var(--px-flourish-l) center / 120px 33px no-repeat; image-rendering: pixelated; filter: drop-shadow(4px 6px 0 rgba(0,0,0,.5)); opacity: 0; transition: transform 0.6s cubic-bezier(.2,1.4,.4,1), opacity 0.4s; }
+#summary .tot .num::before { right: 100%; margin-right: 10px; transform: translateX(40px); }
+#summary .tot .num::after { left: 100%; margin-left: 0; background-image: var(--px-flourish-r); transform: translateX(-40px); }
+#summary .tot.final .num::before, #summary .tot.final .num::after { opacity: 1; transform: none; }
+#summary .tot.pulse .num { animation: totpulse 0.26s ease-out; }
+#summary .tot.pulse2 .num { animation: totpulse2 0.6s cubic-bezier(.2,1.6,.4,1); }
+@keyframes totpulse { 0% { transform: scale(1.1); filter: brightness(1.35); } 100% { transform: none; filter: none; } }
+@keyframes totpulse2 { 0% { transform: scale(1.32); filter: brightness(1.7); } 100% { transform: none; filter: none; } }
+/* 落定：往下一砸，弹回来 */
+#summary .tot.slam .num { animation: totslam 0.42s cubic-bezier(.3,1.4,.5,1); }
+@keyframes totslam { 0% { transform: scale(1.22) translateY(-10px); } 35% { transform: scale(0.94) translateY(6px); } 100% { transform: none; } }
+/* 入舱章：红印泥，盖在总数右边，斜着重重盖下去（40×40 格，屏幕上 3 倍；一下一下落：6 → 5 → 4 → 3 像素一格） */
+#summary .stamp { position: absolute; left: 100%; top: 50%; margin: -64px 0 0 128px; width: 120px; height: 120px; opacity: 0; transform: scale(2); pointer-events: none; }
+#summary .stamp.on { animation: stamp 0.34s linear forwards; }
+#summary .stamp canvas { display: block; width: 120px; height: 120px; image-rendering: pixelated; filter: drop-shadow(4px 5px 0 rgba(0,0,0,.45)); }
+@keyframes stamp { 0% { opacity: 0.35; transform: scale(2); animation-timing-function: cubic-bezier(.55,0,.9,.55); } 75%, 100% { opacity: 1; transform: none; } }
+/* 签：和揭晓时同一种牛皮纸签，底下一行小字写从哪儿捞的 */
+#summary .tags { position: absolute; inset: 0; }
+#summary .tcard { flex-wrap: wrap; justify-content: center; row-gap: 0; font-size: 24px; padding: 6px 16px 7px 32px; transition: opacity 0.2s, margin 0.32s cubic-bezier(.2,1.6,.4,1); margin-top: -16px; }
+#summary .tcard.on { margin-top: 0; }
+#summary .tcard .fr { flex-basis: 100%; font-size: 17px; font-weight: 700; color: #7a5a32; letter-spacing: 2px; line-height: 1.1; text-shadow: none; }
+#summary .tcard.star { font-size: 30px; padding: 8px 22px 9px 38px; }
+#summary .tcard.star .fr { font-size: 19px; }
+/* 同款对上：两张签右上角各挂一个「同款」小红签 */
+#summary .tcard.pair::after { content: '同款'; position: absolute; right: -14px; top: -16px; padding: 1px 8px 3px; font-size: 16px; letter-spacing: 2px; color: #ffe1a0; background: #b4352a; box-shadow: 0 0 0 3px #3a0c06, 3px 3px 0 3px rgba(0,0,0,.35); animation: pairin 0.3s cubic-bezier(.2,1.8,.4,1) both; }
+@keyframes pairin { from { transform: scale(0) rotate(-20deg); } }
+/* 挂过一会儿收成小价签：只剩价值，贴在帆布前沿，不挡东西 */
+#summary .tcard.mini { font-size: 20px; padding: 3px 12px 4px; gap: 0; animation: minin 0.26s cubic-bezier(.2,1.6,.4,1); filter: drop-shadow(4px 4px 0 rgba(0,0,0,.4)); }
+#summary .tcard.mini .eye, #summary .tcard.mini .nm, #summary .tcard.mini .fr { display: none; }
+#summary .tcard.mini .v { padding-left: 0; box-shadow: none; gap: 4px; }
+#summary .tcard.mini.pair::after { display: none; }
+@keyframes minin { from { scale: 1.3; opacity: 0.5; } }
+/* 压轴推近时，别的价签退下去 */
+#summary .tags .tcard { transition: opacity 0.3s, margin 0.32s cubic-bezier(.2,1.6,.4,1); }
+#summary .tags.dim .tcard:not(.star) { opacity: 0.15; }
+/* 价值飞进总数：一枚铜钱带着「+140」 */
+#summary .fly { position: absolute; inset: 0; }
+#summary .fly .coin, #coins .coin { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 6px; font-size: 32px; font-weight: 800; color: #ffd36a; white-space: nowrap; text-shadow: 3px 0 0 #3a1e04, -3px 0 0 #3a1e04, 0 3px 0 #3a1e04, 0 -3px 0 #3a1e04, 4px 5px 0 rgba(0,0,0,.5); will-change: transform; }
+#summary .fly .coin .ic, #coins .coin .ic { font-size: 30px; filter: drop-shadow(2px 0 0 #3a1e04) drop-shadow(-2px 0 0 #3a1e04) drop-shadow(0 2px 0 #3a1e04) drop-shadow(0 -2px 0 #3a1e04); }
+#summary .fly .coin.big, #coins .coin.big { font-size: 52px; }
+#summary .fly .coin.big .ic, #coins .coin.big .ic { font-size: 48px; }
+/* 一甲板一起冲：冲开一包，铜钱从那件东西身上飞进上方的总数牌（和收获单里飞进总数的是同一枚） */
+#coins { position: absolute; inset: 0; pointer-events: none; }
+.paused #coins { visibility: hidden; }
+/* 这一趟做到的事：一条条亮出来 */
+#summary .deeds { position: absolute; left: 0; right: 0; bottom: 112px; display: flex; justify-content: center; align-items: center; gap: 18px; font-size: 25px; font-weight: 700; color: #f3ead8; text-shadow: 2px 2px 0 #10080a, 0 0 10px rgba(0,0,0,.9); }
+#summary .deeds .dd, #summary .deeds .dot { opacity: 0; transform: translateY(10px); }
+#summary .deeds .dot { width: 9px; height: 9px; background: #e8b04a; box-shadow: 0 0 0 3px #1a0e04; }
+#summary .deeds.on .dd, #summary .deeds.on .dot { animation: deedin 0.35s cubic-bezier(.2,1.5,.4,1) forwards; }
+#summary .deeds.on > :nth-child(2) { animation-delay: 0.13s; } #summary .deeds.on > :nth-child(3) { animation-delay: 0.26s; }
+#summary .deeds.on > :nth-child(4) { animation-delay: 0.39s; } #summary .deeds.on > :nth-child(5) { animation-delay: 0.52s; }
+#summary .deeds.on > :nth-child(6) { animation-delay: 0.65s; } #summary .deeds.on > :nth-child(7) { animation-delay: 0.78s; }
+#summary .deeds.on > :nth-child(8) { animation-delay: 0.91s; } #summary .deeds.on > :nth-child(9) { animation-delay: 1.04s; }
+@keyframes deedin { to { opacity: 1; transform: none; } }
+#summary .deeds .empty { color: #c8bca4; }
+#summary .again { position: absolute; left: 50%; bottom: 34px; width: max-content; padding: 8px 26px 11px; text-align: center; font-size: 28px; letter-spacing: 4px; color: #2a1806; font-weight: 700; border: 3px solid #e8b04a; border-image: var(--px-brass) 12 fill / 12px / 3px stretch; image-rendering: pixelated; text-shadow: 0 3px 0 rgba(255,238,190,.55); filter: drop-shadow(6px 6px 0 rgba(0,0,0,.35)); overflow: hidden; opacity: 0; transform: translateX(-50%) translateY(26px); transition: opacity 0.3s, transform 0.4s cubic-bezier(.2,1.5,.4,1); }
+#summary .again.on { opacity: 1; transform: translateX(-50%); }
+#summary .again .key { margin-right: 14px; }
+#summary .again .cd { position: absolute; left: 9px; bottom: 6px; height: 6px; width: 0; max-width: calc(100% - 18px); background: #5a3a12; box-shadow: 0 -3px 0 rgba(255,238,190,.5); }
+/* C16 再来一趟：总数牌、签、按钮一起收掉（舱盖拉上的同时） */
+#summary.out { pointer-events: none; transition: opacity 0.5s 0.15s; opacity: 0; }
+#summary.out .tot { transform: translateY(-40px); transition: transform 0.5s ease-in; }
+
+/* —— 出了岔子：屏幕上方中间说一句，弹一下就收 —— */
+#toast { position: absolute; left: 50%; top: 24%; transform: translate(-50%, -50%) scale(0.9); font-size: 30px; padding: 12px 28px; opacity: 0; transition: opacity 0.25s, transform 0.3s cubic-bezier(.2,1.6,.4,1); color: #ffd3a0; white-space: nowrap; border-image-source: var(--px-iron-red); }
+#toast.on { opacity: 1; transform: translate(-50%, -50%); }
+
+/* —— 渐黑 —— */
+/* 黑场盖过一切（自动演示牌也在下面），只有开发用的效果标签在它上面 */
+#black { position: absolute; inset: 0; z-index: 30; background: #05080a; opacity: 0; transition: opacity 0.6s; pointer-events: none; }
+#black.on { opacity: 1; }
+
+/* —— 效果标签（game-tagged.html、effects.html）：右下角，每放一个效果写出编号和名字 —— */
+#fxtags { position: absolute; right: 36px; bottom: 34px; z-index: 60; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; pointer-events: none; }
+#fxtags .tg { font-size: 22px; line-height: 1.2; padding: 5px 14px 6px 12px; background: rgba(5, 11, 13, 0.88); color: #f3ead8; white-space: nowrap; border-left: 6px solid #7fb8b0; box-shadow: 0 0 0 2px #04090b, 4px 4px 0 2px rgba(0,0,0,.35); animation: tgin 0.22s ease-out; transition: opacity 0.4s; }
+#fxtags .tg b { display: inline-block; min-width: 46px; margin-right: 10px; color: #ffd36a; font-weight: 800; letter-spacing: 1px; }
+#fxtags .tg.t2 { border-left-color: #c99a48; }
+#fxtags .tg.t3 { border-left-color: #ff9a4a; }
+#fxtags .tg.t4 { border-left-color: #ff5a3a; background: rgba(40, 10, 6, 0.9); }
+#fxtags .tg.out { opacity: 0; }
+#fxtags .tg i { font-style: normal; font-size: 15px; margin-left: 10px; padding: 0 5px; color: #2a1806; background: #e8b04a; vertical-align: 2px; }
+@keyframes tgin { from { opacity: 0; transform: translateX(24px); } }
+
+/* B01 下网：油表上那一截扣掉 */
+#fuel .snap { position: absolute; height: 21px; background: repeating-linear-gradient(90deg, #fff1c8 0 6px, #ffd36a 6px 9px); box-shadow: 0 0 0 3px #04090b; z-index: 4; pointer-events: none; animation: fsnap 0.62s cubic-bezier(.5,0,.8,.6) forwards; }
+@keyframes fsnap { 0% { filter: brightness(2.2); transform: none; } 14% { filter: brightness(2.2); transform: translate(0, -3px); } 22% { filter: none; transform: translate(2px, 0) rotate(0deg); opacity: 1; } 100% { transform: translate(10px, 46px) rotate(14deg); opacity: 0; } }
+#fuel.snapped .fill { animation: fjolt 0.26s ease-out 1; }
+@keyframes fjolt { 0% { filter: brightness(1.6); } 100% { filter: none; } }
+
+/* C07 名字先落下，红绸价值等一拍再挂上 */
+#big .v { transition: opacity 0.18s, transform 0.42s cubic-bezier(.2,1.5,.4,1); }
+#big:not(.val) .v { opacity: 0; transform: translateY(-26px) rotate(-3deg); }
+/* 大标题底下一行来历：价值挂上以后才淡出来 */
+#big .d { margin-top: 14px; font-size: 30px; font-weight: 700; color: #f6ead0; text-shadow: 2px 0 0 #1a1008, -2px 0 0 #1a1008, 0 2px 0 #1a1008, 0 -2px 0 #1a1008, 4px 4px 0 rgba(0,0,0,.6); opacity: 0; transform: translateY(-8px); transition: opacity 0.4s 0.3s, transform 0.4s 0.3s; }
+#big.val .d { opacity: 1; transform: none; }
+#big .d:empty { display: none; }
+/* B14 每一网的主物：比银币匣小一号，卷草短一截 */
+#big.mid { top: 128px; }
+#big.mid .n { font-size: 84px; letter-spacing: 12px; padding-left: 12px; text-shadow: 0 5px 0 #7a4a12, 3px 0 0 #3a1e04, -3px 0 0 #3a1e04, 0 -3px 0 #3a1e04, 5px 10px 0 rgba(0,0,0,.6); }
+#big.mid .n .gl { left: 12px; }
+#big.mid .n::before, #big.mid .n::after { width: 84px; background-size: 84px 23px; height: 23px; margin-top: -7px; }
+#big.mid .v { font-size: 38px; padding: 5px 44px 8px; margin-top: 10px; }
+#big.mid .d { font-size: 27px; margin-top: 10px; }
+/* B15 空网：灰白的字，没有卷草、没有扫光、没有价值 */
+#big.dud .n { font-size: 72px; letter-spacing: 14px; color: #c9cfc4; text-shadow: 0 4px 0 #3c4440, 3px 0 0 #1a2020, -3px 0 0 #1a2020, 0 -3px 0 #1a2020, 4px 8px 0 rgba(0,0,0,.5); }
+#big.dud .n::before, #big.dud .n::after, #big.dud .n .gl, #big.dud .v { display: none; }
+#big.dud .d { opacity: 1; transform: none; color: #d8d2c0; font-size: 26px; }
+/* B14 货签挂上去：从签孔那儿晃一下再停住 */
+.card { transform-origin: 18px 50%; }
+.card.on { animation: hang 0.62s cubic-bezier(.3,1.4,.5,1) both; }
+@keyframes hang { 0% { rotate: -8deg; } 45% { rotate: 3.5deg; } 72% { rotate: -1.2deg; } 100% { rotate: 0deg; } }
+/* B17 伴随物的签拴在它那件东西上：一根细麻绳，钉头一个铜点；签亮着才看得见 */
+.cord { position: absolute; left: 0; top: 0; height: 3px; margin-top: -1.5px; transform-origin: 0 50%; background: #d8bf86; box-shadow: 0 0 0 2px rgba(46,33,18,.72), 3px 3px 0 1px rgba(0,0,0,.28); opacity: 0; transition: opacity .25s .12s; pointer-events: none; }
+.cord.on { opacity: 1; }
+.cord::after { content: ''; position: absolute; right: -6px; top: 50%; width: 8px; height: 8px; margin-top: -6px; background: #e0a83a; border: 2px solid #2e2112; box-shadow: 2px 2px 0 rgba(0,0,0,.35); }
+.paused .cord { visibility: hidden; }
+/* F02 第一次进账：货格子落下来「咚」地定住 */
+#tally.first.on { transform-origin: 50% 0; animation: tallyfirst 0.6s ease-out 0.2s both; }
+/* F02 第一次：格子从自己的上沿往下放出来，落到底「咚」地一顿（不越过上面的油位管） */
+@keyframes tallyfirst { 0% { scale: 1 0; } 50% { scale: 1 1.14; } 72% { scale: 1 0.93; } 88% { scale: 1 1.03; } 100% { scale: 1 1; } }
+
+/* A05 箭头转向下一块船板：「咔」一下（先缩、亮、再弹回） */
+#lead.snap { animation: leadsnap 0.42s cubic-bezier(.2,1.6,.4,1); }
+@keyframes leadsnap { 0% { scale: 1; } 25% { scale: 0.7; filter: brightness(1.8) drop-shadow(3px 0 0 #3a2006) drop-shadow(-3px 0 0 #3a2006); } 100% { scale: 1; } }
+#tip .n b.roll { display: inline-flex; }
+
+/* —— 甲板码包（小样）：右上油量底下一排格子（原来货格的位置，格子和货格一样大），一包一格，格子里是泥包本身的小图；
+   左边一直在的开冲键。开冲时开冲键收起来，格子照冲的先后一包包翻成冲出来的那件，压轴那一格金边 —— */
+#deckbar { position: absolute; right: 52px; top: 124px; box-sizing: border-box; min-width: var(--fuel-w, 0px); justify-content: space-between; padding: 8px 12px 8px 14px; display: flex; align-items: center; gap: 10px; opacity: 0; transform: translateX(60px); transition: opacity 0.35s, transform 0.45s cubic-bezier(.2,1.3,.4,1), min-width 0.35s ease; }
+#deckbar.on { opacity: 1; transform: none; }
+#deckbar .cells { display: flex; gap: 4px; order: 2; }
+#deckbar .cell { position: relative; width: 78px; height: 78px; display: flex; align-items: center; justify-content: center; background: #050d10; box-shadow: inset 3px 3px 0 #000, inset -3px -3px 0 #2b474b; }
+#deckbar .cell img.th { display: block; width: 72px; height: 72px; image-rendering: pixelated; }
+#deckbar .cell img.th:not([src]) { visibility: hidden; }
+/* 空位：甲板上一格空地，一个小铆点 */
+#deckbar .cell.empty::after { content: ''; position: absolute; left: 36px; top: 36px; width: 6px; height: 6px; background: #1d3236; }
+/* 网正吊着泥包往这一格来：铜边一亮一暗 */
+#deckbar .cell.coming { box-shadow: inset 3px 3px 0 #000, inset -3px -3px 0 #8a6a3c, 0 0 0 0 #000; animation: coming 0.9s steps(2) infinite; }
+@keyframes coming { 50% { box-shadow: inset 3px 3px 0 #000, inset -3px -3px 0 #e0b866; background: #1a1408; } }
+#deckbar .cell.mud { background: #1a1408; box-shadow: inset 3px 3px 0 #0a0704, inset -3px -3px 0 #6a5030; }
+#deckbar .cell.done { background: #0d1a1e; box-shadow: inset 3px 3px 0 #000, inset -3px -3px 0 #4f7a78; }
+/* 冲开是空的：泥包灰下去 */
+#deckbar .cell.dud img.th { filter: grayscale(1) brightness(0.55); }
+/* 压轴那一包：金边 */
+#deckbar .cell.star { background: #1a1408; box-shadow: inset 3px 3px 0 #000, inset -3px -3px 0 #c9965a, 0 0 0 3px #e0a83a; }
+#deckbar .cell.star.done { box-shadow: inset 3px 3px 0 #000, inset -3px -3px 0 #ffd36a, 0 0 0 3px #ffd36a; }
+#deckbar .cell.bump { animation: bump 0.28s ease-out; }
+/* 冲开：这一格翻过去、换成那件东西再翻回来 */
+#deckbar .cell.flip img.th { animation: cellflip 0.34s cubic-bezier(.3,1.4,.5,1); }
+@keyframes cellflip { 0% { transform: scale(0.2, 1.25); filter: brightness(2); } 60% { transform: scale(1.12); } 100% { transform: none; } }
+#deckbar .go { order: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 22px; font-weight: 700; letter-spacing: 1px; transition: opacity 0.2s, max-width 0.35s, margin 0.35s; max-width: 120px; overflow: hidden; white-space: nowrap; }
+#deckbar .go .key { margin: 3px; }
+#deckbar .go.off { opacity: 0.38; }
+#deckbar.batch .go { max-width: 0; opacity: 0; margin-right: -10px; }
+#deckbar.batch { justify-content: flex-end; min-width: 0; }
+.key.go { background: #ffd36a; box-shadow: inset 0 3px 0 #fff3c4, inset -3px 0 0 #d9a83a, inset 0 -6px 0 #8a6216, 0 0 0 3px #060b0d; }
+
+/* —— 一甲板一起冲：上方正中的总数牌，每揭一包加一次 —— */
+#batchsum { position: absolute; left: 50%; top: 104px; transform: translate(-50%, -30px); padding: 8px 26px; display: flex; align-items: center; gap: 18px; font-size: 30px; opacity: 0; transition: opacity 0.35s, transform 0.45s cubic-bezier(.2,1.3,.4,1); }
+#batchsum.on { opacity: 1; transform: translate(-50%, 0); }
+#batchsum.on.dim { opacity: 0; }
+#batchsum .t { font-weight: 700; letter-spacing: 3px; color: #cfe3df; }
+#batchsum .it { display: flex; align-items: center; gap: 10px; }
+#batchsum .it .ic { color: #ffd36a; font-size: 34px; }
+#batchsum b { color: #ffe1a0; font-size: 44px; font-weight: 800; text-shadow: 3px 3px 0 rgba(0,0,0,.72); }
+#batchsum.bump .it { animation: bump 0.28s ease-out; }
+#batchsum.bump2 .it { animation: totpulse2 0.6s cubic-bezier(.2,1.6,.4,1); }
+
+/* —— 这一甲板的结算：和一趟的收获单同一套（金字标题、金色总数两边卷草、铜牌按钮），压在一块铁牌上；
+   中间一排这一甲板冲出来的东西本身（货格那一种小图），便宜的在前、最贵的在最后金边 —— */
+#result { position: absolute; inset: 0; z-index: 22; display: flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; transition: opacity 0.4s, background 0.4s; background: rgba(4,10,14,0); }
+#result.on { opacity: 1; pointer-events: auto; background: rgba(4,10,14,0.32); }
+#result .box { min-width: 640px; padding: 30px 54px 30px; display: flex; flex-direction: column; align-items: center; gap: 16px; transform: translateY(40px) scale(0.94); opacity: 0; transition: transform 0.5s cubic-bezier(.2,1.4,.4,1), opacity 0.3s; }
+#result.on .box { transform: none; opacity: 1; }
+#result .h { font-size: 34px; font-weight: 800; letter-spacing: 14px; padding-left: 14px; color: #e8b04a; text-shadow: 3px 0 0 #1a0e04, -3px 0 0 #1a0e04, 0 3px 0 #1a0e04, 0 -3px 0 #1a0e04, 4px 5px 0 rgba(0,0,0,.6); }
+#result .tot { display: flex; align-items: baseline; gap: 18px; }
+#result .tot .num { position: relative; display: inline-flex; align-items: center; gap: 14px; font-size: 92px; font-weight: 800; line-height: 1.05; color: #ffd36a; text-shadow: 0 6px 0 #7a4a12, 4px 0 0 #3a1e04, -4px 0 0 #3a1e04, 0 -4px 0 #3a1e04, 6px 12px 0 rgba(0,0,0,.6); }
+#result .tot .num > .ic { font-size: 72px; color: #ffd36a; filter: drop-shadow(0 5px 0 #7a4a12) drop-shadow(3px 0 0 #3a1e04) drop-shadow(-3px 0 0 #3a1e04) drop-shadow(0 -3px 0 #3a1e04) drop-shadow(5px 9px 0 rgba(0,0,0,.55)); }
+#result .tot .num b { font-weight: 800; font-variant-numeric: tabular-nums; }
+#result .tot .num::before, #result .tot .num::after { content: ''; position: absolute; top: 50%; width: 120px; height: 33px; margin-top: -12px; background: var(--px-flourish-l) center / 120px 33px no-repeat; image-rendering: pixelated; filter: drop-shadow(4px 6px 0 rgba(0,0,0,.5)); opacity: 0; transition: transform 0.6s cubic-bezier(.2,1.4,.4,1), opacity 0.4s; }
+#result .tot .num::before { right: 100%; margin-right: 22px; transform: translateX(30px); }
+#result .tot .num::after { left: 100%; margin-left: 20px; background-image: var(--px-flourish-r); transform: translateX(-30px); }
+#result .tot.final .num::before, #result .tot.final .num::after { opacity: 1; transform: none; }
+#result .tot.final .num { animation: totslam 0.42s cubic-bezier(.3,1.4,.5,1); }
+#result .tot .n { color: #cfe3df; font-size: 32px; font-weight: 700; margin-left: 156px; }
+/* 冲出来的东西：一件一格，一格一格弹出来 */
+#result .things { display: flex; gap: 6px; padding: 6px 0 2px; }
+#result .things .cell { width: 78px; height: 78px; display: flex; align-items: center; justify-content: center; background: #050d10; box-shadow: inset 3px 3px 0 #000, inset -3px -3px 0 #2b474b; opacity: 0; animation: thingin 0.32s cubic-bezier(.2,1.6,.4,1) both; animation-play-state: paused; }
+#result.on .things .cell { animation-play-state: running; }
+#result .things .cell img.th { display: block; width: 72px; height: 72px; image-rendering: pixelated; }
+#result .things .cell.star { background: #1a1408; box-shadow: inset 3px 3px 0 #000, inset -3px -3px 0 #ffd36a, 0 0 0 3px #e0a83a; margin-left: 12px; }
+@keyframes thingin { 0% { opacity: 0; transform: translateY(-18px) scale(1.25); } 100% { opacity: 1; transform: none; } }
+#result .row { display: flex; align-items: center; gap: 12px; font-size: 28px; }
+#result .row .k { color: #9fb8b4; font-size: 24px; letter-spacing: 2px; }
+#result .row .nm { font-weight: 700; color: #f3ead8; }
+#result .row .v { display: inline-flex; align-items: center; gap: 6px; color: #ffe1a0; font-weight: 800; }
+#result .row .v .ic, #result .row .fi .ic { color: #e8b04a; }
+#result .row.rec.up .v { color: #9df0a4; }
+/* 剩油、最好的一次：一行两格，中间一道铁缝 */
+#result .foot { display: flex; align-items: center; gap: 0; padding-top: 12px; margin-top: 2px; background: linear-gradient(180deg, #081215 0 3px, #2b474b 3px 6px, transparent 6px) top / 100% 6px no-repeat; align-self: stretch; justify-content: center; }
+#result .foot .row { padding: 0 26px; }
+#result .foot .row + .row:not([style*="none"]) { box-shadow: -3px 0 0 #081215, -6px 0 0 #2b474b; }
+#result .best, #result .foot { opacity: 0; transform: translateY(8px); transition: opacity 0.3s, transform 0.35s cubic-bezier(.2,1.5,.4,1); }
+#result.on .best { opacity: 1; transform: none; transition-delay: 0.9s; }
+#result.on .foot { opacity: 1; transform: none; transition-delay: 1.05s; }
+/* 再来一次：收获单「再来一趟」那一块铜牌 */
+#result .again { position: relative; margin-top: 8px; display: flex; align-items: center; padding: 8px 26px 11px; font-size: 28px; letter-spacing: 4px; color: #2a1806; font-weight: 700; border: 3px solid #e8b04a; border-image: var(--px-brass) 12 fill / 12px / 3px stretch; image-rendering: pixelated; text-shadow: 0 3px 0 rgba(255,238,190,.55); filter: drop-shadow(6px 6px 0 rgba(0,0,0,.35)); overflow: hidden; opacity: 0; transform: translateY(20px); transition: opacity 0.3s, transform 0.4s cubic-bezier(.2,1.5,.4,1); }
+#result.on .again { opacity: 1; transform: none; transition-delay: 1.2s; }
+#result .again .key { margin-right: 14px; }
+#result .again .cd { position: absolute; left: 9px; bottom: 6px; height: 6px; width: 0; max-width: calc(100% - 18px); background: #5a3a12; box-shadow: 0 -3px 0 rgba(255,238,190,.5); }
+#result.on .again.demo .cd { animation: cdfill linear 4.7s 1.2s forwards; }
+@keyframes cdfill { to { width: calc(100% - 18px); } }
+#result .again.press { animation: againpress2 0.2s ease-out; }
+@keyframes againpress2 { 35% { transform: translateY(5px) scale(0.95); filter: brightness(0.85) drop-shadow(2px 2px 0 rgba(0,0,0,.35)); } }
+
+/* —— 自动演示时的手：这一刻按着的键和鼠标（只在自动演示里）—— */
+/* 指针旁边的一句 */
+#say { position: absolute; left: 0; top: 0; padding: 8px 18px; font-size: 24px; white-space: nowrap; color: #ffd3a0; border-image-source: var(--px-iron-red); opacity: 0; transition: opacity 0.2s; }
+#say.on { opacity: 1; animation: sayin 0.22s ease-out; }
+@keyframes sayin { 0% { margin-top: 10px; } 100% { margin-top: 0; } }
+/* 能点的：指着就亮 */
+#deckbar .go.hot { color: #ffd36a; filter: brightness(1.25); }
+#deckbar .go.hot .key { transform: translateY(-2px); }
+#result .again.hot { filter: brightness(1.18); }
+/* 指针（CSS 自己的光标，跟手不拖）；自动演示里是画出来的那一支（#vcur） */
+#stage.point { cursor: var(--cur-arrow) 1 1, auto; }
+#stage.point.nocur { cursor: none; }
+#stage.point.drag { cursor: var(--cur-turn) 24 10, move; }
+#vcur { position: absolute; left: 0; top: 0; z-index: 24; display: none; pointer-events: none; image-rendering: pixelated; width: 39px; height: 54px; background: var(--cur-arrow) 0 0 / 100% 100% no-repeat; filter: drop-shadow(3px 3px 0 rgba(0,0,0,.5)); transform-origin: 2px 2px; }
+#vcur.on { display: block; }
+#vcur.own { filter: none; transform-origin: 0 0; }
+#keyshow { position: absolute; left: 0; top: 0; z-index: 23; display: none; align-items: flex-end; gap: 14px; pointer-events: none; filter: drop-shadow(4px 4px 0 rgba(0,0,0,.45)); opacity: 0.92; }
+#keyshow.on { display: flex; }
+#keyshow .kb { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+#keyshow .row { display: flex; gap: 5px; }
+#keyshow .k { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; color: #10181b; background: #9fb3ae; box-shadow: inset 0 3px 0 #c9d8d4, inset 0 -5px 0 #5d7470, 0 0 0 3px #060b0d; transition: background 0.06s; }
+#keyshow .k.on { background: #ffd36a; box-shadow: inset 0 3px 0 #fff3c4, inset 0 -2px 0 #8a6216, 0 0 0 3px #060b0d; transform: translateY(3px); }
+#keyshow .k.e { margin-bottom: 0; }
+#keyshow .k.lsh { align-self: flex-start; width: 100px; font-size: 18px; }
+#keyshow .mouse { position: relative; }
+#keyshow .ms .lb, #keyshow .ms .rb { fill: #9fb3ae; }
+#keyshow .ms .lb.on, #keyshow .ms .rb.on { fill: #84e08c; }
+#keyshow .arr { position: absolute; left: 50%; top: 50%; width: 46px; height: 0; transform-origin: 0 0; opacity: 0; transition: opacity 0.1s; }
+#keyshow .arr::before { content: ''; position: absolute; left: 34px; top: -3px; width: 18px; height: 6px; background: #ffd36a; box-shadow: 0 0 0 3px #060b0d; }
+#keyshow .arr::after { content: ''; position: absolute; left: 50px; top: -9px; border: 9px solid transparent; border-left: 12px solid #ffd36a; }
+#keyshow .mouse.mv .arr { opacity: 1; }
+
+/* 暂停是真暂停：甲板格子、结算牌上还在走的动画（网在路上那一格一亮一暗、演示按钮底下那一条）停在那一帧 */
+.paused #deckbar, .paused #deckbar *, .paused #result *, .paused #batchsum, .paused #batchsum * { animation-play-state: paused !important; }
+#demo.touch .key, #demo.touch .key + span { display: none; }
+/* 甲板空着按开冲：开冲键抖一下，键正下方挂一块红边小牌说原因 */
+#deckbar .why { position: absolute; left: 6px; top: calc(100% + 10px); white-space: nowrap; padding: 6px 18px; font-size: 24px; color: #ffd3a0; opacity: 0; transform: translateY(-8px); transition: opacity 0.2s, transform 0.2s; border-image-source: var(--px-iron-red); pointer-events: none; }
+#deckbar.tell .why { opacity: 1; transform: none; color: #ffd36a; border-image-source: var(--px-iron); }
+#deckbar.deny .why { opacity: 1; transform: none; }
+#deckbar.deny .go { animation: shake 0.42s linear; opacity: 1; }

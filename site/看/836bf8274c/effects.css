@@ -1,0 +1,43 @@
+/* 效果单：左边按编号列出全部效果，右边是真实的游戏画面 */
+.fxpage #frame { left: 400px; }
+.fxpage.fxrec #frame { left: 0; }
+.fxpage.fxrec #fxside { display: none; }
+#fxside { position: fixed; left: 0; top: 0; bottom: 0; width: 400px; display: flex; flex-direction: column; background: #0a1418; color: #e8e2d2; font: 14px/1.45 "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif; border-right: 3px solid #23414a; box-sizing: border-box; }
+#fxside * { box-sizing: border-box; }
+#fxside .hd { padding: 14px 16px 10px; border-bottom: 2px solid #1a2e33; }
+#fxside .hd b { display: block; font-size: 20px; letter-spacing: 3px; color: #ffd36a; }
+#fxside .hd span { color: #8fb0aa; font-size: 13px; }
+#fxside .ctl { display: flex; gap: 8px; align-items: center; padding: 10px 16px; border-bottom: 2px solid #1a2e33; flex-wrap: wrap; }
+#fxside button { font: inherit; font-size: 14px; color: #e8e2d2; background: #13262b; border: 2px solid #2b474b; padding: 4px 10px; cursor: pointer; }
+#fxside button:hover { border-color: #c99a48; }
+#fxside button.on { background: #e8b04a; color: #1a1006; border-color: #e8b04a; font-weight: 700; }
+#fxside .sp { display: inline-flex; }
+#fxside .sp button { margin-left: -2px; }
+#fxside .pl { background: #2f7a3a; border-color: #5fbf6a; font-weight: 700; }
+#fxside .now { padding: 10px 16px 12px; border-bottom: 2px solid #1a2e33; min-height: 92px; }
+#fxside .now .ti { font-size: 17px; }
+#fxside .now .ti b { color: #ffd36a; margin-right: 6px; }
+#fxside .now .wh { color: #a9c8c4; font-size: 13px; margin-top: 4px; }
+#fxside .now .tl { color: #7fd8d0; font-size: 13px; margin-top: 4px; font-variant-numeric: tabular-nums; }
+#fxside .list { flex: 1; overflow-y: auto; padding: 4px 0 30px; }
+#fxside h3 { margin: 14px 16px 6px; font-size: 14px; letter-spacing: 2px; color: #c99a48; }
+#fxside ul { list-style: none; margin: 0; padding: 0; }
+#fxside li { display: grid; grid-template-columns: 44px 1fr auto; gap: 0 8px; padding: 6px 16px 7px; cursor: pointer; border-left: 4px solid transparent; }
+#fxside li:hover { background: #10232a; }
+#fxside li.on { background: #18323a; border-left-color: #ffd36a; }
+#fxside li .id { color: #ffd36a; font-weight: 700; }
+#fxside li .nm { font-weight: 700; }
+#fxside li .st { color: #ff9a4a; font-style: normal; }
+#fxside li .lk { grid-column: 2 / 4; color: #8fb0aa; font-size: 12.5px; line-height: 1.4; }
+#fxside .tier { font-size: 12px; padding: 0 6px; border: 1px solid #4a6a6a; color: #a9c8c4; align-self: start; }
+#fxside .tier.t2 { border-color: #c99a48; color: #e8c07a; }
+#fxside .tier.t3 { border-color: #ff9a4a; color: #ffb37a; }
+#fxside .tier.t4 { border-color: #ff5a3a; color: #ff8a6a; background: rgba(255,90,58,.12); }
+@media (max-width: 900px) {
+  .fxpage #frame { left: 0; bottom: 45vh; }
+  #fxside { top: 55vh; width: 100%; border-right: 0; border-top: 3px solid #23414a; }
+}
+
+/* 仪式感：得到、揭开、进入、结束、第一次那一刻 */
+#fxside .rt { font-style: normal; font-size: 11px; padding: 0 4px; margin-left: 4px; color: #2a1806; background: #e8b04a; vertical-align: 2px; }
+#fxside.ritonly li:not(.rit) { display: none; }
