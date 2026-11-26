@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { buildItemModel, setItemGlint } from '../world/items.js';
-import { NET_SPOTS, SHOAL, WRECK } from '../world/layout.js';
+import { SEA } from '../world/seas.js';
 import { Crab } from '../life/crab.js';
 import { toon, U } from '../render/materials.js';
 import { GeoBuilder } from '../util/builder.js';
@@ -34,20 +34,9 @@ const LIGHT_LOCAL = new THREE.Vector2(-0.62, 0.78).normalize();
 const _v = new THREE.Vector3();
 const _w = new THREE.Vector3();
 
-// 这件东西是从哪儿捞上来的（签上第二行）
-const PLACE_OF = {};
-for (const [k, ids] of Object.entries(NET_SPOTS)) {
-  const p = { shoal: '浅滩', anchor: '浅滩', hold: '沉船·断舱', jars: '沉船·船边', pots: '沉船·船边', dig: '沉船·船边', slope: '坡下', trench: '深槽' }[k];
-  for (const id of ids) PLACE_OF[id] = p;
-}
+// 这件东西是从哪儿捞上来的（签上第二行）：哪一处叫什么是这一片海自己的，问 world/seas.js
 export function placeOf(id, at) {
-  if (id && PLACE_OF[id]) return PLACE_OF[id];
-  if (id && id.startsWith('trail')) return '航路';
-  if (at) {
-    if (Math.hypot(at.x - SHOAL.x, at.z - SHOAL.z) < 30) return '浅滩';
-    if (Math.hypot(at.x - WRECK.x, at.z - WRECK.z) < 26) return '沉船·船边';
-  }
-  return '';
+  return SEA.from(id, at);
 }
 
 export class Tally {

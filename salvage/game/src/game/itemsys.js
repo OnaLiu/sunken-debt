@@ -5,12 +5,10 @@ import { seabedY, seabedNormal } from '../world/terrain.js';
 import { floorPoint } from '../world/wreck.js';
 import { toon } from '../render/materials.js';
 import { mulberry32 } from '../util/math.js';
+import { SEA } from '../world/seas.js';
 
 // 海底的每一件东西：开局时就生成并固定位置；被网收走就真的离开海底，留下压痕。
-// 每潮重铺：冲出来的是哪几样（几成机会），落在哪两堆旁边（沉船坐标，along、side 上下各浮动多少），每潮几件
-const SPILL_KINDS = [['jar', 3], ['rope', 2], ['copperset', 2], ['barrel', 2], ['shards', 2], ['stave', 1], ['ropebit', 1]];
-const SPILL_AT = [{ along: 3.1, side: 8.1, da: 1.6, ds: 1.3 }, { along: -3.1, side: 8.1, da: 1.6, ds: 1.3 }];
-const SPILL_N = [6, 3];
+// 每潮重铺冲出来的是哪几样、落在哪、几件：这一片海自己的（world/seas.js 的 spill），重铺的做法全游戏一份
 // 泥包最高是东西露出泥面那截的几成
 const MOUND_CAP = 0.3;
 export class ItemSystem {
@@ -84,7 +82,7 @@ export class ItemSystem {
   // 以后每一潮在两道舱口翻出货的那两堆旁边、甲板那一侧的海底上多冲出几件。挨着原来那几件，网口大了一网罩得进去
   spill(tide, add) {
     const rnd = mulberry32(9100 + tide * 131);
-    const pool = SPILL_KINDS;
+    const { kinds: pool, at: SPILL_AT, n: SPILL_N } = SEA.spill;
     const total = pool.reduce((a, [, w]) => a + w, 0);
     const pick = () => { let r = rnd() * total; for (const [k, w] of pool) if ((r -= w) <= 0) return k; return pool[0][0]; };
     const n = SPILL_N[0] + Math.min(tide - 1, SPILL_N[1]);

@@ -28,6 +28,7 @@ import { Menus, WOBBLE_LEVELS, VOLUME_LEVELS, LOOK_LEVELS, INVERT_LEVELS } from 
 import { Thumbs } from '../ui/thumbs.js';
 import { Events, Trip, MIN_NET_COST } from './trip.js';
 import { Bot } from './bot.js';
+import { SEA } from '../world/seas.js';
 import { Forecast } from './forecast.js';
 import { Feel } from './feel.js';
 import { START, SHOAL, SHOAL_MARK, WRECK, TRAIL, HIDDEN_TIMBER, LOOSE_ITEMS, SEAL_SPOT, NET_SPOTS, SPOTS_TO_END, trenchZ, wreckToWorld } from '../world/layout.js';
@@ -443,7 +444,7 @@ export class Game {
       this.input.wantLock = true;
       this.input.lock();
     }
-    this.later(1.1, () => this.ui.place('港外航路'));
+    this.later(1.1, () => this.ui.place(T('地名·港外航路')));
   }
 
   // 这一刻的自动演示：机器人照玩家的样子挑一处、按一下、开冲（只通过虚拟手柄）
@@ -840,7 +841,7 @@ export class Game {
       this.mode = 'sail';
       this.ui.setMode('sail');
       this.ui.fade(false);
-      this.ui.place('港外航路');
+      this.ui.place(T('地名·港外航路'));
       if (this.bot) this.bot.restart();
     });
   }
@@ -1790,7 +1791,7 @@ export class Game {
     const dWreck = Math.hypot(bp.x - WRECK.x, bp.z - WRECK.z);
     if (!F.shoal && dShoal < 24) {
       F.shoal = true;
-      this.arrive('通透浅滩', 784);
+      this.arrive(T('地名·通透浅滩'), 784);
     }
     // 第一眼看见沉船：42 米内、它进了画面（再近到 30 米就不等了）
     if (!F.wreck && (dWreck < 30 || (dWreck < 42 && this.inView(WRECK.x, -5, WRECK.z, 0.08)))) {
@@ -1816,7 +1817,7 @@ export class Game {
     const trenchNear = this.nearTrench(bp);
     if (!F.slope && trenchNear) {
       F.slope = true;
-      this.arrive('深槽', 392);
+      this.arrive(T('地名·深槽'), 392);
     }
     // 线索一段段往东南：经过一块船板，箭头就指向下一块
     while (F.trailIdx < TRAIL.length && Math.hypot(bp.x - TRAIL[F.trailIdx].x, bp.z - TRAIL[F.trailIdx].z) < 12) F.trailIdx++;
@@ -1838,7 +1839,7 @@ export class Game {
   // 一道光从船尾扫到船头，光扫过那一截，鱼从船肋里炸开、往上冒
   sightWreck() {
     this.trip.sawWreck = true;
-    this.ui.place('沉船', { big: true });
+    this.ui.place(T('地名·沉船'), { big: true });
     this.audio.play('wreckMotif');
     // 浪和发动机让开，弦乐出来
     this.audio.duck(0.45, 0.5, 2.6, 2.2);
@@ -1915,13 +1916,7 @@ export class Game {
 
   // 这里叫什么（暂停页的标题）
   placeName() {
-    const bp = this.boatCtl.pos;
-    const dWreck = Math.hypot(bp.x - WRECK.x, bp.z - WRECK.z);
-    if (this.nearTrench(bp) && dWreck > 16) return '深槽';
-    if (dWreck < 30) return '沉船';
-    if (Math.hypot(bp.x - SHOAL.x, bp.z - SHOAL.z) < 30) return '通透浅滩';
-    if (bp.x < -112) return '港外航路';
-    return '归潮沙湾';
+    return SEA.place(this.boatCtl.pos, this);
   }
 
   // 暂停页右边：这一屏上每个图标代表什么，这里能按的键。随地方和模式变。

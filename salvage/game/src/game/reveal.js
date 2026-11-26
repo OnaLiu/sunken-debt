@@ -7,6 +7,7 @@ import { clamp, smoothstep, easeOut, easeInOut, easeOutBack, lerp, damp, wrapAng
 import { toon } from '../render/materials.js';
 import { keepOut } from '../ui/hud.js';
 import { placeOf } from './tally.js';
+import { T } from './tables.js';
 
 // 揭宝：网包落上甲板 → 船员拿水管冲 → 泥壳从上往下化开 → 物件逐件露出 → 那一刻记入收获 →
 // 稳稳展示 → 拉回大视野、立刻恢复操作；船员各搬一件进舱（只是动画）。
@@ -965,7 +966,7 @@ export class Reveal {
         const a = Math.random() * Math.PI * 2, r = Math.random() * 0.4;
         g.fx.emit('chunk', spot.x + Math.cos(a) * r, spot.y + 0.15, spot.z + Math.sin(a) * r, Math.cos(a) * 0.6, 0.8, Math.sin(a) * 0.6, { floorY: spot.y + 0.02, size: 0.07, color: [0.86, 0.82, 0.72] });
       }
-      g.later(0.25, () => { if (this.cur === c) g.ui.bigTitle({ name: '空网', desc: '只兜上来泥沙和碎壳', size: 'dud' }); });
+      g.later(0.25, () => { if (this.cur === c) g.ui.bigTitle({ name: T('冲·空网'), desc: T('冲·空网说明'), size: 'dud' }); });
       g.audio.play('dud', { at: 0.22 });
       if (washer) washer.gesture('shrug', { delay: 0.3 });
       g.cue('B15');
