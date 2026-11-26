@@ -37,6 +37,8 @@ export const ICON = {
   no: svg('<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M6 18L18 6" stroke="currentColor" stroke-width="2.6"/>'),
   // 自动演示：播放
   play: svg('<path fill="currentColor" d="M7 4l13 8-13 8z"/>'),
+  // 债本：一本合着的账本，书脊和封皮上一道扣带（素材回本机出，先用代码画）
+  book: svg('<path fill="currentColor" d="M6 2h13v16H7a1.5 1.5 0 0 0 0 3h12v1H7a2.5 2.5 0 0 1-2.5-2.5V3.5A1.5 1.5 0 0 1 6 2z"/><path d="M8.5 2v16" stroke="rgba(0,0,0,.38)" stroke-width="1.6"/><rect x="11.5" y="7" width="5" height="3" fill="rgba(0,0,0,.38)"/>'),
   // 锚：标题下的徽记、收获单上的入舱章
   anchor: svg('<circle cx="12" cy="4.6" r="2.3" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M12 7v14M7.5 10.5h9" stroke="currentColor" stroke-width="2.2"/><path d="M3.5 13.5c.6 4.4 4 7.2 8.5 7.2s7.9-2.8 8.5-7.2" fill="none" stroke="currentColor" stroke-width="2.2"/><path fill="currentColor" d="M1.6 14.8l2-3.6 2.3 3.4zM22.4 14.8l-2-3.6-2.3 3.4z"/>'),
 };

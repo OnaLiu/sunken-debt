@@ -90,7 +90,7 @@ export class UI {
     // 货格：揭晓后只摆这一网收上来的（一件一格、格里是那件的小图，旁边是这一网的价值）；暂停时才看整趟（件数、总价值）
     this.tallyEl = h('div', 'panel', `<span class="net"><span class="slots"></span><span class="it">${ICON.coin}<b class="nv">+0</b></span></span><span class="trip"><span class="it"><span class="cell">${ICON.crate}</span><b class="n roll">0</b></span><span class="it">${ICON.coin}<b class="v">0</b></span></span>`);
     this.tallyEl.id = 'tally';
-    this.modeEl = h('div', '', `<div class="why panel sh"></div><div class="chip"><span class="mi"></span><span class="mn"></span><canvas class="qr" width="${QUIT_N}" height="${QUIT_N}"></canvas><span class="qn">收工</span></div><div class="keys panel"></div>`);
+    this.modeEl = h('div', '', `<div class="why panel sh"></div><div class="chip"><span class="mi"></span><span class="mn"></span><canvas class="qr" width="${QUIT_N}" height="${QUIT_N}"></canvas><span class="qn"></span></div><div class="keys panel"></div>`);
     this.modeEl.id = 'modebar';
     this.tipEl = h('div', 'panel', `<span class="do"></span><span class="n">${ICON.crate}<b class="roll"></b></span><span class="c"><span class="fi">${ICON.fuel}</span><b></b></span><span class="x">${ICON.no}</span><span class="r"></span>`);
     this.tipEl.id = 'tip';
@@ -773,6 +773,8 @@ export class UI {
     const on = q > 0;
     if (on !== chip.classList.contains('quit')) {
       chip.classList.toggle('quit', on);
+      // 三小段里（打捞模式按住 Q）是回港开舱；原来那一整趟（开船按住 B）是收工
+      if (on) chip.querySelector('.qn').textContent = T(this.g.mode === 'arm' ? '模式·回港' : '模式·收工');  // 表的 id，不是玩家看的
       if (!snap) { chip.classList.remove('flip'); void chip.offsetWidth; chip.classList.add('flip'); }
     }
     const key = Math.round(q * 40);

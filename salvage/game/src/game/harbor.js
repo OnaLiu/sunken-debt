@@ -6,7 +6,7 @@ import { key, KEYS } from '../ui/hud.js';
 import { toon } from '../render/materials.js';
 import { GeoBuilder } from '../util/builder.js';
 import { BOAT } from '../world/boat.js';
-import { GEAR } from './tables.js';
+import { GEAR, DEBT } from './tables.js';
 import { T, N } from './tables.js';
 import { clamp, damp } from '../util/math.js';
 
@@ -20,6 +20,11 @@ export function money(v) {
   if (v >= 1e8) return (v / 1e8).toFixed(v % 1e8 ? 1 : 0).replace(/\.0$/, '') + T('数·亿');  // 表的 id，不是玩家看的
   if (v >= 1e5) return (Math.round(v / 1e3) / 10).toString().replace(/\.0$/, '') + T('数·万');  // 表的 id，不是玩家看的
   return v.toLocaleString('en-US');
+}
+// 债签上那种窄地方：一万以上都写成「万」（6万、90万、1200万）
+function moneyShort(v) {
+  v = Math.round(v);
+  return v >= 1e4 ? (Math.round(v / 1e3) / 10).toString().replace(/\.0$/, '') + T('数·万') : v.toLocaleString('en-US');  // 表的 id，不是玩家看的
 }
 const coin = (v, cls = '') => `<span class="cn ${cls}">${ICON.coin}<b>${money(v)}</b></span>`;
 
@@ -40,8 +45,8 @@ export class Harbor {
     const el = (this.debtEl = document.createElement('div'));
     el.id = 'debt';
     el.innerHTML = `<div class="book">
-      <div class="pg l"><div class="h"></div><div class="who"></div><div class="k owe"></div><div class="big"></div><div class="seal">${ICON.anchor}</div></div>
-      <div class="pg r"><div class="k page"></div><div class="due"></div><div class="sea"></div><div class="have"><span class="k hk"></span><span class="hv"></span></div><div class="bar"><i></i></div><div class="pay plate"></div><div class="say"></div></div>
+      <div class="pg l"><div class="seal">${ICON.anchor}</div><div class="h"></div><div class="who"></div><div class="k owe"></div><div class="big"></div><div class="slips"></div></div>
+      <div class="pg r"><div class="k page"></div><div class="due"></div><div class="sea"></div><div class="prog"><div class="have"></div><div class="bar"><i></i></div></div><div class="pay plate"></div><div class="say"></div></div>
     </div><div class="next plate"></div>`;
     this.g.ui.root.append(el);
   }
@@ -70,6 +75,11 @@ export class Harbor {
   fillPage() {
     const G = this.g.gear, E = this.debtEl, P = G.page;
     E.querySelector('.big').innerHTML = coin(G.owed, 'owe');
+    // 左页底下一排：债本的每一页一张签，还了的盖章、这一页描金、后面的压暗（一眼看得出还到哪了）
+    E.querySelector('.slips').innerHTML = DEBT.map((d, i) => {
+      const st = i < G.paid ? 'paid' : i === G.paid ? 'cur' : 'lock';
+      return `<div class="slip ${st}"><span class="pn">${d.page}</span><span class="cn">${ICON.coin}<b>${moneyShort(d.due)}</b></span>${st === 'paid' ? `<span class="st">${T('债本·已还')}</span>` : ''}</div>`;
+    }).join('');
     if (!P) {
       E.querySelector('.page').textContent = T('债本·还清');
       E.querySelector('.due').innerHTML = '';
@@ -80,14 +90,14 @@ export class Harbor {
     E.querySelector('.page').textContent = T('债本·第几页', { n: P.page });
     E.querySelector('.due').innerHTML = coin(P.due, 'due');
     E.querySelector('.sea').innerHTML = `<span class="k">${T('债本·还清以后')}</span><b>${P.sea}</b>`;
-    E.querySelector('.hk').textContent = T('债本·手里');
-    E.querySelector('.hv').innerHTML = coin(G.coins);
+    // 手里的钱 / 这一页要还的，压在进度条上面：不另写「持有」
+    E.querySelector('.have').innerHTML = `${coin(G.coins, G.coins >= P.due ? 'ok' : '')}<span class="of">/ ${money(P.due)}</span>`;
     E.querySelector('.bar i').style.width = (clamp(G.coins / P.due, 0, 1) * 100).toFixed(1) + '%';
     const pay = E.querySelector('.pay');
     pay.style.display = '';
     const ok = G.canRepay();
     pay.classList.toggle('off', !ok);
-    pay.innerHTML = ok ? `<span>${T('债本·还这一页')}</span>` : `<span>${T('债本·还差', { n: money(P.due - G.coins) })}</span>`;
+    pay.innerHTML = ok ? `<span>${T('债本·还这一页')}</span>${coin(P.due)}` : `<span>${T('债本·还差', { n: money(P.due - G.coins) })}</span>`;
   }
 
   debtInput(dt, inp) {
@@ -167,9 +177,9 @@ export class Harbor {
   buildDock() {
     const el = (this.dockEl = document.createElement('div'));
     el.id = 'dock';
-    el.innerHTML = `<div class="money panel"><span class="k"></span><span class="v"></span></div>
+    el.innerHTML = `<div class="money panel"><span class="v"></span></div>
       <div class="marks"></div>
-      <div class="gcard panel"><div class="nm"></div><div class="lv"></div><div class="chg"></div><div class="adds"></div><div class="buy plate"></div></div>
+      <div class="gpos"><div class="gcard panel"><div class="hd"><span class="nm"></span><span class="pips"></span></div><div class="chg"></div><div class="adds"></div><div class="buy plate"></div></div></div>
       <div class="foot"><div class="book plate"></div><div class="sail plate"></div></div>`;
     this.g.ui.root.append(el);
     this.marks = {};
@@ -242,8 +252,7 @@ export class Harbor {
     g.audio.engine(false);
     g.audio.hush(0.7, 0.8);
     const E = this.dockEl, K = KEYS[g.ui.device];
-    E.querySelector('.money .k').textContent = T('船坞·手里');
-    E.querySelector('.book').innerHTML = `<span>${T('船坞·债本')}</span>`;
+    E.querySelector('.book').innerHTML = `${ICON.book}<span>${T('船坞·债本')}</span>`;
     E.querySelector('.sail').innerHTML = `${key(K.go, 'go')}<span>${T('船坞·出海')}</span>`;
     this.fillDock();
     E.classList.add('on');
@@ -253,23 +262,30 @@ export class Harbor {
   fillDock() {
     const g = this.g, G = g.gear, E = this.dockEl;
     E.querySelector('.money .v').innerHTML = coin(G.coins);
+    const pips = (id) => GEAR[id].levels.map((_, i) => `<i class="${i <= G.lv[id] ? 'f' : ''}"></i>`).join('');
+    // 牌子：名字、几级（格子）、下一级多少钱（够了金色带个往上的箭头，不够灰的）；满级写满级
     for (const [id, m] of Object.entries(this.marks)) {
-      const d = GEAR[id], n = G.next(id);
-      m.innerHTML = `<span class="nm">${d.name}</span><span class="lv">${T('船坞·级', { n: G.lv[id] })}</span>${n ? (G.canBuy(id) ? '<i class="up"></i>' : '') : ''}`;
-      m.classList.toggle('can', G.canBuy(id));
+      const d = GEAR[id], n = G.next(id), can = G.canBuy(id);
+      m.innerHTML = `<span class="nm">${d.name}</span><span class="pips">${pips(id)}</span>` + (n ? `<span class="pr">${coin(n.price)}</span>${can ? '<i class="up"></i>' : ''}` : `<span class="mx">${T('船坞·满级')}</span>`);
+      m.classList.toggle('can', can);
       m.classList.toggle('sel', this.sel === id);
     }
-    const C = E.querySelector('.gcard');
+    const W = E.querySelector('.gpos'), C = E.querySelector('.gcard');
     const id = this.sel;
-    C.classList.toggle('on', !!id);
+    if (!!id !== C.classList.contains('on') || (id && W.dataset.id !== id)) {
+      // 卡从那块牌子上长出来（换一样时重放一次）
+      C.classList.remove('on');
+      void C.offsetWidth;
+      C.classList.toggle('on', !!id);
+    }
+    W.dataset.id = id || '';
     if (!id) return;
     const d = GEAR[id], cur = G.cur(id), n = G.next(id);
     C.querySelector('.nm').textContent = d.name;
-    const dots = d.levels.map((_, i) => `<i class="${i <= G.lv[id] ? 'f' : ''}"></i>`).join('');
-    C.querySelector('.lv').innerHTML = `<span>${T('船坞·级', { n: G.lv[id] })}</span><span class="dots">${dots}</span>`;
+    C.querySelector('.pips').innerHTML = pips(id);
     const icon = id === 'tank' ? ICON.fuel : ICON.ring;
-    const fmt = (v) => `${icon}<b>${v}</b>${d.unit ? `<small>${d.unit}</small>` : ''}`;
-    C.querySelector('.chg').innerHTML = `<span class="k">${d.what}</span>` + (n ? `<span class="a">${fmt(cur.val)}</span><span class="arr">${ICON.arrow}</span><span class="b">${fmt(n.val)}</span>` : `<span class="b">${fmt(cur.val)}</span>`);
+    const fmt = (v) => `<span class="ii" title="${d.what}">${icon}</span><b>${v}</b>${d.unit ? `<small>${d.unit}</small>` : ''}`;
+    C.querySelector('.chg').innerHTML = n ? `<span class="a">${fmt(cur.val)}</span><span class="arr">${ICON.arrow}</span><span class="b">${fmt(n.val)}</span>` : `<span class="b">${fmt(cur.val)}</span>`;
     C.querySelector('.adds').textContent = n ? n.adds : T('船坞·满级');
     const buy = C.querySelector('.buy');
     buy.style.display = n ? '' : 'none';
@@ -278,6 +294,20 @@ export class Harbor {
       buy.classList.toggle('off', !ok);
       buy.innerHTML = ok ? `<span>${T('船坞·升级')}</span>${coin(n.price)}` : `<span>${T('船坞·钱不够')}</span>${coin(n.price)}`;
     }
+  }
+
+  // 设备卡贴在选中的那块牌子上：卡的下沿就是牌子的下沿、对正它；出了画面才往里挪
+  placeCard() {
+    const W = this.dockEl.querySelector('.gpos');
+    if (!this.sel) return;
+    const p = this.markAt(this.sel), C = W.firstElementChild;
+    const w = C.offsetWidth, h = C.offsetHeight;
+    let x = clamp(p.x, w / 2 + 24, VIEW_W - w / 2 - 24);
+    let y = clamp(p.y, h + 24, VIEW_H - 150);
+    // 右上是手里的钱：卡别压上去
+    if (x + w / 2 > VIEW_W - 380) y = Math.max(y, h + 160);
+    W.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
+    C.style.setProperty('--tip', `${clamp(p.x - x, -w / 2 + 30, w / 2 - 30).toFixed(1)}px`);
   }
 
   // 这一样设备在画面上哪一点（牌子挂在它上方）
@@ -309,6 +339,7 @@ export class Harbor {
     sailEl.classList.toggle('hot', onSail);
     bookEl.classList.toggle('hot', onBook);
     buyEl.classList.toggle('hot', !!onBuy && g.gear.canBuy(this.sel));
+    this.placeCard();
     if (this.t < 0.5 || this.mode !== 'dock') return;
     if (inp.go || (inp.click && onSail)) return this.sail();
     if (!inp.click) return;
@@ -338,13 +369,22 @@ export class Harbor {
       }
       return;
     }
+    // 点在卡上（按钮以外）：什么也不做（卡底下压着的那块牌子不算点到）
+    const onCard = this.sel && g.ui.overEl(E.querySelector('.gcard'), P);
+    if (onCard) return;
     for (const [id, m] of Object.entries(this.marks)) {
       if (g.ui.overEl(m, P)) {
-        this.sel = id;
+        // 再点一下同一块牌子：卡收回去
+        this.sel = this.sel === id ? null : id;
         g.audio.play('menu');
         this.fillDock();
         return;
       }
+    }
+    // 点在卡外面：卡收回牌子上
+    if (this.sel) {
+      this.sel = null;
+      this.fillDock();
     }
   }
 
