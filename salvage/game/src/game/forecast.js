@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { NET_R, ARM_MAX } from '../config.js';
+import { NET_R, ARM_MAX, onNetR } from '../config.js';
 import { BOAT } from '../world/boat.js';
 import { canSee, seeItem, exposedOf } from './sight.js';
 
@@ -22,7 +22,8 @@ export function crabInNet(x, z, y, cx, cz, restY) {
 }
 
 // 蟹的去留在网落到底那一下定（crab.startle）：那时在这一圈里的出不去、会被兜上来；圈外的、正在逃的跑回窝
-const CRAB_TRAP = NET_R - 0.1;
+let CRAB_TRAP = NET_R - 0.1;
+onNetR((r) => { CRAB_TRAP = r - 0.1; });
 // 预告蟹的时候：落到底的时刻前后各算一点（按 A 的早晚、落网快慢都有出入），三个时刻都稳稳在圈里才给金圈，
 // 都稳稳在外面（或已经钻回窝）才打叉；卡在边上说不准的，不预告
 const CRAB_WINDOW = 0.35;

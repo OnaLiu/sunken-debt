@@ -287,11 +287,101 @@ export class MomentBot {
     return g.netop.busy || !!g.castQ || g.mode === 'net';
   }
 
+  // 一块界面在画面上的中点（1920×1080）
+  elAt(el, fx = 0.5) {
+    const st = document.getElementById('stage').getBoundingClientRect(), r = el.getBoundingClientRect(), k = st.width / VIEW_W;
+    return { x: (r.left + r.width * fx - st.left) / k, y: (r.top + r.height / 2 - st.top) / k };
+  }
+
+  // 指到一块界面上，左键点一下
+  *clickEl(get, fx = 0.5) {
+    const el = get();
+    if (!el) return;
+    yield* this.moveTo(() => this.elAt(get() || el, fx));
+    yield* this.wait(0.3);
+    this.v.click = true;
+    yield* this.wait(0.35);
+  }
+
+  // 三小段一圈：捞一甲板（或几甲板）→ 回港开舱 → 债本 → 船坞升设备 → 出海，再来
   *main() {
     const g = this.g;
     yield* this.wait(1.6);
+    for (;;) {
+      this.netted = 0;
+      this.explored = 0;
+      yield* this.deckRound();
+      // 甲板空着、看得见的都捞完了：按住 Q 回港
+      if (g.mode === 'arm' && !g.deck.filled) {
+        this.stage = 'quit';
+        this.v.b = true;
+        this.v.bHeld = true;
+        yield* this.wait(N('回港按住多久', 0.9) + 0.3);  // 表的 id，不是玩家看的
+        this.v.bHeld = false;
+        yield* this.harborRound();
+        return;
+      }
+      if (g.mode !== 'result') return;
+      const more = g.moment.more;
+      // 指到结算牌底下那块铜牌（接着捞 / 回港开舱）上，左键
+      yield* this.clickEl(() => document.querySelector('#result .again'), 0.62);
+      if (more) { this.stage = 'more'; yield* this.wait(1.2); continue; }
+      yield* this.harborRound();
+      return;
+    }
+  }
+
+  // 回港：开舱清点完按空格翻开债本，看一眼去船坞，升设备，出海
+  *harborRound() {
+    const g = this.g, H = g.harbor;
+    this.stage = 'home';
+    let w = 0;
+    while (!(g.mode === 'summary' && g.tally.done) && w < 60) { w += this.dt; yield; }
+    yield* this.wait(N('演示开舱停多久', 2.4));  // 表的 id，不是玩家看的
+    this.v.a = true;
+    w = 0;
+    while (g.harbor.mode !== 'debt' && w < 8) { w += this.dt; yield; }
+    this.stage = 'debt';
+    yield* this.wait(N('演示债本停多久', 3.2));  // 表的 id，不是玩家看的
+    // 钱够就还这一页
+    if (g.gear.canRepay()) {
+      yield* this.clickEl(() => H.debtEl.querySelector('.pay'));
+      yield* this.wait(2.2);
+    }
+    yield* this.clickEl(() => H.debtEl.querySelector('.next'));
+    w = 0;
+    while (H.mode !== 'dock' && w < 6) { w += this.dt; yield; }
+    this.stage = 'dock';
+    yield* this.wait(1.4);
+    // 先升网（一网多罩几件），钱还够再升油箱
+    for (const id of ['net', 'tank']) {
+      if (!g.gear.canBuy(id)) continue;
+      yield* this.clickEl(() => H.marks[id]);
+      yield* this.wait(0.9);
+      yield* this.clickEl(() => H.dockEl.querySelector('.gcard .buy'));
+      yield* this.wait(1.6);
+    }
+    // 钱不够升的那几样也点开看一眼
+    if (!g.gear.trips || g.gear.ids().every((id) => !g.gear.canBuy(id))) yield* this.wait(0.6);
+    yield* this.clickEl(() => H.dockEl.querySelector('.sail'));
+  }
+
+  // 出海以后（harbor.sail 叫它）：从头再来一圈
+  sailed() {
+    this.run++;
+    this.t = 0;
+    this.failed = new Set();
+    this.netted = 0;
+    this.explored = 0;
+    this.clear();
+    this.co = this.main();
+  }
+
+  // 码一甲板、开冲、等结算出来
+  *deckRound() {
+    const g = this.g;
     let queued = null;
-    while ((g.mode === 'arm' || g.mode === 'net') && g.trip.fuel >= 4) {
+    while ((g.mode === 'arm' || g.mode === 'net') && g.trip.fuel >= 4 && !g.trip.ended) {
       let w = 0;
       if (queued) {
         // 点好的下一处：网一收回它自己接着下
@@ -376,18 +466,10 @@ export class MomentBot {
     }
     this.v.aHeld = false;
     this.stage = 'result';
-    // 结算出来以后停一会儿，按左键再来一次
+    // 结算出来以后停一会儿
     w = 0;
     while (g.mode !== 'result' && w < 20) { w += this.dt; yield; }
     yield* this.wait(Math.max(0.5, N('演示结算停多久', 6) - 1));  // 表的 id，不是玩家看的
-    if (g.mode !== 'result') return;
-    // 指到「再来一次」那块铜牌上，左键
-    yield* this.moveTo(() => {
-      const st = document.getElementById('stage').getBoundingClientRect(), r = document.querySelector('#result .again').getBoundingClientRect(), k = st.width / VIEW_W;
-      return { x: (r.left + r.width * 0.62 - st.left) / k, y: (r.top + r.height / 2 - st.top) / k };
-    });
-    yield* this.wait(0.3);
-    this.v.click = true;
   }
 }
 

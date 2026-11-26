@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { NET_R, NET_DROP_AIR, NET_SINK, NET_LIFT, NET_CLOSE_T, NET_SET_T, ARM_TIP_H } from '../config.js';
+import { NET_R, NET_R0, NET_DROP_AIR, NET_SINK, NET_LIFT, NET_CLOSE_T, NET_SET_T, ARM_TIP_H } from '../config.js';
 import { BOAT, solveCrane, poseCrane, halfB, railY } from '../world/boat.js';
 import { Bundle } from './bundle.js';
 import { easeInOut, easeOut, clamp, lerp, wrapAngle } from '../util/math.js';
@@ -53,6 +53,8 @@ export class NetOp {
   start(ev) {
     const g = this.g;
     this.ev = ev;
+    // 网口升大以后下到沉船舱里：网口收到起步那么大从舱口下去（arm.evaluate 也是照这么大算的），收回来再张开
+    if (ev.inHold && NET_R > NET_R0) g.boat.net.resize(NET_R0);
     this.phase = 'air';
     this.t = 0;
     // 吊臂已经停在白圈正上方：网就从这儿直上直下
@@ -328,6 +330,7 @@ export class NetOp {
           this.cable = HANG;
           net.state.depth = NET_DEPTH;
           this.phase = 'idle';
+          net.resize(NET_R);
           this.checkedHard = false;
           this.surfaced = false;
           this.squeezed = false;

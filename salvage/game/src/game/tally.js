@@ -6,6 +6,7 @@ import { toon, U } from '../render/materials.js';
 import { GeoBuilder } from '../util/builder.js';
 import { buildRays, poseRays } from './reveal.js';
 import { VIEW_W, VIEW_H } from '../config.js';
+import { T } from './tables.js';
 import { clamp, smoothstep, easeOut, easeInOut, easeOutBack, lerp, damp, mulberry32 } from '../util/math.js';
 
 // C15 收获单：开舱清点。
@@ -328,7 +329,7 @@ export class Tally {
     pc.uDim.value = 0;
     pc.uFocus.value.z = 0;
     pc.uFlash.value = 0;
-    g.menus.showSummary(trip, { why: this.why, deeds: this.deeds, n: this.all.length, empty: !this.all.length });
+    g.menus.showSummary(trip, { why: this.why, deeds: this.deeds, n: this.all.length, empty: !this.all.length, again: g.moment.on ? T('开舱·翻开债本') : null });
     g.cue('C15');
   }
 

@@ -1,7 +1,7 @@
-// 沉债的这一份（主文件夹这条线）：怎么直接到第一段·归潮沙湾小样的每一刻。
+// 沉债的这一份（主文件夹这条线）：怎么直接到第一段·归潮沙湾三小段（小样那一刻、回港开舱和债本、船坞和第二潮）的每一刻。
 // 页面带 manual=1 时画面不自己走，由 __advance 一帧一帧推（固定 1/60 秒），不画的帧 game.noDraw 跳过画面（状态照样算，跳不跳截出来的一样）。
 export default {
-  owns: ['这一刻', '演示', '一整趟', '码满', '码满·没去舱里', '触屏'],
+  owns: ['这一刻', '演示', '一整趟', '码满', '码满·没去舱里', '触屏', '债本', '船坞', '第二潮'],
   reaches: [
     '这一刻：一打开就停在沉船旁边（小样），自己玩（没有机器人）。',
     '自己玩的手（每一段都有，发的是真的鼠标键盘事件，走玩家那条路）：__hand.move(x,y) 指针挪到画面上一点（1920×1080）、__hand.at(\'jar\') 指到含这件东西的那一处打捞点、',
@@ -17,7 +17,13 @@ export default {
     '船挡住就挖开一个口子（从「这一刻」）：用鼠标时不按左 Shift 只有网下到水里被挡住才有；`--pre "__adv(1);__hand.move(960,690);__adv(1)"` 没有，再 `__hand.key(\'ShiftLeft\',true);__adv(1)` 就有，`__game.cutout.out` 列出这一刻开着的口子。网被挡住：`--pre "__adv(1);__hand.at(\'jar\');__adv(.5);__hand.click();__adv(.3);__game.chase.offYawT=Math.PI/2;__game.chase.offPitchT=-0.2;__adv(1)"`（镜头偏到右舷那一侧）。',
     '开船的油：--probe @开船的油（十五种按法各跑一遍：按着多久、扣了多少、走了多远；没按键的每一帧都不该扣；油用完、开着下网；约两分钟）；左 Shift 指着的那一处走到正中、到了停、挪鼠标：--probe @看海底·正中。',
     '按住左 Shift 看海底（从「这一刻」，停着、开着、网在水里都行）：`--pre "__adv(1);__hand.at(\'jar\');__hand.key(\'ShiftLeft\',true);__adv(1.5)"`，`__game.peek.k` 到 1，松开（`false`）回 0；换处用 `__hand.move`。',
-    '演示放完一遍：`--until window.__demoEnd`（约 90 秒）。',
+    '三小段（2026-11-26）：这一刻冲完一甲板，油还够、还看得见没捞的就「接着捞」下一甲板，不够了「回港开舱」；随时按住 Q（`--pre "__adv(1);__hand.key(\'KeyQ\',true);__adv(1.3);__hand.key(\'KeyQ\',false)"`）回港。',
+    '  回港以后几刻用 --until 到：开舱 `__game.mode===\'summary\'`（清点完 `__game.tally.done`，按空格翻开债本）；债本 `__game.mode===\'debt\'`；船坞 `__game.mode===\'dock\'`（按 E 出海）。',
+    '  钱、设备、债本在 `__game.gear`（coins、lv、paid、trips、canBuy(id)、buy(id)、repay()）；船坞、债本两屏在 `__game.harbor`（debtEl、dockEl、marks.net / marks.tank）。',
+    '债本：直接翻开第一次的债本（手里 2592，第一趟冲完一甲板的数），背后是海上（真玩时背后是开完舱的舱里）。',
+    '船坞：直接进船坞（手里 2592），点船上的「网」「油箱」牌子看设备卡、升级，E 出海。',
+    '第二潮：回过一次港、网和油箱各升了一级以后出海（海底重铺多冲出几件、网口 1.75 米、油 88）。',
+    '演示放完一圈：`--until window.__demoEnd`（约 230 秒：捞完一趟、回港开舱、翻开债本、船坞升网和油箱、出海冲完第二潮的第一甲板）；演示接着一圈圈放下去。',
     '素材对照（换素材前后比）：--probe @素材对照·捞获 / @素材对照·场地，用法见文件里这两条探针上面的注释；截图对的是 素材/基准/ 里同名的图。@素材对照·近看：舱里的杂货、礁石、沉船散件（断桅横桁、舱盖、埋着的船材、尾楼）推近（基准里没有，比上一版同机位）。',
   ].join('\n'),
   page: 'index.html',
@@ -43,7 +49,10 @@ window.__hand = (() => {
   return H;
 })();`,
   ready: 'window.__pageReady === true && !!window.__game',
-  start: (seg = '') => (seg = seg || '', seg.startsWith('码满·没去舱里') ? `__game.moment.prefill([['jar','jar2','rope'],['copperset'],['barrel'],['seal'],[]])`
+  start: (seg = '') => (seg = seg || '', seg === '债本' ? `(__game.gear.coins = 2592, __game.gear.trips = 1, __game.mode = 'debt', __game.ui.setHud(false), __game.harbor.showDebt(true), true)`
+    : seg === '船坞' ? `(__game.gear.coins = 2592, __game.gear.trips = 1, __game.harbor.enterDock(), true)`
+    : seg === '第二潮' ? `(__game.gear.trips = 1, __game.gear.lv.net = 1, __game.gear.lv.tank = 1, __game.gear.apply(), __game.moment.begin(), true)`
+    : seg.startsWith('码满·没去舱里') ? `__game.moment.prefill([['jar','jar2','rope'],['copperset'],['barrel'],['seal'],[]])`
     : seg.startsWith('码满') ? `__game.moment.prefill([['jar','jar2','rope'],['copperset'],['barrel'],['seal'],['chest','sack']])` : 'true'),
   clock: {
     advance: (frames, draw) => `(() => { const g = window.__game; const n = ${frames}; g.noDraw = true; if (n > 1) window.__advance(n - 1); g.noDraw = !${draw}; window.__advance(1); g.noDraw = false; return true; })()`,

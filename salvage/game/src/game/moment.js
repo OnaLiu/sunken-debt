@@ -8,8 +8,11 @@ import { key, KEYS } from '../ui/hud.js';
 import { BOAT } from '../world/boat.js';
 import { T, N } from './tables.js';
 
-// 第一段·归潮沙湾的小样：一打开就停在沉船旁边，挑一处按一下、码满甲板、一甲板一起冲，揭完出这一甲板的结算，再来一次从头。
-// 没有菜单、教学、剧情、一趟的收获单和债本（那些是后面的事）。
+// 第一段·归潮沙湾的三小段（小样是第一小段，后两段在它上面往外接）：
+// ① 一打开就停在沉船旁边，挑一处按一下、码满甲板、一甲板一起冲，揭完出这一甲板的结算；油还够就接着捞下一甲板。
+// ② 油用完（或按住 Q）回港：收工、镜头扎进舱口、开舱清点这一趟（原来那一整趟的开舱），盖完入舱章翻开债本。
+// ③ 去船坞升一样设备（船上看得见），出海：回到沉船旁边，新的一潮，网口大了一网多罩几件、油多了一趟多捞一甲板。
+// 没有标题、出港、找沉船这一路（那是切片的事）。
 
 const _p = new THREE.Vector3();
 const _q = new THREE.Vector3();
@@ -36,6 +39,8 @@ export class Moment {
     const g = this.g;
     this.on = true;
     this.resultT = null;
+    this.decks = 0;
+    g.quitHold = null;
     this.finaleEntries = null;
     this.hintGo = false;
     window.__demoEnd = false;
@@ -48,6 +53,8 @@ export class Moment {
     g.tally.end();
     g.batch.close();
     g.deck.reset();
+    // 第几潮：第一趟是原来摆好的那一片，回过港再出海，海底重铺（itemsys.spill）
+    g.items.tide = g.gear.trips;
     g.resetTrip();
     g.deck.enable(true, N('甲板空位'));
     // 甲板加宽以后再清一甲板一起冲
@@ -60,7 +67,8 @@ export class Moment {
     g.firsts = {};
     this.el.classList.remove('on');
     const T0 = g.trip;
-    T0.fuel = N('开局油');
+    // 油箱升过几级，这一趟就带多少油（设备表「油箱」）
+    T0.fuel = g.gear.fuel;
     T0.sawWreck = true;
     // 这一刻不讲路上的事：浅滩、沉船、深槽都算已经到过，线索箭头不出，大轮廓不来
     Object.assign(g.flags, { shoal: true, wreck: true, slope: true, slopeSaid: true, trailIdx: TRAIL.length });
@@ -224,7 +232,17 @@ export class Moment {
   update(dt, inp) {
     const g = this.g;
     if (inp.any) g.audio.unlock();
-    if (g.mode !== 'arm') return;
+    if (g.mode !== 'arm') { g.quitHold = null; return; }
+    // 按住 Q（手柄 B）一秒：回港开舱（网在水里、甲板上还有泥包时不行：先冲完）
+    if (inp.b && !g.trip.ended) g.quitHold = 0;
+    if (g.quitHold !== null) {
+      if (!inp.bHeld) g.quitHold = null;
+      else if ((g.quitHold += dt) >= N('回港按住多久', 0.9)) {  // 表的 id，不是玩家看的
+        g.quitHold = null;
+        if (g.netop.busy || g.castQ || g.deck.filled || g.deck.busy) { g.audio.play('busy'); g.ui.deckDeny(T('拒·先冲完')); }  // 表的 id，不是玩家看的
+        else this.home();
+      }
+    }
     if (this.enterT != null) {
       this.enterT -= dt;
       if (this.enterT > 0) return;
@@ -271,6 +289,7 @@ export class Moment {
   onBatchDone(r) {
     const g = this.g;
     if (!this.on) return;
+    this.decks++;
     this.pending = r;
     g.later(N('结算等多久', 1.6), () => this.showResult(this.pending));
   }
@@ -310,7 +329,9 @@ export class Moment {
     } else rec.style.display = 'none';
     const K = KEYS[g.ui.device];
     const again = E.querySelector('.again');
-    again.innerHTML = `${key(K.a, 'a')}<span>${T('结算·再来')}</span><span class="cd"></span>`;
+    // 油还够下一网：接着捞下一甲板；不够了：回港开舱
+    this.more = this.canMore();
+    again.innerHTML = `${key(K.a, 'a')}<span>${T(this.more ? '结算·接着捞' : '结算·回港')}</span><span class="cd"></span>`;  // 表的 id，不是玩家看的
     again.classList.remove('press');
     // 自动演示：按钮底下一条走满，机器人就按（和收获单的「再来一趟」一样）
     const cd = again.querySelector('.cd');
@@ -325,7 +346,61 @@ export class Moment {
     g.audio.play('endCadence');
     g.cue('B27');
     this.resultT = 0;
-    window.__demoEnd = true;
+    // 自动演示放完一圈：升过设备以后又冲完一甲板（一网多罩几件看得出来）
+    if (g.gear.trips > 0) window.__demoEnd = true;
+  }
+
+  // 还能不能接着捞：油够下一网，看得见的打捞点还有没捞的
+  canMore() {
+    const g = this.g;
+    return g.trip.fuel >= MIN_NET_COST && g.snap.spots.some((s) => !g.snap.taken(s));
+  }
+
+  // 接着捞：结算牌收起，甲板空出来，回到打捞
+  more_() {
+    const g = this.g;
+    g.audio.play('press');
+    this.el.querySelector('.again').classList.add('press');
+    this.el.classList.remove('on');
+    g.batch.close();
+    g.batch.reset();
+    g.deck.reset();
+    g.ui.fadeHud(false);
+    g.mode = 'arm';
+    g.ui.setMode('arm');
+    g.castQ = null;
+    g.snap.refresh(true);
+    this.autoT = 0;
+  }
+
+  // 回港：收工（吊臂收回、船员擦手、镜头扎进舱口），到了舱里开舱清点这一趟（game.checkEnd 那一段）
+  home() {
+    const g = this.g;
+    if (g.trip.ended) return;
+    this.el.classList.remove('on');
+    g.batch.close();
+    g.ui.fadeHud(false);
+    g.ui.learn('home');
+    if (g.mode === 'result') { g.mode = 'arm'; g.ui.setMode('arm'); }
+    g.audio.play('menuGo');
+    g.endTrip(null);
+  }
+
+  // 开完舱（入舱章盖下、按了「翻开债本」）：舱盖拉上，翻开债本；这一趟的钱进手里
+  afterTally() {
+    const g = this.g;
+    if (g.mode === 'debt') return;
+    g.menus.pressAgain();
+    g.audio.play('press');
+    g.tally.close();
+    g.gear.coins += g.trip.total;
+    const first = !g.gear.trips;
+    g.gear.trips++;
+    g.mode = 'debt';
+    g.later(0.75, () => {
+      g.menus.hideSummary();
+      g.harbor.showDebt(first);
+    });
   }
 
   // 结算牌上：按下网键（左键、空格、A）再来一次；自动演示停一会儿自己再来
@@ -347,7 +422,7 @@ export class Moment {
     const over = g.ui.over('again', inp.ptr);
     this.el.querySelector('.again').classList.toggle('hot', over);
     const press = inp.a || (inp.click && over);
-    if (press && this.resultT > 0.6) this.restart();
+    if (press && this.resultT > 0.6) { if (this.more) this.more_(); else this.home(); }
   }
 
   // 再来一次：黑一下，回到这一刻开头

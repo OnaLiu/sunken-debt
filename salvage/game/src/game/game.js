@@ -46,6 +46,8 @@ import { SnapAim } from './snap.js';
 import { BatchWash } from './batch.js';
 import { Moment } from './moment.js';
 import { MomentBot } from './momentbot.js';
+import { Gear } from './gear.js';
+import { Harbor } from './harbor.js';
 import { model } from '../assets/assets.js';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { KeyShow } from '../ui/keyshow.js';
@@ -136,6 +138,9 @@ export class Game {
     this.moment = new Moment(this);
     this.keyShow = new KeyShow(this, uiRoot);
     this.tally = new Tally(this);
+    // 钱、设备、债本，回港的债本和船坞两屏（全游戏一份，第一段三小段第一次做）
+    this.gear = new Gear(this);
+    this.harbor = new Harbor(this);
     this.thumbs = new Thumbs(this);
     this.pressIdx = 0;
     this.pressList = [];
@@ -767,6 +772,8 @@ export class Game {
     }
     if (this.mode === 'result') {
       this.moment.resultInput(dt, inp);
+      // 按了接着捞、回港开舱：下一帧照新的模式走
+      if (this.mode !== 'result') { this.render(dt); return; }
       this.trip.time += dt;
       this.simulate(dt, { mx: 0, my: 0, lx: 0, ly: 0, px: 0, py: 0, zoom: 0 }, false);
       this.render(dt);
@@ -774,8 +781,17 @@ export class Game {
     }
     if (this.mode === 'summary') {
       const act = this.tally.update(dt, inp);
-      if (act === 'again') this.restart();
+      // 三小段：开完舱翻开债本；原来那一整趟（trip=1）照旧再来一趟
+      if (act === 'again') { if (this.moment.on) this.moment.afterTally(); else this.restart(); }
       this.simulate(dt, { mx: 0, my: 0, lx: 0, ly: 0, zoom: 0 }, false);
+      this.render(dt);
+      return;
+    }
+    // 回港以后：债本、船坞（世界照常走，镜头绕着船慢慢转）
+    if (this.mode === 'debt' || this.mode === 'dock') {
+      this.harbor.update(dt, inp);
+      if (this.mode === 'debt' && this.tally.active) this.tally.update(dt, {});
+      this.simulate(dt, { mx: 0, my: 0, lx: 0, ly: 0, px: 0, py: 0, zoom: 0 }, true);
       this.render(dt);
       return;
     }
@@ -891,17 +907,19 @@ export class Game {
 
   // 这一趟做到的事（收获单底下一行）：只说这一趟真发生过的，数得清的就是舱里摆着的那几件
   tripDeeds() {
-    const T = this.trip, d = [];
-    if (T.sawWreck) d.push('找到了沉船');
-    const crabs = T.haul.filter((h) => h.kind === 'crab').length;
-    if (crabs) d.push(`兜到${['', '一', '两', '三', '四'][crabs] || crabs}只活蟹`);
+    const TR = this.trip, d = [];
+    // 三小段：沉船不用找（一出海就停在它旁边），这一趟说的是冲了几甲板
+    if (this.moment.on) { if (this.moment.decks > 1) d.push(T('开舱·冲了几甲板', { n: this.moment.decks })); }
+    else if (TR.sawWreck) d.push(T('开舱·找到沉船'));
+    const crabs = TR.haul.filter((h) => h.kind === 'crab').length;
+    if (crabs) d.push(T('开舱·活蟹', { n: ['', '一', '两', '三', '四'][crabs] || crabs }));
     const by = {};
-    for (const h of T.haul) (by[h.name] = by[h.name] || []).push(h);
+    for (const h of TR.haul) (by[h.name] = by[h.name] || []).push(h);
     for (const [n, l] of Object.entries(by)) {
       const from = [...new Set(l.map((h) => h.from).filter(Boolean))];
-      if (l.length >= 2 && from.length >= 2) d.push(`${from[0]}和${from[1]}的${n}对上了`);
+      if (l.length >= 2 && from.length >= 2) d.push(T('开舱·对上了', { a: from[0], b: from[1], n }));
     }
-    if (T.sawLev) d.push('见过深槽里那个东西');
+    if (TR.sawLev) d.push(T('开舱·见过它'));
     return d;
   }
 
@@ -1326,7 +1344,8 @@ export class Game {
     this.storyUpdate(dt);
     this.feel.update(dt, idle);
     // 「再来一趟」淡出那一下旧的这一趟还是已结束，别再弹一次收获单
-    if (!idle && this.mode !== 'fading' && !this.moment.on) this.checkEnd(dt);
+    // 三小段里回港（按住 Q、油用完）也走这一段：收工、扎进舱口、开舱
+    if (!idle && this.mode !== 'fading' && (!this.moment.on || this.trip.ended)) this.checkEnd(dt);
 
     // 镜头
     this.updateCamera(dt, idle);
@@ -1976,7 +1995,8 @@ export class Game {
         else if (this.seenRound >= this.endAt) this.endTrip('看得见的都捞上来了');
       }
     }
-    if (this.trip.ended && this.mode !== 'summary' && !this.netop.busy && !this.reveal.active) {
+    // 开完舱已经翻开债本、进了船坞（三小段）：这一趟收完了
+    if (this.trip.ended && this.mode !== 'summary' && this.mode !== 'debt' && this.mode !== 'dock' && !this.netop.busy && !this.reveal.active) {
       if (!this.ending) this.startEnding();
       const E = this.ending;
       E.t += dt;

@@ -7,6 +7,10 @@ import { toon } from '../render/materials.js';
 import { mulberry32 } from '../util/math.js';
 
 // 海底的每一件东西：开局时就生成并固定位置；被网收走就真的离开海底，留下压痕。
+// 每潮重铺：冲出来的是哪几样（几成机会），落在哪两堆旁边（沉船坐标，along、side 上下各浮动多少），每潮几件
+const SPILL_KINDS = [['jar', 3], ['rope', 2], ['copperset', 2], ['barrel', 2], ['shards', 2], ['stave', 1], ['ropebit', 1]];
+const SPILL_AT = [{ along: 3.1, side: 8.1, da: 1.6, ds: 1.3 }, { along: -3.1, side: 8.1, da: 1.6, ds: 1.3 }];
+const SPILL_N = [6, 3];
 // 泥包最高是东西露出泥面那截的几成
 const MOUND_CAP = 0.3;
 export class ItemSystem {
@@ -71,6 +75,30 @@ export class ItemSystem {
       };
       this.chest = put({ id: 'chest', kind: 'chest', rot: 0.4, tilt: 0.12, bury: 0.32 }, 2.75, 0.55);
       put({ id: 'sack', kind: 'sack', rot: 2.2, tilt: 0.2, bury: 0.2 }, 1.85, 0.42);
+    }
+    // 第二潮起：潮水又从沉船的两道舱口里冲出一些货，散在甲板那一侧（每一潮不一样）
+    if (this.tide > 0) this.spill(this.tide, add);
+  }
+
+  // 每潮重铺（设计「海底的潮一趟一个样」「先有来源，再有散落」）：第一潮就是原来摆好的那一片（他看过的小样），
+  // 以后每一潮在两道舱口翻出货的那两堆旁边、甲板那一侧的海底上多冲出几件。挨着原来那几件，网口大了一网罩得进去
+  spill(tide, add) {
+    const rnd = mulberry32(9100 + tide * 131);
+    const pool = SPILL_KINDS;
+    const total = pool.reduce((a, [, w]) => a + w, 0);
+    const pick = () => { let r = rnd() * total; for (const [k, w] of pool) if ((r -= w) <= 0) return k; return pool[0][0]; };
+    const n = SPILL_N[0] + Math.min(tide - 1, SPILL_N[1]);
+    const placed = this.items.filter((i) => !i.inHold).map((i) => ({ x: i.x, z: i.z, r: i.r }));
+    for (let i = 0, tries = 0; i < n && tries < 200; tries++) {
+      const A = SPILL_AT[Math.floor(rnd() * SPILL_AT.length)];
+      const along = A.along + (rnd() - 0.5) * 2 * A.da, side = A.side + (rnd() - 0.5) * 2 * A.ds;
+      const w = wreckToWorld(along, side);
+      const kind = pick();
+      const r = ITEM_DEFS[kind].r;
+      if (placed.some((o) => Math.hypot(o.x - w.x, o.z - w.z) < o.r + r + 0.25)) continue;
+      placed.push({ x: w.x, z: w.z, r });
+      add({ id: `tide${tide}-${kind}-${i}`, kind, rot: rnd() * Math.PI * 2, tilt: kind === 'jar' || kind === 'barrel' ? 1.3 + rnd() * 0.25 : rnd() * 0.3, bury: 0.08 + rnd() * 0.2 }, w.x, w.z);
+      i++;
     }
   }
 

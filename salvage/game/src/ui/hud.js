@@ -250,13 +250,19 @@ export class UI {
       }
     }
     if (!L.zoom) out.push([key(K.zoom), '键·远近']);  // 表的 id，不是玩家看的
+    // 冲过一甲板以后：按住 Q 回港开舱（回过一次就收起）
+    if (this.mode === 'arm' && !L.home && this.g.moment.decks > 0) out.push([T('键·按住') + key(K.quit, 'b'), '键·回港']);  // 表的 id，不是玩家看的
     return out.map(([k, t]) => `<span>${k}${T(t)}</span>`).join('');
   }
 
   // 指针在不在这块能点的东西上（机器人的指针也照这个算）
   over(what, P) {
+    return this.overEl(what === 'go' ? this.deckEl.querySelector('.go') : document.querySelector('#result .again'), P);
+  }
+
+  // 指针在不在这一块界面上（债本、船坞的按钮也用它）
+  overEl(el, P) {
     if (!P || !P.ok) return false;
-    const el = what === 'go' ? this.deckEl.querySelector('.go') : document.querySelector('#result .again');
     if (!el) return false;
     const st = document.getElementById('stage').getBoundingClientRect();
     const r = el.getBoundingClientRect(), k = st.width / VIEW_W;

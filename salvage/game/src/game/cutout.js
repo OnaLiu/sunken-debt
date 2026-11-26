@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { NET_R } from '../config.js';
+import { NET_R, onNetR } from '../config.js';
 import { N } from './tables.js';
 
 // 自己的船挡住视线就挖开挡住的那一块，看得见后面的网和海底；没挡着就没有口子，船的其余部分照样实。
@@ -9,7 +9,8 @@ import { N } from './tables.js';
 // 全游戏一份。
 const PTR_R = 1.7; // 鼠标的口子在海底那儿多大（米）
 const PTR_PEEK = 0.9; // 靠近到底时再大多少
-const RING_R = NET_R + 0.35, NETHOLE_R = NET_R + 0.55;
+let RING_R = NET_R + 0.35, NETHOLE_R = NET_R + 0.55;
+onNetR((r) => { RING_R = r + 0.35; NETHOLE_R = r + 0.55; });
 const NET_Y = 1.2; // 网低到离水面这么近才会被船挡住；挂在臂端、提在半空时比船高，不挖
 const IN = 0.1, OUT = 0.12; // 口子张开、合上（秒）
 const MAX = 8;

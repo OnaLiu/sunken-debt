@@ -10,7 +10,17 @@ export const LOW_PAD = 2; // 四周多画一圈像素，给镜头亚像素平移
 export const WATER_Y = 0;
 
 // 吊臂与网
-export const NET_R = 1.4; // 网口半径（米）
+// 网口半径（米）：船坞里升「网」以后变大（gear.js 设），用到它的地方读的都是这一刻的值；
+// 照它先算好的（吊臂的采样圈、船身那一圈落不了网的地方、镂空的口子、网架本身）在 onNetR 里跟着重算
+export const NET_R0 = 1.4;
+export let NET_R = NET_R0;
+const netRWatch = [];
+export function onNetR(fn) { netRWatch.push(fn); }
+export function setNetR(r) {
+  if (Math.abs(r - NET_R) < 1e-6) return;
+  NET_R = r;
+  for (const fn of netRWatch) fn(r);
+}
 export const ARM_MIN = 4.2; // 臂端离吊机中心的最小水平距离
 export const ARM_MAX = 10.6; // 最大水平伸距
 export const ARM_TIP_H = 5.2; // 臂端离水面高度

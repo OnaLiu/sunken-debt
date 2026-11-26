@@ -2,6 +2,7 @@
 import { ICON } from './icons.js';
 import { drawStamp, STAMP_N } from './pixring.js';
 import { key } from './hud.js';
+import { T } from '../game/tables.js';
 
 const h = (tag, cls, html) => {
   const e = document.createElement(tag);
@@ -277,8 +278,8 @@ export class Menus {
     this.hideSummary();
     const el = h('div');
     el.id = 'summary';
-    const head = h('div', 'head', `<span class="t">收获单</span>${o.why ? `<span class="why">${o.why}</span>` : ''}`);
-    const tot = h('div', 'tot', `<span class="lab">这一趟</span><span class="num">${ICON.coin}<b>0</b></span>`);
+    const head = h('div', 'head', `<span class="t">${T('开舱·收获单')}</span>${o.why ? `<span class="why">${o.why}</span>` : ''}`);
+    const tot = h('div', 'tot', `<span class="lab">${T('开舱·这一趟')}</span><span class="num">${ICON.coin}<b>0</b></span>`);
     // 入舱章：总数落定时盖下去
     const stamp = h('div', 'stamp');
     const scv = document.createElement('canvas');
@@ -295,9 +296,9 @@ export class Menus {
     });
     if (o.empty) {
       if (deeds.childNodes.length) deeds.prepend(h('i', 'dot'));
-      deeds.prepend(h('span', 'dd empty', '这一趟舱里是空的'));
+      deeds.prepend(h('span', 'dd empty', T('开舱·空舱')));
     }
-    const again = h('div', 'again', `${key(this.g.ui.device === 'pad' ? 'A' : '空格', 'a')}再来一趟<span class="cd"></span>`);
+    const again = h('div', 'again', `${key(this.g.ui.device === 'pad' ? 'A' : T('键名·空格'), 'a')}${o.again || T('开舱·再来一趟')}<span class="cd"></span>`);
     el.append(head, tot, tags, fly, deeds, again);
     el.addEventListener('pointerdown', () => { if (!this.g.input.botDriven) this.pending = 'again'; });
     this.root.append(el);
