@@ -705,3 +705,19 @@ html, body { margin: 0; height: 100%; background: #05080a; overflow: hidden; }
 #dock .foot .plate .ic { font-size: 34px; color: #5a3a12; }
 #dock .foot .plate { display: flex; align-items: center; gap: 12px; padding: 8px 34px 11px; font-size: 32px; letter-spacing: 6px; font-weight: 700; cursor: pointer; }
 .paused #debt *, .paused #dock * { animation-play-state: paused !important; }
+
+/* 打磨三小段：花钱、还债、出海 */
+/* 船坞右上：花掉的钱飘起来（红字往上走、淡掉） */
+#dock .money { position: absolute; }
+#dock .money .spent { position: absolute; right: 30px; top: 100%; font-size: 36px; font-weight: 800; color: #ff8a6a; text-shadow: 3px 3px 0 rgba(0,0,0,.55); opacity: 0; pointer-events: none; white-space: nowrap; }
+#dock .money .spent.on { animation: spentup 1.1s cubic-bezier(.2,.8,.3,1) forwards; }
+@keyframes spentup { 0% { opacity: 0; transform: translateY(-34px) scale(1.25); } 15% { opacity: 1; transform: translateY(0) scale(1); } 70% { opacity: 1; } 100% { opacity: 0; transform: translateY(26px); } }
+#dock .buy.press, #debt .pay.press { animation: againpress2 0.2s ease-out; }
+/* 出海：铜牌、牌子先收起来，只看船离开栈桥 */
+#dock.away .foot, #dock.away .marks, #dock.away .gpos, #dock.away .money { opacity: 0; transition: opacity .3s; }
+/* 债本：「已还」大红章砸在右页上 */
+#debt .pg.r { overflow: visible; }
+#debt .paidst { position: absolute; left: 46%; top: 30%; padding: 4px 26px 8px; font-size: 76px; font-weight: 900; letter-spacing: 22px; color: #a8200e; border: 10px double #a8200e; background: rgba(243,228,188,.35); opacity: 0; pointer-events: none; transform: translate(-50%, -50%) rotate(-14deg) scale(2.4); white-space: nowrap; mix-blend-mode: multiply; }
+#debt .paidst.on { animation: paidslam 0.3s cubic-bezier(.55,0,.9,.55) forwards; }
+@keyframes paidslam { 0% { opacity: .2; transform: translate(-50%, -50%) rotate(-14deg) scale(2.4); } 80% { opacity: 1; transform: translate(-50%, -50%) rotate(-14deg) scale(.94); } 100% { opacity: 1; transform: translate(-50%, -50%) rotate(-14deg) scale(1); } }
+#debt .have .of.spend { color: #a8200e; font-size: 34px; font-weight: 800; }

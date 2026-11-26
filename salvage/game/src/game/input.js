@@ -27,7 +27,7 @@ export class Input {
     this.lockBroken = false; // 这个浏览器锁不上鼠标
     this.lockByClick = -1e9;
     this.canPeek = false; // 这会儿按住左 Shift 看得了海底（peek.js 每帧给）：按着的时候把鼠标锁在画面里，挪多远都行；锁不上也照样用
-    this.state = { mx: 0, my: 0, lx: 0, ly: 0, px: 0, py: 0, zoom: 0, a: false, aHeld: false, click: false, rclick: false, b: false, bHeld: false, start: false, esc: false, any: false, tab: false, go: false, ptr: { x: 0, y: 0, sx: 0, sy: 0, rx: 0, ry: 0, ok: false, moved: false }, drag: false, peek: false };
+    this.state = { mx: 0, my: 0, lx: 0, ly: 0, px: 0, py: 0, zoom: 0, a: false, aHeld: false, click: false, rclick: false, b: false, bHeld: false, start: false, esc: false, any: false, tab: false, go: false, x: false, ptr: { x: 0, y: 0, sx: 0, sy: 0, rx: 0, ry: 0, ok: false, moved: false }, drag: false, peek: false };
 
     window.addEventListener('keydown', (e) => {
       if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.code)) e.preventDefault();
@@ -149,6 +149,7 @@ export class Input {
     let start = edge('KeyP');
     // 开冲（一甲板一起冲）：E，手柄 Y
     let go = edge('KeyE');
+    let xb = false;
     // 按住左 Shift：镜头靠近指针指着的海底（peek.js）
     let peek = k.has('ShiftLeft');
     const esc = edge('Escape') || this.lockLost;
@@ -167,7 +168,7 @@ export class Input {
       const lt = pad.buttons[6] ? pad.buttons[6].value : 0;
       const rt = pad.buttons[7] ? pad.buttons[7].value : 0;
       const pressed = (i) => btn(i) && !this.padPrev[i];
-      if (Math.abs(pmx) + Math.abs(pmy) + Math.abs(plx) + Math.abs(ply) > 0.1 || [0, 1, 9].some(btn)) this.device = 'pad';
+      if (Math.abs(pmx) + Math.abs(pmy) + Math.abs(plx) + Math.abs(ply) > 0.1 || [0, 1, 2, 3, 9].some(btn)) this.device = 'pad';
       mx += pmx; my += pmy;
       lx += plx; ly += ply;
       zoom += (lt - rt) * 0.9;
@@ -176,6 +177,8 @@ export class Input {
       if (pressed(1)) b = true;
       if (btn(1)) bHeld = true;
       if (pressed(3)) go = true;
+      // X：船坞里翻开债本
+      if (pressed(2)) xb = true;
       if (pressed(9)) start = true;
       if (pressed(8)) start = true;
       if ([0, 1, 2, 3, 9].some(pressed)) any = true;
@@ -203,7 +206,7 @@ export class Input {
     P.x = P.sx = P.rx = cx; P.y = P.sy = P.ry = cy; P.ok = ok;
     s.drag = drag; s.peek = peek;
     s.mx = mx; s.my = my; s.lx = lx; s.ly = ly; s.px = px; s.py = py; s.zoom = zoom;
-    s.a = a; s.aHeld = aHeld; s.click = click; s.rclick = rclick; s.b = b; s.bHeld = bHeld; s.start = start; s.esc = esc; s.any = any; s.tab = tab && !this.botDriven; s.go = go;
+    s.a = a; s.aHeld = aHeld; s.click = click; s.rclick = rclick; s.b = b; s.bHeld = bHeld; s.start = start; s.esc = esc; s.any = any; s.tab = tab && !this.botDriven; s.go = go; s.x = xb && !this.botDriven;
     this.edges.clear();
     return s;
   }

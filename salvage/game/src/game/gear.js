@@ -30,6 +30,8 @@ export class Gear {
     this.paid = 0;
     this.trips = 0;
     this.pop = null;
+    // 船上装好了的那一级（买下以后船员走过去装上才算到船上；规则照 lv）
+    this.fitted = { ...this.lv };
   }
 
   // —— 设备 ——
@@ -50,10 +52,22 @@ export class Gear {
     if (!this.canBuy(id)) return false;
     this.coins -= this.next(id).price;
     this.lv[id]++;
-    this.apply();
-    // 装上那一下：新的那一样从小弹到原大
-    this.pop = { id, t: 0 };
     return true;
+  }
+  // 船员扳下去那一下：装到船上（from：船员手在船上哪一点，船局部坐标；油桶从他手上提上去）
+  install(id, from = null) {
+    if (this.fitted[id] === this.lv[id]) return;
+    const r0 = GEAR[id].levels[this.fitted[id]].val;
+    this.fitted[id] = this.lv[id];
+    this.apply();
+    this.pop = { id, t: 0, from, r0 };
+  }
+  // 还没装上的都当场装上（出海、换场）
+  installAll() {
+    for (const id of this.ids()) if (this.fitted[id] !== this.lv[id]) { this.fitted[id] = this.lv[id]; this.apply(); }
+    this.pop = null;
+    this.g.boat.net.root.scale.set(1, 1, 1);
+    this.drums.forEach((d) => { d.scale.set(1, 1, 1); d.position.y = DRUM_Y; });
   }
   // 这一趟出海带多少油
   get fuel() {
@@ -62,11 +76,11 @@ export class Gear {
 
   // 设备落到船上：网口、油桶
   apply(first = false) {
-    setNetR(this.cur('net').val);
+    setNetR(GEAR.net.levels[this.fitted.net].val);
     this.g.boat.net.resize(NET_R);
     this.g.boat.net.state.close = 0;
     this.g.boat.net.updateSkirt();
-    const n = this.lv.tank;
+    const n = this.fitted.tank;
     this.drums.forEach((d, i) => (d.visible = i < n));
     if (first) this.pop = null;
   }
@@ -91,22 +105,56 @@ export class Gear {
     });
   }
 
-  // 装上那一下：新油桶落到顶上弹一下；网架鼓一下
+  // 装上那一下：油桶从船员手上提上驾驶室顶、落定弹一下；网从原来的口径撑到新的口径、过一点再弹回
   update(dt) {
     const P = this.pop;
     if (!P) return;
     P.t += dt;
-    const k = clamp(P.t / 0.55, 0, 1);
-    const s = Math.max(0.01, easeOutBack(k));
     if (P.id === 'tank') {
-      const d = this.drums[this.lv.tank - 1];
-      if (d) { d.scale.set(s, s, s); d.position.y = DRUM_Y + (1 - k) * 0.9; }
+      const d = this.drums[this.fitted.tank - 1];
+      const k = clamp(P.t / 0.5, 0, 1);
+      if (d) {
+        const D = DRUMS[this.fitted.tank - 1];
+        const f = P.from || { x: D.x, y: DRUM_Y + 0.9, z: D.z };
+        const e = 1 - (1 - k) * (1 - k);
+        d.position.set(f.x + (D.x - f.x) * e, f.y + (DRUM_Y - f.y) * e + Math.sin(k * Math.PI) * 0.7, f.z + (D.z - f.z) * e);
+        // 落定：压扁一下再弹回
+        const q = clamp((P.t - 0.5) / 0.3, 0, 1);
+        const sq = q > 0 && q < 1 ? Math.sin(q * Math.PI) * 0.22 : 0;
+        d.scale.set(1 + sq * 0.5, 1 - sq, 1 + sq * 0.5);
+        if (k >= 1 && !P.landed) {
+          P.landed = true;
+          const w = new THREE.Vector3(D.x, DRUM_Y + 0.05, D.z);
+          this.g.boat.body.localToWorld(w);
+          if (this.g.fx) for (let i = 0; i < 8; i++) { const a = (i / 8) * Math.PI * 2; this.g.fx.emit('dust', w.x, w.y, w.z, Math.cos(a) * 1.2, 0.3, Math.sin(a) * 1.2, { size: 0.18, life: 0.9 }); }
+          this.g.audio.play('clank');
+          this.g.cam.shake(0.006 * (this.g.wobbleK ?? 1));
+        }
+      }
+      if (P.t > 0.85) this.pop = null;
     } else if (P.id === 'net') {
-      const r = this.g.boat.net.ring;
-      const w = 1 + Math.sin(k * Math.PI) * 0.12;
-      r.scale.set(w, w, w);
+      const k = clamp(P.t / 0.6, 0, 1);
+      const r1 = this.cur('net').val, r0 = P.r0 || r1;
+      const w = (r0 + (r1 - r0) * easeOutBack(k)) / r1;
+      this.g.boat.net.root.scale.set(w, 1, w);
+      if (!P.landed) {
+        P.landed = true;
+        this.g.audio.play('clank');
+        const w2 = new THREE.Vector3();
+        this.g.boat.net.root.getWorldPosition(w2);
+        if (this.g.fx) for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2; this.g.fx.emit('spark', w2.x + Math.cos(a) * r1, w2.y, w2.z + Math.sin(a) * r1, Math.cos(a) * 0.8, 0.6, Math.sin(a) * 0.8, { life: 0.8 }); }
+      }
+      if (k >= 1) { this.g.boat.net.root.scale.set(1, 1, 1); this.pop = null; }
     }
-    if (k >= 1) this.pop = null;
+  }
+
+  // 升了这一样，船员站哪儿装（甲板坐标 x, z）、对着哪儿（tx, tz）：油箱站在驾驶室旁、对着新油桶那一角；网站在吊机座旁扳吊机
+  fitSpot(id) {
+    if (id === 'tank') {
+      const D = DRUMS[Math.max(0, this.lv.tank - 1)];
+      return { x: D.x - 0.3, z: Math.sign(D.z) * 1.72, tx: D.x, tz: D.z };
+    }
+    return { x: BOAT.crane.x - 0.05, z: -0.98, tx: BOAT.crane.x, tz: 0 };
   }
 
   // 设备在船上的哪一处（船局部，船坞里那块牌子挂在这儿）

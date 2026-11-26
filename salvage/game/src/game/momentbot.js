@@ -325,6 +325,17 @@ export class MomentBot {
       const more = g.moment.more;
       // 指到结算牌底下那块铜牌（接着捞 / 回港开舱）上，左键
       yield* this.clickEl(() => document.querySelector('#result .again'), 0.62);
+      // 第二潮：冲完一甲板就回港（钱够还第一页了），甲板空着按住 Q
+      if (more && this.run >= 1) {
+        this.stage = 'quit';
+        yield* this.wait(1.2);
+        this.v.b = true;
+        this.v.bHeld = true;
+        yield* this.wait(N('回港按住多久', 0.9) + 0.3);  // 表的 id，不是玩家看的
+        this.v.bHeld = false;
+        yield* this.harborRound();
+        return;
+      }
       if (more) { this.stage = 'more'; yield* this.wait(1.2); continue; }
       yield* this.harborRound();
       return;

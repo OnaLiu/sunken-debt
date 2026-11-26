@@ -23,7 +23,7 @@ export default {
     '债本：直接翻开第一次的债本（手里 2592，第一趟冲完一甲板的数），背后是海上（真玩时背后是开完舱的舱里）。',
     '船坞：直接进船坞（手里 2592），点船上的「网」「油箱」牌子看设备卡、升级，E 出海。',
     '第二潮：回过一次港、网和油箱各升了一级以后出海（海底重铺多冲出几件、网口 1.75 米、油 88）。',
-    '演示放完一圈：`--until window.__demoEnd`（约 230 秒：捞完一趟、回港开舱、翻开债本、船坞升网和油箱、出海冲完第二潮的第一甲板）；演示接着一圈圈放下去。',
+    '演示放完一圈：`--until window.__demoEnd`（约 276 秒：捞完一趟、回港开舱、翻开债本、船坞升网和油箱、出海冲完第二潮的第一甲板、再回港还第一页、升油箱、按出海）；演示接着一圈圈放下去。',
     '素材对照（换素材前后比）：--probe @素材对照·捞获 / @素材对照·场地，用法见文件里这两条探针上面的注释；截图对的是 素材/基准/ 里同名的图。@素材对照·近看：舱里的杂货、礁石、沉船散件（断桅横桁、舱盖、埋着的船材、尾楼）推近（基准里没有，比上一版同机位）。',
   ].join('\n'),
   page: 'index.html',
@@ -51,7 +51,7 @@ window.__hand = (() => {
   ready: 'window.__pageReady === true && !!window.__game',
   start: (seg = '') => (seg = seg || '', seg === '债本' ? `(__game.gear.coins = 2592, __game.gear.trips = 1, __game.mode = 'debt', __game.ui.setHud(false), __game.harbor.showDebt(true), true)`
     : seg === '船坞' ? `(__game.gear.coins = 2592, __game.gear.trips = 1, __game.harbor.enterDock(), true)`
-    : seg === '第二潮' ? `(__game.gear.trips = 1, __game.gear.lv.net = 1, __game.gear.lv.tank = 1, __game.gear.apply(), __game.moment.begin(), true)`
+    : seg === '第二潮' ? `(__game.gear.trips = 1, __game.gear.lv.net = 1, __game.gear.lv.tank = 1, __game.gear.installAll(), __game.moment.begin(), true)`
     : seg.startsWith('码满·没去舱里') ? `__game.moment.prefill([['jar','jar2','rope'],['copperset'],['barrel'],['seal'],[]])`
     : seg.startsWith('码满') ? `__game.moment.prefill([['jar','jar2','rope'],['copperset'],['barrel'],['seal'],['chest','sack']])` : 'true'),
   clock: {

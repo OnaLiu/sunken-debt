@@ -93,7 +93,8 @@ export class Moment {
     // 白圈等镜头落定、看得见的都看过一遍再吸到打捞点上（不先吸到远处）
     this.enterT = 0.2;
     g.aimJumps = -1;
-    g.ui.place(T('地名·沉船'));
+    // 第二潮起：地名底下写第几潮（潮水把海底重铺了一遍）
+    g.ui.place(g.items.tide > 0 ? T('地名·沉船·第几潮', { n: g.items.tide + 1 }) : T('地名·沉船'));
     g.ui.hudEnter();
     g.cue('A14');
   }
@@ -346,8 +347,6 @@ export class Moment {
     g.audio.play('endCadence');
     g.cue('B27');
     this.resultT = 0;
-    // 自动演示放完一圈：升过设备以后又冲完一甲板（一网多罩几件看得出来）
-    if (g.gear.trips > 0) window.__demoEnd = true;
   }
 
   // 还能不能接着捞：油够下一网，看得见的打捞点还有没捞的

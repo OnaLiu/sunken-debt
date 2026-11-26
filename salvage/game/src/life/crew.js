@@ -1184,6 +1184,7 @@ export class Crew {
       if (s.cheerUntil && s.t > s.cheerUntil) { s.cheerUntil = 0; if (s.pose === 'cheer') s.pose = s.task && s.task.kind === 'watch' ? 'watch' : 'stand'; }
       const T = s.task;
       if (T && T.kind === 'carry') this.updateCarry(s, T, dt);
+      else if (T && T.kind === 'fit') this.updateFit(s, T, dt);
       else if (T && T.kind === 'wash') {
         if (!s.moving) {
           s.faceT = Math.atan2(-(this.washSpot.z - s.z), this.washSpot.x - s.x);
@@ -1254,6 +1255,52 @@ export class Crew {
         pos[i * 3] = p.x; pos[i * 3 + 1] = p.y; pos[i * 3 + 2] = p.z;
       }
       this.hose.geometry.attributes.position.needsUpdate = true;
+    }
+  }
+
+  // 船坞里升了一样设备（设计第 6 节「买下以后船员当场把它装上」）：离那一处最近、手上没在装的船员走过去，
+  // 对着那一样扳一下（heave：起势、发力、收势），发力那一下 onFit(船员) 装上。x, z 站哪（甲板坐标），tx, tz 对着哪
+  fit(x, z, tx, tz, onFit) {
+    let best = null, bd = Infinity;
+    for (const s of this.sailors) {
+      if (s.task && s.task.kind === 'fit') continue;
+      const d = Math.hypot(s.x - x, s.z - z);
+      if (d < bd) { bd = d; best = s; }
+    }
+    if (!best) { onFit(null); return null; }
+    if (best.task && best.task.kind === 'carry') for (const c of [...best.hold.children]) best.hold.remove(c);
+    best.task = { kind: 'fit', x, z, tx, tz, onFit, step: 'go', t: 0, done: false };
+    best.gest = null;
+    best.pose = 'stand';
+    best.goTo(x, z);
+    return best;
+  }
+
+  updateFit(s, T, dt) {
+    T.t += dt;
+    if (T.step === 'go') {
+      // 走得太久（被挡、绕远）：就地停下扳，不让玩家等
+      if (s.moving && T.t < 2.0) return;
+      s.path = [];
+      T.step = 'heave';
+      T.t = 0;
+      s.faceT = Math.atan2(-(T.tz - s.z), T.tx - s.x);
+      s.gesture('heave', { tx: T.tx, tz: T.tz, dur: 1.3 });
+    } else {
+      // 发力那一下（heave 的 0.4～0.52）装上
+      if (!T.done && T.t > 0.6) { T.done = true; T.onFit(s); }
+      if (T.t > 1.35) { s.task = null; s.idleT = 1.2; }
+    }
+  }
+
+  // 没装完就走了（出海）：当场装上
+  finishFits() {
+    for (const s of this.sailors) {
+      const T = s.task;
+      if (!T || T.kind !== 'fit') continue;
+      if (!T.done) { T.done = true; T.onFit(null); }
+      s.task = null;
+      s.gest = null;
     }
   }
 

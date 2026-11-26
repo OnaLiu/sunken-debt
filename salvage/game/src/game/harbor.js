@@ -46,7 +46,7 @@ export class Harbor {
     el.id = 'debt';
     el.innerHTML = `<div class="book">
       <div class="pg l"><div class="seal">${ICON.anchor}</div><div class="h"></div><div class="who"></div><div class="k owe"></div><div class="big"></div><div class="slips"></div></div>
-      <div class="pg r"><div class="k page"></div><div class="due"></div><div class="sea"></div><div class="prog"><div class="have"></div><div class="bar"><i></i></div></div><div class="pay plate"></div><div class="say"></div></div>
+      <div class="pg r"><div class="k page"></div><div class="due"></div><div class="sea"></div><div class="prog"><div class="have"></div><div class="bar"><i></i></div></div><div class="pay plate"></div><div class="say"></div><div class="paidst"></div></div>
     </div><div class="next plate"></div>`;
     this.g.ui.root.append(el);
   }
@@ -97,7 +97,39 @@ export class Harbor {
     pay.style.display = '';
     const ok = G.canRepay();
     pay.classList.toggle('off', !ok);
-    pay.innerHTML = ok ? `<span>${T('债本·还这一页')}</span>${coin(P.due)}` : `<span>${T('债本·还差', { n: money(P.due - G.coins) })}</span>`;
+    const kA = this.g.ui.device === 'pad' && ok ? key(KEYS.pad.a, 'a') : '';
+    pay.innerHTML = ok ? `${kA}<span>${T('债本·还这一页')}</span>${coin(P.due)}` : `<span>${T('债本·还差', { n: money(P.due - G.coins) })}</span>`;
+  }
+
+  // 换了手柄、键鼠：铜牌上的键帽跟着换
+  padKeys() {
+    const dev = this.g.ui.device;
+    if (dev === this.dev) return;
+    this.dev = dev;
+    const K = KEYS[dev];
+    this.debtEl.querySelector('.next').innerHTML = `${key(K.go, 'go')}<span>${T(this.backTo === 'dock' ? '债本·合上' : '债本·去船坞')}</span>`;
+    if (!this.paying) this.fillPage();
+    this.dockEl.querySelector('.book').innerHTML = `${dev === 'pad' ? key('X', 'x') : ICON.book}<span>${T('船坞·债本')}</span>`;
+    this.dockEl.querySelector('.sail').innerHTML = `${key(K.go, 'go')}<span>${T('船坞·出海')}</span>`;
+    if (this.mode === 'dock') this.fillDock();
+  }
+
+  // 手里的钱：花掉的时候数往下走（0.5 秒），旁边飘起「−500」
+  spend(v) {
+    const el = this.dockEl.querySelector('.money .spent');
+    el.textContent = '−' + money(v);
+    el.classList.remove('on');
+    void el.offsetWidth;
+    el.classList.add('on');
+  }
+  tickMoney(dt) {
+    const G = this.g.gear;
+    if (this.shown == null) this.shown = G.coins;
+    if (this.shown === G.coins) return;
+    const d = G.coins - this.shown;
+    this.shown = Math.abs(d) < 1 ? G.coins : this.shown + d * Math.min(1, dt * 9) + Math.sign(d) * Math.min(Math.abs(d), 40 * dt * 60);
+    if ((d > 0 && this.shown > G.coins) || (d < 0 && this.shown < G.coins)) this.shown = G.coins;
+    this.dockEl.querySelector('.money .v').innerHTML = coin(this.shown);
   }
 
   debtInput(dt, inp) {
@@ -107,20 +139,38 @@ export class Harbor {
     const onNext = g.ui.overEl(nextEl, P), onPay = g.ui.overEl(payEl, P);
     nextEl.classList.toggle('hot', onNext);
     payEl.classList.toggle('hot', onPay && g.gear.canRepay());
-    if (this.t < 0.6) return;
+    this.padKeys();
+    if (this.t < 0.6 || this.paying) return;
     if (inp.go || (inp.click && onNext)) return this.toDock();
-    if (inp.click && onPay) {
+    // 还这一页：点那块铜牌，或者空格、手柄 A
+    if ((inp.click && onPay) || inp.a) {
       const sea = g.gear.page && g.gear.page.sea;
+      const due = g.gear.page && g.gear.page.due;
       if (g.gear.repay()) {
-        g.audio.play('stamp');
+        // 一枚「已还」大红章砸在这一页上（钱声、镜头一顿），停一拍，这一页翻过去，下一页
+        this.paying = true;
         g.audio.play('coins');
-        g.cam.shake(0.01 * g.wobbleK);
-        E.classList.remove('flip');
-        void E.offsetWidth;
-        E.classList.add('flip');
-        g.later(0.35, () => this.fillPage());
-        // 还清这一页记着的那片海：海图上亮起来（这一版还没做那片海，说一句）
-        this.sayIt(T('债本·开了', { sea }));
+        const st = E.querySelector('.paidst');
+        st.textContent = T('债本·已还');
+        st.classList.remove('on');
+        void st.offsetWidth;
+        st.classList.add('on');
+        E.querySelector('.have').innerHTML = `${coin(g.gear.coins)}<span class="of spend">−${money(due)}</span>`;
+        E.querySelector('.bar i').style.width = '0%';
+        g.later(0.24, () => { g.audio.play('stamp'); g.cam.shake(0.012 * g.wobbleK); });
+        g.later(0.85, () => {
+          E.classList.remove('flip');
+          void E.offsetWidth;
+          E.classList.add('flip');
+          g.audio.play('sheet');
+        });
+        g.later(1.2, () => {
+          st.classList.remove('on');
+          this.fillPage();
+          // 还清这一页记着的那片海：海图上亮起来（这一版还没做那片海，说一句）
+          this.sayIt(T('债本·开了', { sea }));
+          this.paying = false;
+        });
       } else {
         g.audio.play('denyBlocked');
         payEl.classList.remove('shake');
@@ -177,7 +227,7 @@ export class Harbor {
   buildDock() {
     const el = (this.dockEl = document.createElement('div'));
     el.id = 'dock';
-    el.innerHTML = `<div class="money panel"><span class="v"></span></div>
+    el.innerHTML = `<div class="money panel"><span class="v"></span><span class="spent"></span></div>
       <div class="marks"></div>
       <div class="gpos"><div class="gcard panel"><div class="hd"><span class="nm"></span><span class="pips"></span></div><div class="chg"></div><div class="adds"></div><div class="buy plate"></div></div></div>
       <div class="foot"><div class="book plate"></div><div class="sail plate"></div></div>`;
@@ -252,8 +302,10 @@ export class Harbor {
     g.audio.engine(false);
     g.audio.hush(0.7, 0.8);
     const E = this.dockEl, K = KEYS[g.ui.device];
-    E.querySelector('.book').innerHTML = `${ICON.book}<span>${T('船坞·债本')}</span>`;
-    E.querySelector('.sail').innerHTML = `${key(K.go, 'go')}<span>${T('船坞·出海')}</span>`;
+    this.dev = null;
+    this.shown = g.gear.coins;
+    this.padKeys();
+    void K;
     this.fillDock();
     E.classList.add('on');
     g.cue('H02');
@@ -261,7 +313,7 @@ export class Harbor {
 
   fillDock() {
     const g = this.g, G = g.gear, E = this.dockEl;
-    E.querySelector('.money .v').innerHTML = coin(G.coins);
+    E.querySelector('.money .v').innerHTML = coin(this.shown ?? G.coins);
     const pips = (id) => GEAR[id].levels.map((_, i) => `<i class="${i <= G.lv[id] ? 'f' : ''}"></i>`).join('');
     // 牌子：名字、几级（格子）、下一级多少钱（够了金色带个往上的箭头，不够灰的）；满级写满级
     for (const [id, m] of Object.entries(this.marks)) {
@@ -292,7 +344,8 @@ export class Harbor {
     if (n) {
       const ok = G.canBuy(id);
       buy.classList.toggle('off', !ok);
-      buy.innerHTML = ok ? `<span>${T('船坞·升级')}</span>${coin(n.price)}` : `<span>${T('船坞·钱不够')}</span>${coin(n.price)}`;
+      const kA = g.ui.device === 'pad' && ok ? key(KEYS.pad.a, 'a') : '';
+      buy.innerHTML = ok ? `${kA}<span>${T('船坞·升级')}</span>${coin(n.price)}` : `<span>${T('船坞·钱不够')}</span>${coin(n.price)}`;
     }
   }
 
@@ -328,6 +381,8 @@ export class Harbor {
     this.t += dt;
     this.orbit(dt);
     g.gear.update(dt);
+    this.tickMoney(dt);
+    this.padKeys();
     // 牌子跟着船上那一样走
     for (const [id, m] of Object.entries(this.marks)) {
       const p = this.markAt(id);
@@ -342,33 +397,29 @@ export class Harbor {
     this.placeCard();
     if (this.t < 0.5 || this.mode !== 'dock') return;
     if (inp.go || (inp.click && onSail)) return this.sail();
+    // 不用鼠标：左右（A D、方向键、左摇杆）换一样设备；空格、手柄 A 打开卡、再按升级；Q、手柄 B 收卡；手柄 X 翻债本
+    const ids = Object.keys(this.marks);
+    const sx = inp.mx > 0.5 ? 1 : inp.mx < -0.5 ? -1 : 0;
+    if (sx && sx !== this.stickWas) {
+      // 照画面上从左到右的次序换
+      const order = ids.slice().sort((a, b) => this.markAt(a).x - this.markAt(b).x);
+      const i = this.sel ? order.indexOf(this.sel) : sx > 0 ? -1 : order.length;
+      this.sel = order[(i + sx + order.length) % order.length];
+      g.audio.play('menu');
+      this.fillDock();
+    }
+    this.stickWas = sx;
+    if (inp.x) return this.openBook();
+    if (inp.b && this.sel) { this.sel = null; g.audio.play('menu'); this.fillDock(); return; }
+    if (inp.a) {
+      if (!this.sel) { this.sel = ids[0]; g.audio.play('menu'); this.fillDock(); }
+      else this.buy(this.sel);
+      return;
+    }
     if (!inp.click) return;
-    if (onBook) {
-      g.audio.play('press');
-      E.classList.remove('on');
-      this.backTo = 'dock';
-      this.showDebt(false);
-      return;
-    }
-    if (onBuy) {
-      const id = this.sel;
-      if (g.gear.buy(id)) {
-        g.audio.play('clank');
-        g.audio.play('coins');
-        g.cam.shake(0.008 * g.wobbleK);
-        this.fillDock();
-        const m = this.marks[id];
-        m.classList.remove('pop');
-        void m.offsetWidth;
-        m.classList.add('pop');
-      } else {
-        g.audio.play('denyBlocked');
-        buyEl.classList.remove('shake');
-        void buyEl.offsetWidth;
-        buyEl.classList.add('shake');
-      }
-      return;
-    }
+    if (onBook) return this.openBook();
+    if (onBuy) return this.buy(this.sel);
+
     // 点在卡上（按钮以外）：什么也不做（卡底下压着的那块牌子不算点到）
     const onCard = this.sel && g.ui.overEl(E.querySelector('.gcard'), P);
     if (onCard) return;
@@ -388,6 +439,43 @@ export class Harbor {
     }
   }
 
+  openBook() {
+    const g = this.g;
+    g.audio.play('press');
+    this.dockEl.classList.remove('on');
+    this.backTo = 'dock';
+    this.dev = null;
+    this.showDebt(false);
+  }
+
+  // 升级：钱当场扣（数往下走、飘「−500」），离那一处最近的船员走过去扳一下，船上那一样当场装上（gear.install）
+  buy(id) {
+    const g = this.g, buyEl = this.dockEl.querySelector('.buy');
+    const n = g.gear.next(id);
+    if (g.gear.buy(id)) {
+      g.audio.play('coins');
+      this.spend(n.price);
+      this.fillDock();
+      buyEl.classList.remove('press');
+      void buyEl.offsetWidth;
+      buyEl.classList.add('press');
+      const m = this.marks[id];
+      m.classList.remove('pop');
+      void m.offsetWidth;
+      m.classList.add('pop');
+      const sp = g.gear.fitSpot(id);
+      g.crew.fit(sp.x, sp.z, sp.tx, sp.tz, (s) => {
+        g.gear.install(id, s && id === 'tank' ? new THREE.Vector3(s.x, BOAT.deckY + 1.45, s.z) : null);
+        if (s) g.cam.shake(0.006 * g.wobbleK);
+      });
+    } else {
+      g.audio.play('denyBlocked');
+      buyEl.classList.remove('shake');
+      void buyEl.offsetWidth;
+      buyEl.classList.add('shake');
+    }
+  }
+
   // 镜头绕着船慢慢转；视点往画面左边让一点，船落在画面中间偏右（左边是设备卡）
   orbit(dt) {
     const cam = this.g.cam, bc = this.g.boatCtl;
@@ -396,18 +484,35 @@ export class Harbor {
     cam.pivotT.set(bc.pos.x + Math.cos(y) * 6.5, 1.6, bc.pos.z - Math.sin(y) * 6.5);
   }
 
-  // 出海：黑一下，回到沉船旁边（新的一潮）
+  // 出海：加满油、解缆，引擎一响船离开栈桥往前开；开出一截黑一下，回到沉船旁边（新的一潮）
   sail() {
     const g = this.g;
     if (this.mode !== 'dock') return;
-    this.mode = 'sailing';
-    g.mode = 'fading';
+    this.mode = 'casting';
+    this.castT = 0;
+    this.sel = null;
+    this.fillDock();
     g.audio.play('press');
     this.dockEl.querySelector('.sail').classList.add('press');
-    g.ui.fade(true);
-    g.audio.hush(0.3, 0.4);
-    g.audio.play('waveSwell');
-    g.later(0.7, () => {
+    this.dockEl.classList.add('away');
+    // 没装完的当场装上；油箱加满（新的一趟带多少油照油箱那一级）
+    g.crew.finishFits();
+    g.gear.installAll();
+    g.trip.fuel = g.gear.fuel;
+    g.audio.engine(true);
+    g.audio.hush(1, 0.4);
+    g.boatCtl.brake = false;
+    g.castOff = { throttle: 1, brake: 0, steer: 0 };
+    g.later(1.1, () => {
+      g.mode = 'fading';
+      g.ui.fade(true);
+      g.audio.hush(0.3, 0.4);
+      g.audio.play('waveSwell');
+    });
+    // 自动演示放完一圈：第二潮回港还了第一页、又升了设备，再出海
+    if (g.gear.paid > 0) window.__demoEnd = true;
+    g.later(1.8, () => {
+      g.castOff = null;
       this.leave();
       g.moment.begin();
       g.ui.fade(false);
@@ -417,7 +522,9 @@ export class Harbor {
 
   leave() {
     this.mode = null;
-    this.dockEl.classList.remove('on');
+    this.dockEl.classList.remove('on', 'away');
+    this.g.crew.finishFits();
+    this.g.gear.installAll();
     this.dockEl.querySelector('.sail').classList.remove('press');
     this.debtEl.querySelector('.next').classList.remove('press');
     this.hideDebt();
@@ -430,6 +537,7 @@ export class Harbor {
       this.debtInput(dt, inp);
       if (this.backTo === 'dock') this.orbit(dt);
     } else if (this.mode === 'dock') this.dockInput(dt, inp);
+    else if (this.mode === 'casting') { this.orbit(dt * 0.5); this.g.gear.update(dt); }
   }
 }
 

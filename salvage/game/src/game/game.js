@@ -1274,6 +1274,8 @@ export class Game {
       this.stickWas = Math.hypot(inp.mx, inp.my) > 0.6;
     }
     if (this.igniteT > 0 || (this.mode !== 'sail' && this.mode !== 'arm')) drive = NO_DRIVE;
+    // 船坞里按了出海：解缆往前开出一截（harbor.sail）
+    if (this.castOff) drive = this.castOff;
     // 引擎出力没有：给油、或停住了接着踩（倒船）；往前滑着踩刹车不算
     this.stickMag = Math.max(drive.throttle, bc.speed < 0.2 ? drive.brake : 0);
     this.chaseInput(drive, inp, idle);
