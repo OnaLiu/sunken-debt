@@ -25,7 +25,7 @@ export default {
     '开船的油：--probe @开船的油（十五种按法各跑一遍：按着多久、扣了多少、走了多远；没按键的每一帧都不该扣；油用完、开着下网；约两分钟）；左 Shift 指着的那一处走到正中、到了停、挪鼠标：--probe @看海底·正中。',
     '按住左 Shift 看海底（从「这一刻」，停着、开着、网在水里都行）：`--pre "__adv(1);__hand.at(\'jar\');__hand.key(\'ShiftLeft\',true);__adv(1.5)"`，`__game.peek.k` 到 1，松开（`false`）回 0；换处用 `__hand.move`。',
     '演示放完一遍：`--until window.__demoEnd`（约 90 秒）。',
-    '素材对照（换素材前后比）：--probe @素材对照·捞获 / @素材对照·场地，用法见文件里这两条探针上面的注释；截图对的是 素材/基准/ 里同名的图。@素材对照·近看：舱里的杂货、礁石、沉船散件（断桅横桁、舱盖、埋着的船材、尾楼）推近（基准里没有，比上一版同机位）。',
+    '素材对照（换素材前后比）：--probe @素材对照·捞获 / @素材对照·场地，用法见文件里这两条探针上面的注释；截图对的是 素材/基准/ 里同名的图。@素材对照·近看：舱里的杂货、礁石、沉船散件（断桅横桁、舱盖、埋着的船材、尾楼）推近（基准里没有，比上一版同机位）。@素材对照·三小段：三小段新出现的码头、船上设备、航路浮标、远岸灯塔、浅滩、船板、礁脊，在「船坞」「第一趟」各跑一遍（截图对 素材/基准/三小段-*.png）。',
   ].join('\n'),
   page: 'index.html',
   query: (seg = '') => {
@@ -72,7 +72,7 @@ window.__hand = (() => {
     // 给做素材、换素材的轮次对照现在的样子：node tools/moment.mjs 这一刻 0.5,1,1.5,2,2.5,3,3.5,4,4.5,5 --probe @素材对照·捞获
     '素材对照·捞获': `return (() => {
   const g = __game;
-  const kinds = 'jar,rope,copperset,barrel,sack,chest,seal,tube2,lantern'.split(',');
+  const kinds = (window.__kinds || 'jar,rope,copperset,barrel,sack,chest,seal,tube2,lantern').split(','); // 别的几件：--pre "window.__kinds='pulley,hinge,anchor'"（三小段浅滩那几件在「第一趟」）
   if (!window.__studio) {
     document.getElementById('ui').style.display = 'none';
     const scene = g.world.scene;
@@ -197,6 +197,74 @@ window.__hand = (() => {
 })()`,
     // 素材·地块：一块海底现在的底色、深浅、沉船占地、断桅、礁石、捞获在哪（世界坐标，米），给 tools/素材摆位图.py 画「底色」「摆位图」。
     // 范围默认 x −14…34、z −8…40（沉船场地），别的地块：--pre "window.__region=[x0,x1,z0,z1]"。
+    // 素材对照·三小段：三小段新出现的不动的东西几个固定机位（素材单·三小段截 素材/基准/三小段-*.png 用；换素材前后同机位比）。
+    // 船坞那几张：node tools/moment.mjs 船坞 1,1.5,2,2.5,3,3.5,4 --probe @素材对照·三小段（先合上债本、设备全升满、收起界面）
+    // 路上那几张：node tools/moment.mjs 第一趟 1,1.5,2,2.5,3,3.5,4,4.5,5,5.5 --probe @素材对照·三小段
+    // 返回这一张截图里是哪个机位（截图是上一次换的机位：第一张还是游戏画面）
+    '素材对照·三小段': `return (() => {
+  const g = __game, R = g.run;
+  const P = g.boat.root.position.constructor;
+  const V = (x, y, z) => new P(x, y, z);
+  const atDock = R.phase === 'dock' || R.phase === 'ledger';
+  if (!window.__v3) {
+    if (atDock) {
+      if (R.phase === 'ledger') R.closeLedger();
+      R.st.gear = { net: 3, tank: 3, deck: 2, pump: 3 };
+      R.applyGear();
+    }
+    document.getElementById('ui').style.display = 'none';
+    window.__v3 = { n: 0, views: null };
+  }
+  const S = window.__v3;
+  if (!S.views) {
+    const sb = (x, z) => g.world.surfaceAt(x, z).y;
+    const item = (k) => { const it = g.items.items.find((q) => q.kind === k); return it ? it.model.group.getWorldPosition(new P()) : null; };
+    const near = (w, dx, dy, dz) => w.clone().add(V(dx, dy, dz));
+    const bw = (x, y, z) => g.boat.body.localToWorld(V(x, y, z));
+    if (atDock) {
+      S.views = [
+        { n: '三小段-船坞-全景', pos: V(-222, 13, -20), look: V(-238, 0.5, -46), fov: 50, hide: [] },
+        { n: '三小段-船坞-俯视', pos: V(-238, 78, -57.4), look: V(-238, 0, -58), fov: 45, hide: [] },
+        { n: '三小段-码头-棚和箱桶', pos: V(-229, 7, -45), look: V(-239, 1.8, -51), fov: 42, hide: [] },
+        { n: '三小段-设备-油箱', pos: bw(-1.5, 8, 4.5), look: bw(-4.1, 3.6, -0.3), fov: 38, hide: [] },
+        { n: '三小段-设备-水泵', pos: bw(4.5, 5.5, -6), look: bw(1.0, 1.3, -1.7), fov: 38, hide: [] },
+        { n: '三小段-设备-船头网口', pos: bw(9, 7, 5), look: bw(4.3, 1.5, 0), fov: 42, hide: [] },
+      ];
+    } else {
+      const tube = item('tube') || V(-80.6, sb(-80.6, -27.3), -27.3);
+      const anchor = item('anchor') || V(-74.6, sb(-74.6, -22.9), -22.9);
+      const plank = item('plank') || V(-67.5, sb(-67.5, -16.8), -16.8);
+      const ridge = V(-46.5, sb(-46.5, -6), -6);
+      const L = g.world.lighthouse;
+      S.views = [
+        { n: '三小段-航路-浮标', pos: V(-199, 5, -55), look: V(-210, 0.6, -42), fov: 42, hide: [] },
+        { n: '三小段-远岸和灯塔', pos: V(-152, 9, -40), look: V(L.x, 30, L.z), fov: 32, hide: ['boat'] },
+        { n: '三小段-浅滩-俯视-全部', pos: V(-80, 52, -25.4), look: V(-80, -8, -26), fov: 45, hide: ['boat', 'water'] },
+        { n: '三小段-浅滩-俯视-只有地', pos: V(-80, 52, -25.4), look: V(-80, -8, -26), fov: 45, hide: ['boat', 'water', 'items', 'decor', 'mark'] },
+        { n: '三小段-浅滩-铜筒那一窝', pos: near(tube, 3.2, 4.2, 3.6), look: tube, fov: 40, hide: ['boat', 'water'] },
+        { n: '三小段-浅滩-锚', pos: near(anchor, 3.5, 5, 4), look: anchor, fov: 40, hide: ['boat', 'water'] },
+        { n: '三小段-浅滩-标杆', pos: V(-84, 4, -32), look: V(-91, 1.5, -38.5), fov: 42, hide: ['boat'] },
+        { n: '三小段-船板一路', pos: near(plank, 3, 4.5, 3.5), look: plank, fov: 40, hide: ['boat', 'water'] },
+        { n: '三小段-礁脊豁口', pos: near(ridge, 12, 9, 6), look: ridge, fov: 45, hide: ['boat', 'water'] },
+      ];
+    }
+    const objs = { boat: g.boat.root, water: g.world.water, items: g.items.group, decor: g.world.decor.group, mark: g.world.mark };
+    const orig = g.cam.update.bind(g.cam);
+    g.cam.update = (dt) => {
+      const v = S.views[Math.max(0, Math.min(S.n - 1, S.views.length - 1))];
+      for (const [k, o] of Object.entries(objs)) if (o) o.visible = !v.hide.includes(k);
+      for (const s of g.crew.sailors || []) if (s.root) s.root.visible = !v.hide.includes('boat');
+      g.cam.alt.pos.copy(v.pos);
+      g.cam.alt.look.copy(v.look);
+      g.cam.alt.fov = v.fov;
+      g.cam.alt.w = 1; g.cam.altFrom = 1; g.cam.altTo = 1;
+      return orig(dt);
+    };
+  }
+  const shown = S.n === 0 ? '游戏画面' : S.views[Math.min(S.n - 1, S.views.length - 1)].n;
+  S.n++;
+  return shown;
+})()`,
     '素材·地块': `return (() => {
   const g = __game, W = g.world;
   const geo = W.terrain.geometry, P = geo.attributes.position, C = geo.attributes.color;

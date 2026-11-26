@@ -39,7 +39,7 @@ base = Image.fromarray((C.clip(0, 1) * 255).astype(np.uint8))
 base.save(a.out + '-底色.png')
 im = base.convert('RGBA'); ov = Image.new('RGBA', im.size, (0, 0, 0, 0)); dr = ImageDraw.Draw(ov)
 font = small = ImageFont.load_default()
-for f in ['/System/Library/Fonts/PingFang.ttc', '/System/Library/Fonts/STHeiti Medium.ttc', '/System/Library/Fonts/Hiragino Sans GB.ttc']:
+for f in ['/System/Library/Fonts/PingFang.ttc', '/System/Library/Fonts/STHeiti Medium.ttc', '/System/Library/Fonts/Hiragino Sans GB.ttc', '/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc']:
     try: font = ImageFont.truetype(f, 26); small = ImageFont.truetype(f, 20); break
     except Exception: pass
 P = lambda x, z: ((x - X0) * ppm, (z - Z0) * ppm)
