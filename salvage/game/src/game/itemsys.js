@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { buildItemModel, setItemMud, MUD } from '../world/items.js';
-import { ITEM_DEFS, LOOSE_ITEMS, OUTER_ITEMS, wreckToWorld, WRECK, SEAL_SPOT, TRAIL, HIDDEN_TIMBER } from '../world/layout.js';
+import { ITEM_DEFS } from './itemdefs.js';
+import { WRECK, HIDDEN_TIMBER, floorPoint, seabedItems } from '../sea/index.js';
 import { seabedY, seabedNormal } from '../world/terrain.js';
-import { floorPoint } from '../world/wreck.js';
 import { toon } from '../render/materials.js';
 import { mulberry32 } from '../util/math.js';
 import { TAG } from '../world/collide.js';
@@ -69,39 +69,27 @@ export class ItemSystem {
       this.items.push(it);
       return it;
     };
-    // 这一潮冲出来的货：压在断桅、船壳底下，网口怎么摆都罩不进去的不摆（设计：一处聚积的几件一网带得走）
-    if (tide) for (const s of tide.loose) { if (this.nettable(s.x, s.z)) add(s, s.x, s.z); }
-    else {
-      for (const s of LOOSE_ITEMS) add(s, s.x, s.z);
-      for (const s of OUTER_ITEMS) {
-        const w = wreckToWorld(s.along, s.side);
-        add(s, w.x, w.z);
-      }
-    }
-    // 线索（船板、桶板、断缆、碎陶片）每一潮都在：地形、沉船和线索不变，走熟了的海认得出来
-    for (const t of TRAIL) add({ id: 'trail-' + t.kind + t.x, kind: t.kind, rot: t.rot, bury: 0.2 }, t.x, t.z);
-    // 印章：事先就埋着（蟹翻泥会把它翻出来）。只在第一趟：那是第一趟的事，以后每一潮船边冲出来的铜印照 tide.js
+    // 海底这一趟有什么、各在哪是这片海的（sea/shawan/layout.js 的 seabedItems）：这里照它一件件放下去
+    const fi = this.world.wreck.floorInfo;
+    const ship = this.world.wreck.ship;
+    const putHold = (spec, lx, t) => {
+      const p = floorPoint(fi, lx, t).applyMatrix4(ship.matrixWorld);
+      // 舱里的东西蒙着一层灰白的细淤，压在更暗的舱底上看得出轮廓
+      return add(spec, p.x, p.z, p.y, { inHold: true, tag: 1, mud: 0.46, mudColor: 0x8c8473 });
+    };
     this.seal = null;
-    if (!tide) {
-      const w = wreckToWorld(SEAL_SPOT.along, SEAL_SPOT.side);
-      this.seal = add({ id: 'seal', kind: 'seal', rot: 0.7, bury: SEAL_SPOT.bury }, w.x, w.z, null, { noMound: true });
-    }
-    // 舱里：银币匣和货袋，落在淤泥面上
-    {
-      const fi = this.world.wreck.floorInfo;
-      const ship = this.world.wreck.ship;
-      const put = (spec, lx, t) => {
-        const p = floorPoint(fi, lx, t).applyMatrix4(ship.matrixWorld);
-        // 舱里的东西蒙着一层灰白的细淤，压在更暗的舱底上看得出轮廓
-        return add(spec, p.x, p.z, p.y, { inHold: true, tag: 1, mud: 0.46, mudColor: 0x8c8473 });
-      };
-      if (tide) {
-        this.chest = null;
-        for (const s of tide.hold) { const it = put(s, s.lx, s.t); if (s.kind === 'chest') this.chest = it; }
-      } else {
-        this.chest = put({ id: 'chest', kind: 'chest', rot: 0.4, tilt: 0.12, bury: 0.32 }, 2.75, 0.55);
-        put({ id: 'sack', kind: 'sack', rot: 2.2, tilt: 0.2, bury: 0.2 }, 1.85, 0.42);
+    this.chest = null;
+    for (const e of seabedItems(tide)) {
+      if (e.hold) {
+        const it = putHold(e.spec, e.lx, e.t);
+        if (e.spec.kind === 'chest') this.chest = it;
+        continue;
       }
+      // 这一潮冲出来的货：压在断桅、船壳底下，网口怎么摆都罩不进去的不摆（设计：一处聚积的几件一网带得走）
+      if (e.tide && !this.nettable(e.x, e.z)) continue;
+      const it = add(e.spec, e.x, e.z, null, e.opts);
+      // 印章：事先就埋着（蟹翻泥会把它翻出来）
+      if (e.buried) this.seal = it;
     }
   }
 

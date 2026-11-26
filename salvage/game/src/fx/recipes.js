@@ -4,11 +4,12 @@
 // 只有「把船摆到某处」这种开场摆位是直接设的（和 tools/stage.mjs 一样）。
 import { pilot } from '../game/pilot.js';
 import * as THREE from 'three';
-import { WRECK, SHOAL, SHOAL_MARK, TRAIL, HIDDEN_TIMBER, wreckToWorld, SEAL_SPOT, LEVIATHAN_PATH, START, trenchZ, ITEM_DEFS } from '../world/layout.js';
+import { WRECK, SHOAL, SHOAL_MARK, TRAIL, HIDDEN_TIMBER, wreckToWorld, SEAL_SPOT, LEVIATHAN_PATH, START, trenchZ } from '../sea/index.js';
+import { ITEM_DEFS } from '../game/itemdefs.js';
 import { seabedY } from '../world/terrain.js';
 import { VIEW_W, VIEW_H, PULLBACK_T } from '../config.js';
 import { Bot } from '../game/bot.js';
-import { placeOf } from '../game/tally.js';
+import { placeOf } from '../sea/index.js';
 import { DEMO_SUMMARY_WAIT } from '../ui/menus.js';
 
 export const SHOW = Symbol('show');

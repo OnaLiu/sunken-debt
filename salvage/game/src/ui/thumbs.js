@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { buildItemModel } from '../world/items.js';
-import { ITEM_DEFS } from '../world/layout.js';
+import { ITEM_DEFS } from '../game/itemdefs.js';
 import { Crab } from '../life/crab.js';
 
 // 收获单上的小图：用和游戏里同一套模型，在高空的小场景里各拍一张（洗干净以后的样子）。

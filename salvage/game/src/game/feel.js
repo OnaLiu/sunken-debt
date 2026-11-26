@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { toon } from '../render/materials.js';
 import { GeoBuilder } from '../util/builder.js';
-import { START, SHOAL, TRAIL, wreckToWorld } from '../world/layout.js';
+import { GULL_AREAS, TRAIL, wreckToWorld } from '../sea/index.js';
 import { seabedY } from '../world/terrain.js';
 import { clamp, smoothstep } from '../util/math.js';
 
@@ -186,12 +186,12 @@ export class Feel {
     this.rock = null;
   }
 
-  // 这儿离岸、离浅滩多近（1 = 港外航路、浅滩上空，0 = 沉船、深槽那一片）：越往外、越往深，海鸥越少、越远
+  // 这儿离海鸥多的地方多近（这片海定的 GULL_AREAS；归潮沙湾是港外航路、浅滩上空 1，沉船、深槽那一片 0）：越往外、越往深，海鸥越少、越远
   gullNear() {
     const bp = this.g.boatCtl.pos;
-    const kH = 1 - smoothstep(40, 90, Math.hypot(bp.x - START.x, bp.z - START.z));
-    const kS = 1 - smoothstep(18, 62, Math.hypot(bp.x - SHOAL.x, bp.z - SHOAL.z));
-    return Math.max(kH, kS) * (1 - smoothstep(12, 18, -seabedY(bp.x, bp.z)));
+    let k = 0;
+    for (const A of GULL_AREAS) k = Math.max(k, 1 - smoothstep(A.r0, A.r1, Math.hypot(bp.x - A.x, bp.z - A.z)));
+    return k * (1 - smoothstep(12, 18, -seabedY(bp.x, bp.z)));
   }
 
   // A11 海鸥：港外和浅滩上空最多，顺着线索往沉船去一路少下去、远下去（声音小、闷、带回声），

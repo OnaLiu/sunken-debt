@@ -696,3 +696,39 @@
 - `船坞·演示` 买完甲板：按键块在卡片左边，不压卡片；「已满级」灰的。
 - 小样 `演示`：91.3 秒放完一遍、2592，和原来一样。
 - `一局演示` 从标题放到 `window.__demoEnd`：459 秒（快钟），第一趟 13 件 2955 → 债本 → 船坞买甲板、网口、油箱、水泵 → 第二潮 10 件 2524 → 回港进船坞第三潮。两回跑的数差一两百（第一趟 2805～2955、第二潮 2500～2950），挑哪一处跟着那一刻螃蟹、船停在哪走。
+
+## 第一段·归潮沙湾 共用的系统收成一份（2026-11-26，云上做的）
+
+第一段三小段里几段都有的系统（开船、下网和吊臂、打捞点、开冲揭晓、收获单、一局、船坞、债本、镜头、活物、演示的手、界面、效果、声音）收成整个游戏一份；归潮沙湾这片海自己的内容（海底的形状和装饰、沉船、标杆、第一趟海底的东西、每一潮冲出来什么、到了哪、箭头往哪指、地名地点、蟹在哪、海鸥多的地方）挪进 `src/sea/shawan/` 一个文件夹，共用的系统只从 `src/sea/index.js`（当前这片海）拿。玩家看到的、玩到的一点没变。每样在哪、后面的段交什么、接锈钟峡要动的几处，写在 `共用的系统.md`。
+
+### 改了什么
+
+- 挪进 `src/sea/shawan/`：`layout.js`（原 `world/layout.js`）、`wreck.js`、`wreckExtras.js`（原在 `world/`）；新拆出 `seabed.js`（海底多高、颜色、铺多大，原在 `world/terrain.js`）、`decor.js`（石头海草海带碎壳摆在哪、浅滩标杆，原在 `world/terrain.js`、`world/world.js`）、`tide.js`（每一潮的来源和堆法，原在 `game/tide.js`）、`story.js`（到站、看见沉船、引路、这里叫什么、从哪儿捞的，原在 `game/game.js`、`game/tally.js`）。
+- 留在共用的那一份、改读当前这片海：`world/terrain.js`（网格、地贴图、法线、浮标的样子）、新的 `world/seabedkit.js`（石头、海草、海带的样子）、`game/tide.js` 的 `tideBench`（怎么铺一潮）、新的 `game/itemdefs.js`（捞得到的东西合上配表「捞获」）、`game/itemsys.js`（照这片海的 `seabedItems` 一件件放）、`life/crab.js`（照 `CRABS` 放蟹）、`game/boatCtl.js`（`OBSTACLES`）、`game/feel.js`（`GULL_AREAS`）、`world/world.js`。
+- `game.js` 的 `storyUpdate`、`leadTarget`、`leadNext`、`placeName`、`nearTrench` 交给这片海的 `story`；`trenchBurp(p)` 冒泡的地方由这片海给。`run.js`、`moment.js` 的「已经认得这片海了」改用 `story.known`。
+
+### 自己定的（没问用户）
+
+- 这一格不改玩法、画面、数和字，只把代码分开；挑的标准是「接锈钟峡时，共用的那一份不用另做一套，只加一份海」。锈钟峡的设计还没写（第二段的设计格在后面），所以没替它预先做抽象：几处还认着归潮沙湾的写进 `共用的系统.md` 最后一节，接锈钟峡那一格照那一份设计改。
+- `sea/index.js` 现在直接就是归潮沙湾，没做换海：一局里还开不到第二片海（债本第一页还清以后写「锈钟峡还没做」）。
+- 效果页（`effects.html`）和原来那一整趟（`?trip=1`）没收：它们只给效果那几格用，`fx/recipes.js` 全是照归潮沙湾的地方摆的；`game/bot.js` 是那一整趟的旧演示，和 `runbot.js` 第一趟那一段重了，效果那一格把效果页换到一局上时一起收掉。
+
+### 全游戏一份的（后面的段直接用）
+
+- `src/sea/index.js`：共用的系统要用到「这片海的」都从这里拿；`共用的系统.md` 列着每片海交的名字。
+- `game/tide.js` 的 `tideBench`：每片海铺一潮都用它（同一潮每次一样、堆和堆之间留空、挤着了挪一挪、稀罕的几成、太深的不摆）。
+- `world/seabedkit.js`：石头、一簇海草、海带的样子。
+
+### 要改共用的
+
+- 没有要另排的：这一轮改的就是共用的那一份。
+
+### 等统一调的数
+
+- 没有新的。
+
+### 留给后面的
+
+- 接锈钟峡那一格：照 `共用的系统.md`「还认着归潮沙湾的」那几处改；在 `sea/index.js` 照一局走到哪一段挑哪一片海，换海时 `World`、海底的东西、活物重建。
+- 效果那一格（切片回退-05/06）：效果页换到一局上，收掉 `?trip=1` 和 `game/bot.js`。
+- 接素材·三小段：「素材单·三小段」那一节说的接法里，浅滩场地图要接的 `GROUND_SITE` 现在在 `src/sea/shawan/seabed.js`（`GROUND` 的素材名在 `world/seabedkit.js`、贴图怎么接还在 `world/terrain.js`），浅滩标杆 `buildShoalMark` 现在是 `src/sea/shawan/decor.js` 的 `buildMarks`；码头（`dock.js`）、浮标（`world/terrain.js` 的 `buildLaneBuoys`）、`items.js`、`icons.js`、`pixring.js` 没挪。

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { TRAIL } from '../world/layout.js';
+import { story } from '../sea/index.js';
 import { MIN_NET_COST } from './trip.js';
 import { Bundle } from './bundle.js';
 import { netFuelCost, NET_R, VIEW_W, VIEW_H, BOAT_MAX_SPEED } from '../config.js';
@@ -65,7 +65,7 @@ export class Moment {
     T0.fuel = N('开局油');
     T0.sawWreck = true;
     // 这一刻不讲路上的事：浅滩、沉船、深槽都算已经到过，线索箭头不出，大轮廓不来
-    Object.assign(g.flags, { shoal: true, wreck: true, slope: true, slopeSaid: true, trailIdx: TRAIL.length });
+    story.known(g.flags, true);
     g.leviathan.done = true;
     const bc = g.boatCtl;
     bc.reset(N('开局船位x'), N('开局船位z'), N('开局船头'));

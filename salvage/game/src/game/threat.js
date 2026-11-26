@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { clamp, smoothstep, damp } from '../util/math.js';
 import { seabedY } from '../world/terrain.js';
-import { trenchZ } from '../world/layout.js';
+import { trenchZ } from '../sea/index.js';
 import { netFuelCost, VIEW_W, VIEW_H } from '../config.js';
 
 // 逼近的威胁（效果清单第 9 节）：油还够几网（W01），深槽里那个东西（W02、C10、C11）。

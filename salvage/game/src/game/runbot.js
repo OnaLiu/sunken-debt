@@ -1,7 +1,7 @@
 import { MomentBot } from './momentbot.js';
 import { pilot } from './pilot.js';
 import { MIN_NET_COST } from './trip.js';
-import { WRECK, TRAIL } from '../world/layout.js';
+import { WRECK, TRAIL } from '../sea/index.js';
 import { N } from './tables.js';
 import { netVerdict } from './forecast.js';
 

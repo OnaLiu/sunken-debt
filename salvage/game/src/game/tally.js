@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { buildItemModel, setItemGlint } from '../world/items.js';
-import { NET_SPOTS, SHOAL, WRECK } from '../world/layout.js';
 import { Crab } from '../life/crab.js';
 import { toon, U } from '../render/materials.js';
 import { GeoBuilder } from '../util/builder.js';
@@ -33,23 +32,6 @@ const CLOTH = new THREE.Color(0.6, 0.5, 0.34);
 const LIGHT_LOCAL = new THREE.Vector2(-0.62, 0.78).normalize();
 const _v = new THREE.Vector3();
 const _w = new THREE.Vector3();
-
-// 这件东西是从哪儿捞上来的（签上第二行）
-const PLACE_OF = {};
-for (const [k, ids] of Object.entries(NET_SPOTS)) {
-  // 表的 id，不是玩家看的：地名在配表「文案」
-  const p = { shoal: '地点·浅滩', anchor: '地点·浅滩', hold: '地点·断舱', jars: '地点·船边', pots: '地点·船边', dig: '地点·船边', slope: '地点·坡下', trench: '地点·深槽' }[k];
-  for (const id of ids) PLACE_OF[id] = p;
-}
-export function placeOf(id, at) {
-  if (id && PLACE_OF[id]) return T(PLACE_OF[id]);
-  if (id && id.startsWith('trail')) return T('地点·航路');  // 表的 id，不是玩家看的
-  if (at) {
-    if (Math.hypot(at.x - SHOAL.x, at.z - SHOAL.z) < 30) return T('地点·浅滩');  // 表的 id，不是玩家看的
-    if (Math.hypot(at.x - WRECK.x, at.z - WRECK.z) < 26) return T('地点·船边');  // 表的 id，不是玩家看的
-  }
-  return '';
-}
 
 export class Tally {
   constructor(g) {

@@ -4,7 +4,7 @@ import { U, toon } from './render/materials.js';
 import { World } from './world/world.js';
 import { followWater } from './world/water.js';
 import { buildItemModel, setItemMud, setItemGlint } from './world/items.js';
-import { ITEM_DEFS } from './world/layout.js';
+import { ITEM_DEFS } from './game/itemdefs.js';
 import { Sailor } from './life/crew.js';
 import { Crab } from './life/crab.js';
 import { LeviathanBody } from './life/leviathan.js';

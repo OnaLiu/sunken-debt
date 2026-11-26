@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { setNetR, setFuelMax, FUEL_MAX, VIEW_W } from '../config.js';
-import { START, TRAIL } from '../world/layout.js';
+import { START, story } from '../sea/index.js';
 import { MIN_NET_COST } from './trip.js';
-import { tideLayout } from './tide.js';
+import { tideLayout } from '../sea/index.js';
 import { Dock, GEAR_SPOTS } from './dock.js';
 import { T, TK, N, GEAR, DEBT } from './tables.js';
 import { ICON } from '../ui/icons.js';
@@ -132,7 +132,7 @@ export class Run {
     // 跟船的镜头：从标题出发的从标题机位飞过来（game.introRest 飞完再接上），再出海的直接在船后
     if (o.fromTitle) { g.chase.reset(); g.chase.start(g.cam); }
     // 走熟了的海：第一眼看见沉船、到浅滩那几下只在头一回；大轮廓每一趟都可能来
-    if (st.knowWreck) Object.assign(g.flags, { shoal: true, wreck: true, trailIdx: TRAIL.length });
+    if (st.knowWreck) story.known(g.flags);
     g.trip.sawWreck = !!st.knowWreck;
     if (!o.fromTitle) {
       g.ui.resetAll();

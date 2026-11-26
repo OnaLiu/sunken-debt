@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { toon } from '../render/materials.js';
 import { GeoBuilder } from '../util/builder.js';
 import { seabedY, seabedNormal } from '../world/terrain.js';
-import { wreckToWorld, CRAB_HOME, CRAB_STOPS, SEAL_SPOT, SHOAL, SHOAL_CRABS } from '../world/layout.js';
+import { wreckToWorld, CRABS } from '../sea/index.js';
 import { NET_R } from '../config.js';
 import { clamp, damp, dampAngle, wrapAngle, mulberry32 } from '../util/math.js';
 import { VIEW_W, VIEW_H } from '../config.js';
@@ -594,8 +594,10 @@ export class CrabLife {
     this.tracks.reset();
     this.digPatch.set(0);
     this.digDone = 0;
-    const home = wreckToWorld(CRAB_HOME.along, CRAB_HOME.side);
-    const route = CRAB_STOPS.map((s) => {
+    // 这片海有几只蟹、在哪（CRABS）：一只住在沉船边、会翻泥的，几只在浅滩石头草丛间转的
+    const K = CRABS.key;
+    const home = wreckToWorld(K.home.along, K.home.side);
+    const route = K.stops.map((s) => {
       const w = wreckToWorld(s.along, s.side);
       // 翻泥时面朝船身
       return { x: w.x, z: w.z, t: s.t, dig: !!s.dig, face: Math.atan2(-(home.z - w.z), home.x - w.x) + 0.6 };
@@ -611,7 +613,7 @@ export class CrabLife {
     key.timer = 2.5;
     this.list.push(key);
     this.key = key;
-    // 浅滩的小蟹：在石头和草之间转
+    // 小蟹（这片海的 CRABS.shoal）：在石头和草之间转
     const shoalStops = (cx, cz, seed) => {
       const r = mulberry32(seed);
       const pts = [];
@@ -621,7 +623,7 @@ export class CrabLife {
       }
       return pts;
     };
-    for (const [{ x: cx, z: cz }, seed, col] of [[SHOAL_CRABS[0], 3, 0xb4602e], [SHOAL_CRABS[1], 5, 0xa8582a]]) {
+    for (const { at: { x: cx, z: cz }, seed, color: col } of CRABS.shoal) {
       const c = new Crab({ scale: 1.2, color: col, route: shoalStops(cx, cz, seed), home: { x: cx, z: cz }, seed, startDelay: 1 + seed * 0.3, tracks: this.tracks });
       c.place(cx, cz);
       this.list.push(c);
@@ -633,13 +635,13 @@ export class CrabLife {
   onDig(crab, dt) {
     if (crab.stop !== 0) return;
     const seal = this.g.items.seal;
-    const sp = wreckToWorld(SEAL_SPOT.along, SEAL_SPOT.side);
+    const sp = wreckToWorld(CRABS.key.digAt.along, CRABS.key.digAt.side);
     this.digDone = Math.min(1, this.digDone + dt / 6.5);
     this.digPatch.place(sp.x, sp.z);
     this.digPatch.set(Math.max(this.digPatch.amount, this.digDone));
     if (seal && seal.state === 'seabed') {
       // 翻完一遍印章露出大半：只露一点时它在画面上不到一个像素，玩家看不见「翻出来的硬边」
-      const target = SEAL_SPOT.bury - 0.8 * this.digDone;
+      const target = CRABS.key.digAt.bury - 0.8 * this.digDone;
       if (seal.bury > target) {
         seal.bury = target;
         this.g.items.placeItem(seal);

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { LOW_H, WATER } from '../config.js';
-import { WRECK } from '../world/layout.js';
+import { WRECK } from '../sea/index.js';
 import { seabedY } from '../world/terrain.js';
 import { MeshBVH } from '../util/bvh.js';
 

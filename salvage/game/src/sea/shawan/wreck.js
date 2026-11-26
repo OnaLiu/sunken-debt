@@ -1,11 +1,11 @@
 import * as THREE from 'three';
-import { GeoBuilder } from '../util/builder.js';
-import { mulberry32, smoothstep, clamp, vnoise } from '../util/math.js';
-import { toon } from '../render/materials.js';
+import { GeoBuilder } from '../../util/builder.js';
+import { mulberry32, smoothstep, clamp, vnoise } from '../../util/math.js';
+import { toon } from '../../render/materials.js';
 import { WRECK } from './layout.js';
-import { seabedY } from './terrain.js';
-import { TopZ, TAG } from './collide.js';
-import { mergedOf, model } from '../assets/assets.js';
+import { seabedY } from './seabed.js';
+import { TopZ, TAG } from '../../world/collide.js';
+import { mergedOf, model } from '../../assets/assets.js';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
 // 一条宽腹中世纪木帆商船（柯克船式样）：搭接船壳、龙骨、肋骨、首楼、有顶的尾楼、两道舱口、断桅。

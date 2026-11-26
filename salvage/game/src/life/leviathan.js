@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { toon } from '../render/materials.js';
 import { GeoBuilder } from '../util/builder.js';
-import { trenchZ, LEVIATHAN_PATH } from '../world/layout.js';
+import { trenchZ, LEVIATHAN_PATH } from '../sea/index.js';
 import { seabedY } from '../world/terrain.js';
 import { smoothstep, mulberry32, clamp, damp } from '../util/math.js';
 

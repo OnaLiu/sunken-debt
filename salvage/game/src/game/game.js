@@ -30,14 +30,13 @@ import { Events, Trip, MIN_NET_COST } from './trip.js';
 import { Bot } from './bot.js';
 import { Forecast } from './forecast.js';
 import { Feel } from './feel.js';
-import { START, SHOAL, SHOAL_MARK, WRECK, TRAIL, HIDDEN_TIMBER, LOOSE_ITEMS, SEAL_SPOT, NET_SPOTS, SPOTS_TO_END, trenchZ, wreckToWorld } from '../world/layout.js';
+import { START, WRECK, HIDDEN_TIMBER, NET_SPOTS, SPOTS_TO_END, wreckToWorld, floorPoint, story } from '../sea/index.js';
 import { seeItem, prepareSight, wreckBlocksSeg } from './sight.js';
 import { hull2, segDist, polyDist } from '../util/screen2d.js';
 import { ARM_TIP_H, NET_R, VIEW_W, VIEW_H, MAX_WORK_DEPTH, LOW_W, LOW_H, BOAT_ACCEL, BOAT_MAX_SPEED } from '../config.js';
 import { damp, clamp, smoothstep, lerp, wrapAngle } from '../util/math.js';
 import { seabedY } from '../world/terrain.js';
 import { TAG } from '../world/collide.js';
-import { floorPoint } from '../world/wreck.js';
 import { setItemGlint, setItemMark, buildItemModel } from '../world/items.js';
 import { Bundle } from './bundle.js';
 import { FX, FX_RITUAL, fxName, fxTier } from '../fx/registry.js';
@@ -72,8 +71,6 @@ const AIM_DEAD = 2.5; // 打捞镜头：白圈离「看的地方」多远以内�
 // 收工（C14）：镜头先在船上停一拍（看船员擦手、吊臂收回去），从这一秒起往舱口扎下去；END_DUR 秒时已经扎进舱口的黑里，接开舱清点（C15）
 const END_DIVE = 1.3;
 const END_DUR = 2.75;
-// 坡下：船尾和滚落的货指向的方向（只给方向，不给落点）
-const SLOPE_LEAD = { x: WRECK.x + 8, z: WRECK.z + 17 };
 const _v = new THREE.Vector3();
 const _w = new THREE.Vector3();
 const _v2 = new THREE.Vector3();
@@ -1880,50 +1877,10 @@ export class Game {
 
   // —— 地点、下一处线索的方向、蟹翻出来的东西、大轮廓 ——
   // 不再用字幕讲：到了新地方名字飞进来一下；方向用船边的箭头；看得见的东西靠画面自己说
+  // 这片海的事件（到了哪、第一眼看见沉船、线索一段段往前、大轮廓什么时候来）：归潮沙湾的在 sea/shawan/story.js
   storyUpdate(dt) {
     if (this.mode === 'title' || this.mode === 'settings') return;
-    const F = this.flags;
-    const bp = this.boatCtl.pos;
-    const ui = this.ui;
-    const dShoal = Math.hypot(bp.x - SHOAL.x, bp.z - SHOAL.z);
-    const dWreck = Math.hypot(bp.x - WRECK.x, bp.z - WRECK.z);
-    if (!F.shoal && dShoal < 24) {
-      F.shoal = true;
-      this.arrive(T('地名·浅滩'), 784);
-    }
-    // 第一眼看见沉船：42 米内、它进了画面（再近到 30 米就不等了）
-    if (!F.wreck && (dWreck < 30 || (dWreck < 42 && this.inView(WRECK.x, -5, WRECK.z, 0.08)))) {
-      F.wreck = true;
-      this.sightWreck();
-    }
-    // 蟹翻过的泥里露出硬边：在那儿亮一圈（看得见的时候）
-    if (F.crabExposed && !F.crabSaid) {
-      const sp = wreckToWorld(SEAL_SPOT.along, SEAL_SPOT.side);
-      const sy = seabedY(sp.x, sp.z);
-      const s = this.project(new THREE.Vector3(sp.x, sy, sp.z));
-      // 甲板近景（冲洗、揭晓）时不亮：那时看的是甲板，亮环会隔着甲板画出来、和揭晓抢；拉回大视野、收获落进格子以后再亮
-      if (this.quietT > 2.4 && s.z < 1 && s.x > 100 && s.x < 1820 && s.y > 80 && s.y < 1000 && Math.hypot(this.cam.pivot.x - sp.x, this.cam.pivot.z - sp.z) < 30) {
-        F.crabSaid = true;
-        this.ping(sp.x, sy, sp.z);
-      }
-    }
-    // C12 在沉船下过两网、回去开船：箭头第一次指向坡下的那一刻，远处深槽里冒上来一大串泡
-    if (!F.slopeSaid && (this.mode === 'sail' || (this.moment.run && this.mode === 'arm')) && this.leadTarget() === SLOPE_LEAD) {
-      F.slopeSaid = true;
-      this.trenchBurp();
-    }
-    const trenchNear = this.nearTrench(bp);
-    if (!F.slope && trenchNear) {
-      F.slope = true;
-      this.arrive(T('地名·深槽'), 392);
-    }
-    // 线索一段段往东南：经过一块船板，箭头就指向下一块
-    while (F.trailIdx < TRAIL.length && Math.hypot(bp.x - TRAIL[F.trailIdx].x, bp.z - TRAIL[F.trailIdx].z) < 12) F.trailIdx++;
-    // 大轮廓：看懂普通生物以后才出现。离深槽近了，或者在沉船这儿下过几网
-    const lev = this.leviathan;
-    if (!lev.active && !lev.done && this.trip.time > 55) {
-      if (trenchNear || (F.wreck && this.trip.nets >= 3)) this.threat.armed = true;
-    }
+    story.update(this, dt);
   }
 
   // C01 到了一处新地方：左上海图比例尺一节节画出、地名滑进来，远远一声钟（浅滩亮、深槽低）
@@ -1963,9 +1920,8 @@ export class Game {
     if (B.t >= B.dur) { this.beam = null; v.w = 0; }
   }
 
-  // 远处深槽里冒上来一大团气：近水面那段一串大泡往上翻，到了水面一下翻白、一圈圈波纹，闷闷一声「咕嘟」
-  trenchBurp() {
-    const p = { x: SLOPE_LEAD.x + 3, z: SLOPE_LEAD.z + 8 };
+  // 远处（p，这片海定在哪）冒上来一大团气：近水面那段一串大泡往上翻，到了水面一下翻白、一圈圈波纹，闷闷一声「咕嘟」
+  trenchBurp(p) {
     for (let i = 0; i < 46; i++) {
       this.later(i * 0.05 + Math.random() * 0.05, () => {
         this.fx.emit('wbub', p.x + (Math.random() - 0.5) * 1.6, -7 + Math.random() * 2.5, p.z + (Math.random() - 0.5) * 1.6, (Math.random() - 0.5) * 0.3, 2.2 + Math.random() * 1.4, (Math.random() - 0.5) * 0.3, { size: 0.16 + Math.random() * 0.16, life: 3.2 });
@@ -1989,39 +1945,11 @@ export class Game {
     return p.z < 1 && p.x > VIEW_W * m && p.x < VIEW_W * (1 - m) && p.y > VIEW_H * m && p.y < VIEW_H * (1 - m);
   }
 
-  nearTrench(bp) {
-    return bp.z > 14 && bp.x > -16 && bp.x < 40;
-  }
-
-  // 下一处线索在哪：起步指向浅滩的标杆；浅滩下过一网（或者开离浅滩）以后，顺着散落的船板往东南；
-  // 认出沉船就先不指；在沉船这儿下过两网以后，顺着船尾和滚落的货指向坡下，到了深槽不再指。只给方向，不给落点。
-  leadTarget() {
-    const F = this.flags;
-    if (F.wreck) return !F.slope && F.wreckNets >= 2 ? SLOPE_LEAD : null;
-    if (!F.shoal) return SHOAL_MARK;
-    const bp = this.boatCtl.pos;
-    if (this.trip.nets < 1 && Math.hypot(bp.x - SHOAL.x, bp.z - SHOAL.z) < 30) return null;
-    if (F.trailIdx < TRAIL.length) return TRAIL[F.trailIdx];
-    return WRECK;
-  }
-
-  // 箭头指着的这一处之后还有下一处吗（顺着船板一块接一块；最后一块之后是沉船）：快到这一处时箭头先转过去
-  leadNext(L) {
-    const i = TRAIL.indexOf(L);
-    if (i < 0) return null;
-    return i + 1 < TRAIL.length ? TRAIL[i + 1] : WRECK;
-  }
-
-  // 这里叫什么（暂停页的标题）
-  placeName() {
-    const bp = this.boatCtl.pos;
-    const dWreck = Math.hypot(bp.x - WRECK.x, bp.z - WRECK.z);
-    if (this.nearTrench(bp) && dWreck > 16) return T('地名·深槽');
-    if (dWreck < 30) return T('地名·沉船');
-    if (Math.hypot(bp.x - SHOAL.x, bp.z - SHOAL.z) < 30) return T('地名·浅滩');
-    if (bp.x < -112) return T('地名·港外航路');
-    return T('地名·归潮沙湾');
-  }
+  // 引路（方向箭头指哪、快到时转向哪）、这里叫什么、是不是到了深槽：这片海的（sea/shawan/story.js）
+  nearTrench(bp) { return story.nearTrench(bp); }
+  leadTarget() { return story.lead(this); }
+  leadNext(L) { return story.leadNext(L); }
+  placeName() { return story.placeName(this); }
 
   // 暂停页右边：这一屏上每个图标代表什么，这里能按的键。随地方和模式变。
   // 一个图标一句话；同一块东西上的、同一类的并成一行（油和还够几网、白圈红圈、金圈灰圈橙圈），不写屏幕上已经写着的（模式牌）

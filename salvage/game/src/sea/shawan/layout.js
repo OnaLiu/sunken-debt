@@ -1,5 +1,3 @@
-import { LOOT } from '../game/tables.js';
-
 // 归潮沙湾这一片海的摆放。顺序照设计文档 4.5：
 // 地形和海流 → 一场事故 → 主要残骸和货堆 → 有限的散落和掩埋 → 线索 → 生物利用这些空间。
 //
@@ -66,8 +64,9 @@ export function trenchZ(x) {
   return 36.5 + 0.14 * x + 3.0 * Math.sin(x * 0.05);
 }
 
-// 道具定义：尺寸、长什么样在这里（不是玩家看的）；名字、价值、说明、珍贵、重在配表「捞获」（表/生成/捞获.js），价值只在揭晓那一刻才给玩家看。
-const ITEM_SHAPES = {
+// 这片海里捞得到的东西：尺寸、长什么样在这里（不是玩家看的）；名字、价值、说明、珍贵、重在配表「捞获」（表/生成/捞获.js），
+// 价值只在揭晓那一刻才给玩家看。合成 ITEM_DEFS 是全游戏一份（game/itemdefs.js）。
+export const ITEM_SHAPES = {
   tube: { r: 0.42, look: 'metal-tube' },
   pulley: { r: 0.22, look: 'part' },
   hinge: { r: 0.18, look: 'part' },
@@ -88,11 +87,6 @@ const ITEM_SHAPES = {
   ropebit: { r: 0.4, look: 'rope' },
   shards: { r: 0.4, look: 'shards' },
 };
-export const ITEM_DEFS = {};
-for (const [k, shape] of Object.entries(ITEM_SHAPES)) {
-  const L = LOOT[k] || { name: k, value: 0, desc: '', precious: false, heavy: false };
-  ITEM_DEFS[k] = { name: L.name, value: L.value, desc: L.desc, ...shape, ...(L.precious ? { precious: true } : {}), ...(L.heavy ? { heavy: true } : {}) };
-}
 
 // 不在沉船里的打捞物（世界坐标；bury=埋深比例 0..1）
 export const LOOSE_ITEMS = [
@@ -135,6 +129,11 @@ export const CRAB_STOPS = [
   { along: 2.7, side: 7.15, t: 5.5 },
   { along: -2.0, side: 6.95, t: 6.0 },
 ];
+// 这片海的蟹（life/crab.js 照这张单子放）：沉船边那只会翻泥（翻的是埋着印章那一处），浅滩两只在石头草丛间转
+export const CRABS = {
+  key: { home: CRAB_HOME, stops: CRAB_STOPS, digAt: SEAL_SPOT },
+  shoal: [{ at: SHOAL_CRABS[0], seed: 3, color: 0xb4602e }, { at: SHOAL_CRABS[1], seed: 5, color: 0xa8582a }],
+};
 
 // 网位：这一片海里值得下网的地方（设计第 0 节「一共 6—8 个能下网的地方」），每处是哪几件东西。
 // 收工按网位算：捞过 6 处以上、看见过的都捞上来了，游戏替玩家收工（设计第 2 节「6—8 个网位都捞过」）
@@ -151,3 +150,55 @@ export const NET_SPOTS = {
 export const SPOTS_TO_END = 6;
 
 export const LEVIATHAN_PATH = { fromX: 70, toX: -95 };
+
+// 坡下：船尾和滚落的货指向的方向（只给方向，不给落点）
+export const SLOPE_LEAD = { x: WRECK.x + 8, z: WRECK.z + 17 };
+
+// 船开不过去的：航路的浮标、浅滩标杆
+export const OBSTACLES = [
+  ...LANE_BUOYS.map((b) => ({ x: b.x, z: b.z, r: 2.6 })),
+  { x: SHOAL_MARK.x, z: SHOAL_MARK.z, r: 3.0 },
+];
+
+// 海底装饰让开的地方：打捞物、沉船、标杆
+export const DECOR_AVOID = [
+  ...LOOSE_ITEMS.map((i) => ({ x: i.x, z: i.z, r: 1.4 })),
+  ...OUTER_ITEMS.map((i) => ({ ...wreckToWorld(i.along, i.side), r: 1.3 })),
+  { x: WRECK.x + 1.5, z: WRECK.z, r: 9.5 },
+  { x: SHOAL_MARK.x, z: SHOAL_MARK.z, r: 1 },
+];
+
+// 海鸥多的地方（港外、浅滩上空）：离这一点 r0 米以内最多，r1 米以外没有（还要水浅）
+export const GULL_AREAS = [
+  { x: START.x, z: START.z, r0: 40, r1: 90 },
+  { x: SHOAL.x, z: SHOAL.z, r0: 18, r1: 62 },
+];
+
+// 这一趟海底有什么、各在哪（ItemSystem.reset 照这张单子一件件放，顺序就是放的顺序）。
+// tide：这一潮重铺的散货（tide.js 的 tideLayout）；不给就是第一趟原来的摆法（银币匣一定在）。
+// 每一件 { spec, x, z, opts }；舱底的 { spec, lx, t, hold: true }；tide: true 的网下不去就不摆；buried: true 是蟹翻泥会翻出来的那一枚
+export function seabedItems(tide = null) {
+  const out = [];
+  if (tide) for (const s of tide.loose) out.push({ spec: s, x: s.x, z: s.z, tide: true });
+  else {
+    for (const s of LOOSE_ITEMS) out.push({ spec: s, x: s.x, z: s.z });
+    for (const s of OUTER_ITEMS) {
+      const w = wreckToWorld(s.along, s.side);
+      out.push({ spec: s, x: w.x, z: w.z });
+    }
+  }
+  // 线索（船板、桶板、断缆、碎陶片）每一潮都在：地形、沉船和线索不变，走熟了的海认得出来
+  for (const t of TRAIL) out.push({ spec: { id: 'trail-' + t.kind + t.x, kind: t.kind, rot: t.rot, bury: 0.2 }, x: t.x, z: t.z });
+  // 印章：事先就埋着（蟹翻泥会把它翻出来）。只在第一趟：那是第一趟的事，以后每一潮船边冲出来的铜印照 tide.js
+  if (!tide) {
+    const w = wreckToWorld(SEAL_SPOT.along, SEAL_SPOT.side);
+    out.push({ spec: { id: 'seal', kind: 'seal', rot: 0.7, bury: SEAL_SPOT.bury }, x: w.x, z: w.z, opts: { noMound: true }, buried: true });
+  }
+  // 舱里：银币匣和货袋，落在淤泥面上
+  if (tide) for (const s of tide.hold) out.push({ spec: s, lx: s.lx, t: s.t, hold: true });
+  else {
+    out.push({ spec: { id: 'chest', kind: 'chest', rot: 0.4, tilt: 0.12, bury: 0.32 }, lx: 2.75, t: 0.55, hold: true });
+    out.push({ spec: { id: 'sack', kind: 'sack', rot: 2.2, tilt: 0.2, bury: 0.2 }, lx: 1.85, t: 0.42, hold: true });
+  }
+  return out;
+}

@@ -3,7 +3,7 @@ import { BOAT_MAX_SPEED, BOAT_ACCEL } from '../config.js';
 import { wrapAngle, clamp, damp, lerp } from '../util/math.js';
 import { N } from './tables.js';
 import { waveHeight } from '../world/water.js';
-import { LANE_BUOYS, SHOAL_MARK } from '../world/layout.js';
+import { OBSTACLES } from '../sea/index.js';
 
 // 船的运动：往前往后照载具求生开车（它 js/drive.js 的 D.Car，地上那一段，没有氮气、飞、撞路边）：
 // W 油门、S 刹车（停住接着按是倒船）；松了油门一路滑着慢下来。
@@ -80,10 +80,8 @@ export class BoatController {
     // 重东西砸上甲板：整条船往下一沉再浮起（弹簧）
     this.dip = 0;
     this.dipV = 0;
-    this.obstacles = [
-      ...LANE_BUOYS.map((b) => ({ x: b.x, z: b.z, r: 2.6 })),
-      { x: SHOAL_MARK.x, z: SHOAL_MARK.z, r: 3.0 },
-    ];
+    // 船开不过去的（航路的浮标、标杆……）是这片海的
+    this.obstacles = OBSTACLES.map((o) => ({ ...o }));
   }
 
   reset(x, z, heading) {

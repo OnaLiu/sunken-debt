@@ -1,12 +1,12 @@
 import * as THREE from 'three';
-import { GeoBuilder } from '../util/builder.js';
-import { toon } from '../render/materials.js';
-import { seabedY } from './terrain.js';
+import { GeoBuilder } from '../../util/builder.js';
+import { toon } from '../../render/materials.js';
+import { seabedY } from './seabed.js';
 import { WRECK, wreckToWorld, HATCH_COVER } from './layout.js';
 import { deckY } from './wreck.js';
-import { mulberry32 } from '../util/math.js';
-import { TAG } from './collide.js';
-import { model } from '../assets/assets.js';
+import { mulberry32 } from '../../util/math.js';
+import { TAG } from '../../world/collide.js';
+import { model } from '../../assets/assets.js';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
 // 素材摆上去：沿一条折线（每点 {x: 素材里沿 +X 的位置, p: 世界里底面贴着的那一点}）把模型顺着弯过去，

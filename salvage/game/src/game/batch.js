@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import { BOAT } from '../world/boat.js';
 import { setItemMud, setItemGlint } from '../world/items.js';
-import { ITEM_DEFS } from '../world/layout.js';
+import { ITEM_DEFS } from './itemdefs.js';
 import { clamp, smoothstep, easeOut } from '../util/math.js';
 import { ICON } from '../ui/icons.js';
-import { placeOf } from './tally.js';
+import { placeOf } from '../sea/index.js';
 import { T, N } from './tables.js';
 
 // 一甲板一起冲（设计第 5 节招牌）·甲「齐冲」：

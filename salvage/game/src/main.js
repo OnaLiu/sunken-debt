@@ -5,7 +5,7 @@ import { EffectsPage } from './fx/effects.js';
 import { CssClock } from './ui/cssclock.js';
 import { renderLog, toWav } from './audio/audio.js';
 import { canSee, seeItem, hiddenWhy, itemHiddenWhy, showingOf, compareWreckRay } from './game/sight.js';
-import { tideLayout } from './game/tide.js';
+import { tideLayout } from './sea/index.js';
 
 // 固定 1920×1080 的逻辑画面，按放它的框（平时是整个窗口；效果页是右边那一块）整体等比缩放、留边
 const canvas = document.getElementById('view');

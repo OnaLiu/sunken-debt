@@ -5,7 +5,7 @@ import { pilot, pilotStop } from './pilot.js';
 import { stepMotion } from './boatCtl.js';
 import { BOAT_ZONE } from './arm.js';
 import { BOAT } from '../world/boat.js';
-import { WRECK } from '../world/layout.js';
+import { WRECK } from '../sea/index.js';
 
 // 这一刻（第一段小样）的自动演示：和玩家一样只动鼠标和键盘——把指针挪到一处、左键下网，网还在水里就点好下一处，
 // W、S、A、D 把船开近（停着也转得了船头），按住左 Shift 拉近看清海底，按住右键转着看找看不见的那一处，E 开冲，压轴时按住左键冲得快，指着铜牌左键再来一次。

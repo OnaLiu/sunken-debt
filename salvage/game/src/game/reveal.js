@@ -2,11 +2,11 @@ import * as THREE from 'three';
 import { WASH_NORMAL, WASH_PRECIOUS, SHOW_NORMAL, SHOW_PRECIOUS, PULLBACK_T, WASH_EMPTY, WASH_SPEEDUP } from '../config.js';
 import { BOAT } from '../world/boat.js';
 import { setItemMud, setItemGlint } from '../world/items.js';
-import { ITEM_DEFS } from '../world/layout.js';
+import { ITEM_DEFS } from './itemdefs.js';
 import { clamp, smoothstep, easeOut, easeInOut, easeOutBack, lerp, damp, wrapAngle } from '../util/math.js';
 import { toon } from '../render/materials.js';
 import { keepOut } from '../ui/hud.js';
-import { placeOf } from './tally.js';
+import { placeOf } from '../sea/index.js';
 
 // 揭宝：网包落上甲板 → 船员拿水管冲 → 泥壳从上往下化开 → 物件逐件露出 → 那一刻记入收获 →
 // 稳稳展示 → 拉回大视野、立刻恢复操作；船员各搬一件进舱（只是动画）。

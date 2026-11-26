@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { NET_R, ARM_MAX } from '../config.js';
 import { BOAT } from '../world/boat.js';
 import { BOAT_ZONE } from './arm.js';
-import { SHOAL_MARK, WRECK } from '../world/layout.js';
+import { SHOAL_MARK, WRECK } from '../sea/index.js';
 import { DEMO_SUMMARY_WAIT } from '../ui/menus.js';
 import { seeItem, canSee } from './sight.js';
 import { pilot, pilotStop } from './pilot.js';
