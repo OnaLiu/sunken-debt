@@ -10,14 +10,20 @@ export const LOW_PAD = 2; // 四周多画一圈像素，给镜头亚像素平移
 export const WATER_Y = 0;
 
 // 吊臂与网
-export const NET_R = 1.4; // 网口半径（米）
+// 网口半径（米）：船坞里升「网」会变大（一局的设备，run.js 照配表设）。全游戏读的都是这一个，改它用 setNetR
+export let NET_R = 1.4;
+const netHooks = [];
+export function setNetR(r) { if (r === NET_R) return; NET_R = r; for (const f of netHooks) f(r); }
+export function onNetR(f) { netHooks.push(f); }
 export const ARM_MIN = 4.2; // 臂端离吊机中心的最小水平距离
 export const ARM_MAX = 10.6; // 最大水平伸距
 export const ARM_TIP_H = 5.2; // 臂端离水面高度
 export const MAX_WORK_DEPTH = 30; // 最大作业深度
 
 // 油
-export const FUEL_MAX = 110;
+// 油箱装多少：船坞里升「油箱」会变大（run.js 照配表设）；油表满格就是它
+export let FUEL_MAX = 110;
+export function setFuelMax(v) { FUEL_MAX = v; }
 // 开船、转头扣的油在 配表.md「小样的数」，怎么扣在 boatCtl.js 的 moveFuel
 // 每一网的作业油取整：屏幕上的数就是实际扣的数，和油表上的整数直接比
 export const netFuelCost = (depth) => Math.round(5 + depth * 0.25);

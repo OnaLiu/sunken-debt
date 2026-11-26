@@ -35,6 +35,7 @@ export class Moment {
   begin(o = {}) {
     const g = this.g;
     this.on = true;
+    this.run = false;
     this.resultT = null;
     this.finaleEntries = null;
     this.hintGo = false;
@@ -271,6 +272,8 @@ export class Moment {
   onBatchDone(r) {
     const g = this.g;
     if (!this.on) return;
+    // 一局里：揭完回到打捞那一屏接着捞（不出这一甲板的结算）
+    if (this.run) { g.run.onBatchDone(r); return; }
     this.pending = r;
     g.later(N('结算等多久', 1.6), () => this.showResult(this.pending));
   }

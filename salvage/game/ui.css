@@ -598,3 +598,97 @@ html, body { margin: 0; height: 100%; background: #05080a; overflow: hidden; }
 #deckbar.tell .why { opacity: 1; transform: none; color: #ffd36a; border-image-source: var(--px-iron); }
 #deckbar.deny .why { opacity: 1; transform: none; }
 #deckbar.deny .go { animation: shake 0.42s linear; opacity: 1; }
+
+/* —— 名词：会接到别的规则上的词，处处同一个颜色（配表「名词」）—— */
+#ui em.kw { font-style: normal; font-weight: 700; }
+#ui em.kw.w { color: #f4fbf8; }
+#ui em.kw.m { color: #d9a877; }
+#ui em.kw.c { color: #7fd8d0; }
+#ui em.kw.g { color: #ffd36a; }
+#ui em.kw.r { color: #ff8a6a; }
+
+/* —— 标题：「新的一局」按第一下，等第二下 —— */
+#title .opt.warn { color: #ff8a6a; }
+#title .opt.on.warn { color: #5a1206; }
+
+/* —— 收获单：比上一趟多（少）多少 —— */
+#summary .tot .cmp { display: inline-flex; align-items: center; gap: 12px; margin-top: 6px; font-size: 26px; color: #cfe3df; opacity: 0; transition: opacity 0.4s; text-shadow: 2px 2px 0 #1a0e04; }
+#summary .tot.final .cmp { opacity: 1; }
+#summary .tot .cmp b { display: inline-flex; align-items: center; gap: 4px; font-size: 32px; font-weight: 800; }
+#summary .tot .cmp.up b { color: #84e08c; }
+#summary .tot .cmp.down b { color: #ff8f70; }
+#summary .tot .cmp .ic { font-size: 26px; color: #ffd36a; }
+#summary .tot { display: flex; flex-direction: column; align-items: center; }
+
+/* —— 船坞：左上地名，右上钱和债本，船上每一样设备一块牌子，选中的那一样一张卡，右下出海 —— */
+#dock { position: absolute; inset: 0; pointer-events: auto; opacity: 0; transition: opacity 0.4s; }
+#dock.on { opacity: 1; }
+#dock .dplace { position: absolute; left: 56px; top: 44px; font-size: 44px; font-weight: 800; letter-spacing: 12px; color: #e8b04a; }
+#dock .purse { position: absolute; right: 300px; top: 40px; display: flex; align-items: center; gap: 14px; padding: 10px 26px 12px; font-size: 44px; font-weight: 800; color: #ffd36a; text-shadow: 0 4px 0 #7a4a12, 3px 3px 0 #1a0e04; }
+#dock .purse .ic { font-size: 40px; }
+#dock .book { position: absolute; right: 56px; top: 40px; display: flex; align-items: center; gap: 12px; padding: 14px 22px; font-size: 28px; font-weight: 700; letter-spacing: 4px; cursor: pointer; }
+#dock .book .ic { font-size: 34px; color: #ff8a6a; }
+#dock .book .key { margin: 0 0 0 4px; }
+#dock .book.hot { transform: translateY(-3px); }
+#dock .pins { position: absolute; left: 0; top: 0; }
+#dock .pin { position: absolute; left: -38px; top: -38px; width: 76px; height: 76px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; color: #e8f4f0; background: rgba(10, 21, 25, 0.88); border: 3px solid #23414a; border-image: var(--px-iron) 12 / 12px / 3px stretch; image-rendering: pixelated; filter: drop-shadow(5px 5px 0 rgba(0,0,0,.45)); transition: opacity 0.25s; }
+#dock .pin .ic { font-size: 34px; }
+#dock .pin .lv { display: flex; gap: 4px; }
+#dock .pin .lv i { width: 10px; height: 10px; background: #2b474b; box-shadow: 0 0 0 2px #060b0d; }
+#dock .pin .lv i.f { background: #ffd36a; }
+#dock .pin.can::after { content: ''; position: absolute; right: -8px; top: -8px; width: 18px; height: 18px; background: #84e08c; box-shadow: 0 0 0 3px #060b0d; animation: canbuy 1.2s ease-in-out infinite; }
+@keyframes canbuy { 0%, 100% { transform: none; } 50% { transform: translateY(-4px); } }
+@keyframes deny { 0%, 100% { translate: 0 0; } 25% { translate: -8px 0; } 75% { translate: 8px 0; } }
+#dock .pin.max .ic { color: #ffd36a; }
+#dock .pin.on, #dock .pin.hot { border-image-source: var(--px-brass); color: #ffd36a; }
+#dock .pin.on { transform-origin: 50% 50%; }
+#dock .gcard { position: absolute; left: 0; top: 0; width: 480px; padding: 26px 30px 24px; display: none; flex-direction: column; gap: 14px; }
+#dock .gcard.on { display: flex; animation: panelin 0.25s cubic-bezier(.2,1.2,.4,1); }
+#dock .gcard .nm { display: flex; align-items: baseline; gap: 16px; font-size: 36px; font-weight: 800; letter-spacing: 6px; color: #e8b04a; }
+#dock .gcard .nm .lvl { font-size: 24px; letter-spacing: 2px; color: #a9c8c4; }
+#dock .gcard .eff { display: flex; align-items: center; gap: 14px; font-size: 30px; font-weight: 700; }
+#dock .gcard .eff > .ic { font-size: 36px; color: #e8f4f0; }
+#dock .gcard .eff .a { color: #a9c8c4; }
+#dock .gcard .eff .to { color: #e8b04a; font-size: 22px; }
+#dock .gcard .eff .b { color: #84e08c; }
+#dock .gcard .say { font-size: 22px; line-height: 1.45; color: #cfe3df; }
+#dock .gcard .buy { position: relative; display: flex; align-items: center; gap: 12px; padding: 10px 20px 12px; font-size: 28px; font-weight: 700; letter-spacing: 3px; color: #2a1806; cursor: pointer; border: 3px solid #e8b04a; border-image: var(--px-brass) 12 fill / 12px / 3px stretch; image-rendering: pixelated; text-shadow: 0 3px 0 rgba(255,238,190,.55); }
+#dock .gcard .buy .key { margin: 0; }
+#dock .gcard .buy .price { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 32px; font-weight: 800; }
+#dock .gcard .buy.hot { transform: translateY(-3px); }
+#dock .gcard .buy.poor { filter: grayscale(0.85) brightness(0.8); }
+#dock .gcard .buy.max { justify-content: center; cursor: default; filter: grayscale(0.4); }
+#dock .gcard .buy.shake { animation: deny 0.3s; }
+#dock .sail { position: absolute; right: 56px; bottom: 48px; display: flex; align-items: center; gap: 16px; padding: 16px 42px 18px; font-size: 40px; font-weight: 800; letter-spacing: 10px; color: #2a1806; cursor: pointer; border: 3px solid #e8b04a; border-image: var(--px-brass) 12 fill / 12px / 3px stretch; image-rendering: pixelated; text-shadow: 0 3px 0 rgba(255,238,190,.55); filter: drop-shadow(8px 8px 0 rgba(0,0,0,.45)); }
+#dock .sail .key { margin: 0; }
+#dock .sail.hot { transform: translateY(-4px); }
+
+/* —— 债本：一大本账，翻开是还欠的总数和一页一页要还的数 —— */
+#ledger { position: absolute; inset: 0; pointer-events: auto; background: rgba(4,10,14,0.55); opacity: 0; transition: opacity 0.35s; }
+#ledger.on { opacity: 1; }
+#ledger .bk { position: absolute; left: 50%; top: 150px; width: 900px; margin-left: -450px; padding: 40px 54px 36px; display: flex; flex-direction: column; gap: 18px; background: linear-gradient(180deg, rgba(255, 220, 160, 0.06), rgba(0,0,0,0.2)), #1b120c; animation: panelin 0.4s cubic-bezier(.2,1.2,.4,1); }
+#ledger .intro { font-size: 30px; line-height: 1.45; color: #f3ead8; text-align: center; padding-bottom: 6px; }
+#ledger .h { font-size: 40px; font-weight: 800; letter-spacing: 16px; color: #e8b04a; text-align: center; }
+#ledger .tot { display: flex; align-items: baseline; justify-content: center; gap: 22px; }
+#ledger .tot .lab { font-size: 28px; color: #e8d3a0; letter-spacing: 6px; }
+#ledger .tot .num { display: inline-flex; align-items: center; gap: 12px; font-size: 84px; font-weight: 800; color: #ff8a6a; text-shadow: 0 5px 0 #5a1206, 3px 3px 0 #1a0e04; }
+#ledger .tot .num .ic { font-size: 60px; color: #ffd36a; }
+#ledger .pages { display: flex; flex-direction: column; gap: 10px; }
+#ledger .pg { display: grid; grid-template-columns: 110px 220px 1fr 260px; align-items: center; gap: 18px; padding: 10px 16px; font-size: 24px; color: #a99a80; background: rgba(0,0,0,0.25); box-shadow: inset 0 -3px 0 rgba(0,0,0,.35); }
+#ledger .pg .amt { display: inline-flex; align-items: center; gap: 6px; font-size: 30px; font-weight: 800; color: #c9b48c; }
+#ledger .pg .bar { height: 14px; background: #2b1d12; box-shadow: 0 0 0 3px #0a0604; }
+#ledger .pg .bar i { display: block; height: 100%; background: #ffd36a; }
+#ledger .pg .unl { text-align: right; font-size: 22px; }
+#ledger .pg.cur { color: #f3ead8; background: rgba(232, 176, 74, 0.12); box-shadow: inset 6px 0 0 #e8b04a; }
+#ledger .pg.cur .amt { color: #ffd36a; }
+#ledger .pg.done { color: #84e08c; }
+#ledger .pg.done .amt { color: #84e08c; text-decoration: line-through; }
+#ledger .pg.done .bar i { background: #84e08c; }
+#ledger .foot { display: flex; align-items: center; gap: 20px; margin-top: 8px; }
+#ledger .have { display: inline-flex; align-items: center; gap: 10px; font-size: 26px; color: #e8d3a0; margin-right: auto; }
+#ledger .have b { display: inline-flex; align-items: center; gap: 6px; font-size: 34px; color: #ffd36a; }
+#ledger .pay, #ledger .close { display: flex; align-items: center; gap: 10px; padding: 10px 22px 12px; font-size: 28px; font-weight: 700; letter-spacing: 3px; color: #2a1806; cursor: pointer; border: 3px solid #e8b04a; border-image: var(--px-brass) 12 fill / 12px / 3px stretch; image-rendering: pixelated; text-shadow: 0 3px 0 rgba(255,238,190,.55); }
+#ledger .pay .key, #ledger .close .key { margin: 0; }
+#ledger .pay.poor { filter: grayscale(0.85) brightness(0.8); }
+#ledger .pay.hot, #ledger .close.hot { transform: translateY(-3px); }
+#ledger.paid .pg.done:last-of-type { animation: valtick 0.4s; }

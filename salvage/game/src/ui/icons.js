@@ -39,6 +39,12 @@ export const ICON = {
   play: svg('<path fill="currentColor" d="M7 4l13 8-13 8z"/>'),
   // 锚：标题下的徽记、收获单上的入舱章
   anchor: svg('<circle cx="12" cy="4.6" r="2.3" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M12 7v14M7.5 10.5h9" stroke="currentColor" stroke-width="2.2"/><path d="M3.5 13.5c.6 4.4 4 7.2 8.5 7.2s7.9-2.8 8.5-7.2" fill="none" stroke="currentColor" stroke-width="2.2"/><path fill="currentColor" d="M1.6 14.8l2-3.6 2.3 3.4zM22.4 14.8l-2-3.6-2.3 3.4z"/>'),
+  // 债本：一本厚账，书脊上一道铁箍（素材还没有，先用代码画：素材/待画.md「图标-债本」）
+  book: svg('<path fill="currentColor" d="M5 2.5h13.5V19H6.6a1.6 1.6 0 0 0 0 3.2h11.9V20.4H20V23.7H6.6A3.1 3.1 0 0 1 3.5 20.6V4a1.5 1.5 0 0 1 1.5-1.5z"/><path d="M8 7.2h7.5M8 10.6h5.2" stroke="rgba(0,0,0,.42)" stroke-width="1.7"/><rect x="3.5" y="13.6" width="15" height="2" fill="rgba(0,0,0,.3)"/>'),
+  // 甲板：加宽的平台上码着两包（素材还没有，先用代码画：素材/待画.md「图标-甲板」）
+  deck: svg('<path fill="currentColor" d="M1.5 16h21l-2.4 4.6H3.9z"/><path fill="currentColor" d="M3.4 15.2c-.5-2.6 1-4.8 3.9-4.9 2.9-.1 4.4 2 3.9 4.9zM12.8 15.2c-.5-2.6 1-4.8 3.9-4.9 2.9-.1 4.4 2 3.9 4.9z"/><path d="M1.5 13.6h21" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2 1.6"/>'),
+  // 水泵：泵身、一根水管喷出水（素材还没有，先用代码画：素材/待画.md「图标-水泵」）
+  pump: svg('<rect x="2.5" y="11" width="9" height="9.5" rx="1.4" fill="currentColor"/><circle cx="7" cy="15.7" r="2.4" fill="none" stroke="rgba(0,0,0,.42)" stroke-width="1.6"/><path d="M11.5 13.5h3.6a3 3 0 0 0 3-3V7" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M18 5.4l-2.6-2.6M18 5.4V1.6M18 5.4l2.6-2.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>'),
 };
 
 // 做好了素材的图标（素材/规格.md 第 9 节）：12×12 格的白色剪影，用 CSS 遮罩照所在的地方上色（和原来的矢量图一样跟着 currentColor），

@@ -49,8 +49,11 @@ import { MomentBot } from './momentbot.js';
 import { model } from '../assets/assets.js';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { KeyShow } from '../ui/keyshow.js';
-import { T } from './tables.js';
+import { T, N } from './tables.js';
+import { Run } from './run.js';
+import { RunBot } from './runbot.js';
 window.__floorPoint = floorPoint;
+const TT = T; // tripDeeds 里 T 是这一趟，表的字用这个名字拿
 
 // 开船（照载具求生）：W 油门、S 刹车和倒船、A/D 打舵；手柄左摇杆推过四成就当那个方向按着（载具求生的 0.38）
 const NO_DRIVE = { throttle: 0, brake: 0, steer: 0 };
@@ -137,6 +140,11 @@ export class Game {
     this.keyShow = new KeyShow(this, uiRoot);
     this.tally = new Tally(this);
     this.thumbs = new Thumbs(this);
+    // 一局（出海、开舱、船坞、还债、再出海）：route 是这一页走哪条路——run 一局（三小段起）、moment 小样那一刻、trip 原来那一整趟（效果页）
+    this.route = opts.route || 'moment';
+    this.washK = 1;
+    this.tideNext = null;
+    this.run = new Run(this);
     this.pressIdx = 0;
     this.pressList = [];
     this.craneTip = STOW_TIP.clone();
@@ -254,7 +262,7 @@ export class Game {
     this.introRest = null;
     this.resetTok = (this.resetTok || 0) + 1;
     this.trip.reset();
-    this.items.reset();
+    this.items.reset(this.tideNext || null);
     this.crabLife.reset();
     this.fish.reset();
     this.leviathan.reset();
@@ -418,6 +426,14 @@ export class Game {
     for (const [t, k] of [[0.41, 0.28], [0.59, 0.32], [0.77, 0.36]]) this.later(t, () => this.feel.puff(1, k));
     this.later(0.95, () => { this.audio.engine(true); this.feel.puff(2, 0.85); });
     this.cue('G03');
+    // 一局：打捞那一屏（开船、指着下网同一屏）从港外航路开始；有存档接着的回到船坞
+    if (this.route === 'run') {
+      this.trip.time = 0;
+      if (withBot) { this.run.st = this.run.constructor.fresh(); }
+      this.run.depart(withBot, { resume: this.resumeRun });
+      this.resumeRun = false;
+      return;
+    }
     this.mode = 'sail';
     this.ui.setMode('sail');
     this.trip.time = 0;
@@ -438,7 +454,56 @@ export class Game {
       this.input.wantLock = true;
       this.input.lock();
     }
-    this.later(1.1, () => this.ui.place('港外航路'));
+    this.later(1.1, () => this.ui.place(T('地名·港外航路')));
+  }
+
+  // 一局的自动演示：第一趟顺着线索找到沉船、一网一揭；回港开舱、翻开债本；船坞里升级；第二潮码满一甲板一起冲（只按玩家能按的键）
+  startRunDemo() {
+    this.bot = new RunBot(this);
+    this.input.botDriven = true;
+    this.ui.demoBadge(true);
+    this.ui.learned = { sail: true, arm: true, reveal: true, quit: true };
+  }
+
+  // 直接从三小段的某一段开始（试跑、手机上挑段）：1 第一趟、2 船坞（第一趟捞完回来，先翻开债本）、3 第二潮
+  jumpSeg(n, withBot) {
+    if (this.bot) this.bot.stop();
+    this.bot = null;
+    this.input.botDriven = false;
+    this.input.virtual = null;
+    this.menus.hideTitle();
+    this.menus.hidePause();
+    this.titleIntro = null;
+    this.introRest = null;
+    this.igniteT = 0;
+    this.ui.demoBadge(false);
+    this.ui.setPaused(false);
+    this.timers = [];
+    const R = this.run;
+    R.preset(n);
+    R.on = true;
+    if (n === 2) {
+      this.tally.end();
+      this.menus.hideSummary();
+      R.toDock();
+      if (!R.st.sawDebt) R.openLedger(true);
+    } else {
+      R.beginTrip();
+      this.ui.fade(false);
+    }
+    if (withBot) this.startRunDemo();
+  }
+
+  // 一局里暂停（船坞、债本这两屏按 Esc）
+  pauseRun() {
+    this.prevMode = this.mode;
+    this.mode = 'pause';
+    this.ui.setPaused(true);
+    this.menus.showPause(false);
+    this.pauseHush = this.audio.st ? this.audio.st.hush ?? 1 : 1;
+    this.audio.hush(Math.min(this.pauseHush, 0.35), 0.25);
+    this.audio.play('pauseOn');
+    this.cue('D01');
   }
 
   // 这一刻的自动演示：机器人照玩家的样子挑一处、按一下、开冲（只通过虚拟手柄）
@@ -486,7 +551,7 @@ export class Game {
     });
     // 出了岔子才说一句
     E.on('hitHard', (e) => {
-      this.ui.toast('网口碰到埋着的硬东西', 2.6);
+      this.ui.toast(T('提示·硬东西'), 2.6);
       const end = this.showTimberCorner(e.x, e.z);
       this.cue('B23');
       this.firsts = this.firsts || {};
@@ -517,6 +582,8 @@ export class Game {
       this.ui.setMode('arm');
       this.ui.learn('reveal');
       this.castQ = null;
+      // 打捞那一屏（一网一揭）：揭完重新挑打捞点
+      if (this.moment.on) this.snap.refresh(true);
     });
   }
 
@@ -734,7 +801,9 @@ export class Game {
       this.titleT += dt;
       this.titleIntroUpdate(dt, inp);
       const act = this.menus.titleInput(inp, dt);
-      if (act === 'play') this.startPlay(false);
+      if (act === 'play') { if (this.route === 'run') this.run.wipe(); this.startPlay(false); }
+      else if (act === 'continue') { this.run.load(); this.resumeRun = true; this.startPlay(false); }
+      else if (act === 'new') { this.run.wipe(); this.startPlay(false); }
       else if (act === 'demo') this.startPlay(true);
       else if (act === 'settings') { this.audio.unlock(); this.mode = 'settings'; this.menus.showPause(true); }
       this.simulate(dt, { mx: 0, my: 0, lx: 0, ly: 0, zoom: 0, a: false, aHeld: false, b: false }, true);
@@ -754,12 +823,31 @@ export class Game {
       this.takeOver();
       inp.esc = false;
     }
+    // 一局：船坞、债本这两屏（船停在码头，镜头绕着船慢慢转）
+    if (this.mode === 'dock' || this.mode === 'ledger') {
+      this.run.update(dt, inp);
+      this.simulate(dt, { mx: 0, my: 0, lx: 0, ly: 0, px: 0, py: 0, zoom: 0 }, true);
+      this.render(dt);
+      return;
+    }
     if (this.mode === 'pause') {
       const act = this.menus.pauseInput(inp, dt);
       if (act === 'resume') { this.hidePause(true); this.mode = this.prevMode; }
-      else if (act === 'end') { this.audio.play('menuGo'); this.hidePause(true); this.mode = this.prevMode; this.endTrip(null); }
+      else if (act === 'end') { this.audio.play('menuGo'); this.hidePause(true); this.mode = this.prevMode; if (this.run.on) this.run.requestEnd(null); else this.endTrip(null); }
       else if (act === 'restart') { this.hidePause(true); this.mode = this.prevMode; this.moment.restart(); }
-      else if (act === 'title') { this.audio.play('menuGo'); this.hidePause(); this.bot = null; this.input.botDriven = false; this.resetTrip(); this.enterTitle(); }
+      else if (act === 'title') {
+        this.audio.play('menuGo');
+        this.hidePause();
+        if (this.bot) this.bot.stop();
+        this.bot = null;
+        this.input.botDriven = false;
+        this.ui.demoBadge(false);
+        if (this.run.on) this.run.leave();
+        this.tideNext = null;
+        this.resetTrip();
+        this.ui.fade(false);
+        this.enterTitle();
+      }
       // 停在「晃动和折射」上：别的都停着，只有水面接着晃，调的时候看得见变成什么样
       if (this.menus.peek) U.uTime.value += dt;
       this.render(0);
@@ -774,7 +862,7 @@ export class Game {
     }
     if (this.mode === 'summary') {
       const act = this.tally.update(dt, inp);
-      if (act === 'again') this.restart();
+      if (act === 'again') { if (this.run.on) this.toDock(); else this.restart(); }
       this.simulate(dt, { mx: 0, my: 0, lx: 0, ly: 0, zoom: 0 }, false);
       this.render(dt);
       return;
@@ -801,6 +889,24 @@ export class Game {
     this.render(dt);
   }
 
+  // 一局里开完舱按「进港」：舱盖拉上、黑下来，亮起来船已经停在码头（第一次先翻开债本）
+  toDock() {
+    this.menus.pressAgain();
+    this.audio.play('press');
+    this.mode = 'fading';
+    this.later(0.14, () => this.tally.close());
+    this.later(0.95, () => {
+      this.ui.fade(true);
+      this.audio.hush(0.2, 0.5);
+      this.audio.play('waveSwell');
+    });
+    this.later(1.85, () => {
+      this.tally.end();
+      this.menus.hideSummary();
+      this.run.afterTally();
+    });
+  }
+
   // C16 再来一趟：「再来一趟」按下去，舱盖拉上——影子从光进来的那一边扫过整舱，光灭；
   // 黑下来，黑场里一道浪涌上来又退下（别的声音让开），亮起来时船已在港外
   restart() {
@@ -824,7 +930,7 @@ export class Game {
       this.mode = 'sail';
       this.ui.setMode('sail');
       this.ui.fade(false);
-      this.ui.place('港外航路');
+      this.ui.place(T('地名·港外航路'));
       if (this.bot) this.bot.restart();
     });
   }
@@ -891,17 +997,18 @@ export class Game {
 
   // 这一趟做到的事（收获单底下一行）：只说这一趟真发生过的，数得清的就是舱里摆着的那几件
   tripDeeds() {
-    const T = this.trip, d = [];
-    if (T.sawWreck) d.push('找到了沉船');
+    const T = this.trip, d = [], tx = TT;
+    // 一局里走熟了的海不再说「找到了沉船」：只说第一次
+    if (T.sawWreck && !(this.run.on && this.run.st.knowWreck)) d.push(tx('收获·找到沉船'));
     const crabs = T.haul.filter((h) => h.kind === 'crab').length;
-    if (crabs) d.push(`兜到${['', '一', '两', '三', '四'][crabs] || crabs}只活蟹`);
+    if (crabs) d.push(tx('收获·活蟹', { n: crabs }));
     const by = {};
     for (const h of T.haul) (by[h.name] = by[h.name] || []).push(h);
     for (const [n, l] of Object.entries(by)) {
       const from = [...new Set(l.map((h) => h.from).filter(Boolean))];
-      if (l.length >= 2 && from.length >= 2) d.push(`${from[0]}和${from[1]}的${n}对上了`);
+      if (l.length >= 2 && from.length >= 2) d.push(tx('收获·对上', { a: from[0], b: from[1], n }));
     }
-    if (T.sawLev) d.push('见过深槽里那个东西');
+    if (T.sawLev) d.push(tx('收获·深槽'));
     return d;
   }
 
@@ -1250,7 +1357,7 @@ export class Game {
           break;
         case 'reveal':
           bc.brake = true;
-          if (inp.b || inp.rclick || this.stickPushed(inp) || this.busyPoke(inp, dt)) { this.audio.play('busy'); this.ui.deny('船员在冲洗'); this.cue('A22'); }
+          if (inp.b || inp.rclick || this.stickPushed(inp) || this.busyPoke(inp, dt)) { this.audio.play('busy'); this.ui.deny(T('拒·冲洗中')); this.cue('A22'); }
           break;
       }
       this.stickWas = Math.hypot(inp.mx, inp.my) > 0.6;
@@ -1314,7 +1421,7 @@ export class Game {
     this.boat.fuel.update(dt, this.trip.fuel, this.threat.netsLeft, this.time);
     this.reveal.update(dt, this.time, !!inp.aHeld, !!inp.a);
     this.deck.update(dt, this.time);
-    if (this.deck.on) this.snap.update(dt);
+    if (this.deck.on || this.moment.on) this.snap.update(dt);
     this.batch.update(dt, !!inp.aHeld);
     this.fxUpdate(dt);
     this.glintUpdate(dt);
@@ -1327,6 +1434,8 @@ export class Game {
     this.feel.update(dt, idle);
     // 「再来一趟」淡出那一下旧的这一趟还是已结束，别再弹一次收获单
     if (!idle && this.mode !== 'fading' && !this.moment.on) this.checkEnd(dt);
+    // 一局：按住回港、油不够了回港；到头了照原来收工、开舱
+    else if (!idle && this.mode !== 'fading' && this.moment.run) { this.run.tripTick(dt, inp); this.endingTick(dt); }
 
     // 镜头
     this.updateCamera(dt, idle);
@@ -1460,6 +1569,12 @@ export class Game {
 
   updateCamera(dt, idle) {
     const cam = this.cam;
+    // 一局：船坞、债本时镜头绕着码头上的船
+    if (this.run.camera(dt)) {
+      cam.update(this.camDt ?? dt);
+      this.cutout.update(dt);
+      return;
+    }
     // 视点上下跟得慢一点的时候：网在水里（视点跟着网往下沉、往上提）
     cam.pivotWy = this.mode === 'net' ? 3.2 : 0;
     // 偏过去看沉船的那一眼只在开船时：换了模式就收掉（镜头距离还回去）
@@ -1542,7 +1657,11 @@ export class Game {
       cam.pitchT = u < 0.5 ? lerp(1.3, 1.02, smoothstep(0, 0.5, u)) : lerp(1.02, 0.68, smoothstep(0.5, 1, u));
       // 转身摊在整段路上（开场原样是后六成里转完）：快放时也不一边俯看一边打转
       cam.yawT = R.yaw0 + wrapAngle(-Math.PI / 2 - R.yaw0) * smoothstep(0.1, 1, u);
-      if (u >= 1 || this.mode !== 'sail') this.introRest = null;
+      if (u >= 1 || (this.mode !== 'sail' && !this.moment.run)) {
+        this.introRest = null;
+        // 一局：飞到船后以后接上跟船的镜头（从这儿滑过去，不跳）
+        if (this.moment.run) { this.chase.on = false; this.chase.start(cam); }
+      }
     }
     // 效果页：镜头钉在一处看（蟹、鱼群这种小东西）；游戏里不设
     if (this.camAt) cam.pivotT.set(this.camAt.x, this.camAt.y || 0, this.camAt.z);
@@ -1769,7 +1888,7 @@ export class Game {
     const dWreck = Math.hypot(bp.x - WRECK.x, bp.z - WRECK.z);
     if (!F.shoal && dShoal < 24) {
       F.shoal = true;
-      this.arrive('通透浅滩', 784);
+      this.arrive(T('地名·浅滩'), 784);
     }
     // 第一眼看见沉船：42 米内、它进了画面（再近到 30 米就不等了）
     if (!F.wreck && (dWreck < 30 || (dWreck < 42 && this.inView(WRECK.x, -5, WRECK.z, 0.08)))) {
@@ -1788,14 +1907,14 @@ export class Game {
       }
     }
     // C12 在沉船下过两网、回去开船：箭头第一次指向坡下的那一刻，远处深槽里冒上来一大串泡
-    if (!F.slopeSaid && this.mode === 'sail' && this.leadTarget() === SLOPE_LEAD) {
+    if (!F.slopeSaid && (this.mode === 'sail' || (this.moment.run && this.mode === 'arm')) && this.leadTarget() === SLOPE_LEAD) {
       F.slopeSaid = true;
       this.trenchBurp();
     }
     const trenchNear = this.nearTrench(bp);
     if (!F.slope && trenchNear) {
       F.slope = true;
-      this.arrive('深槽', 392);
+      this.arrive(T('地名·深槽'), 392);
     }
     // 线索一段段往东南：经过一块船板，箭头就指向下一块
     while (F.trailIdx < TRAIL.length && Math.hypot(bp.x - TRAIL[F.trailIdx].x, bp.z - TRAIL[F.trailIdx].z) < 12) F.trailIdx++;
@@ -1817,7 +1936,7 @@ export class Game {
   // 一道光从船尾扫到船头，光扫过那一截，鱼从船肋里炸开、往上冒
   sightWreck() {
     this.trip.sawWreck = true;
-    this.ui.place('沉船', { big: true });
+    this.ui.place(T('地名·沉船'), { big: true });
     this.audio.play('wreckMotif');
     // 浪和发动机让开，弦乐出来
     this.audio.duck(0.45, 0.5, 2.6, 2.2);
@@ -1896,11 +2015,11 @@ export class Game {
   placeName() {
     const bp = this.boatCtl.pos;
     const dWreck = Math.hypot(bp.x - WRECK.x, bp.z - WRECK.z);
-    if (this.nearTrench(bp) && dWreck > 16) return '深槽';
-    if (dWreck < 30) return '沉船';
-    if (Math.hypot(bp.x - SHOAL.x, bp.z - SHOAL.z) < 30) return '通透浅滩';
-    if (bp.x < -112) return '港外航路';
-    return '归潮沙湾';
+    if (this.nearTrench(bp) && dWreck > 16) return T('地名·深槽');
+    if (dWreck < 30) return T('地名·沉船');
+    if (Math.hypot(bp.x - SHOAL.x, bp.z - SHOAL.z) < 30) return T('地名·浅滩');
+    if (bp.x < -112) return T('地名·港外航路');
+    return T('地名·归潮沙湾');
   }
 
   // 暂停页右边：这一屏上每个图标代表什么，这里能按的键。随地方和模式变。
@@ -1908,21 +2027,30 @@ export class Game {
   pauseInfo() {
     const K = KEYS[this.ui.device];
     const m = this.prevMode;
+    // 船坞、债本：这里能按的键
+    if (m === 'dock' || m === 'ledger') {
+      const pad = this.ui.device === 'pad';
+      return {
+        place: T('地名·船坞'),
+        rows: [[{ ic: ICON.coin, t: T('债·手上'), color: '#ffd36a' }]],
+        keys: [[pad ? key(K.move) : key(K.aim), T('键·选设备')], [key(K.a, 'a') + (!pad ? key(K.aAlt, 'a') : ''), T('键·购买')], [key(K.go, 'go'), T('键·出海')], [key(K.quit, 'b'), T('键·债本')]],
+      };
+    }
     const rows = [];
     const row = (...cells) => rows.push(cells.map(([ic, t, color]) => ({ ic, t, color })));
-    row([ICON.fuel, '燃油'], [ICON.net, '还够下几网', '#cfe3df']);
-    row([ICON.depth, '水深，亮点是水里在动的东西', '#7fd8d0']);
-    if (m === 'sail' && this.leadTarget()) row([ICON.arrow, '下一处线索的方向', '#ffd36a']);
-    if (m === 'arm') row([ICON.ring, '能下网', '#e8f4f0'], [ICON.ring, '被挡住', '#ff5c47']);
-    if (m === 'sail' || m === 'arm') row([ICON.reach, '网最远罩得到的地方', '#e8f4f0']);
+    row([ICON.fuel, T('图例·燃油')], [ICON.net, T('图例·还够几网'), '#cfe3df']);
+    row([ICON.depth, T('图例·水深'), '#7fd8d0']);
+    if ((m === 'sail' || (this.moment.run && m === 'arm')) && this.leadTarget()) row([ICON.arrow, T('图例·线索'), '#ffd36a']);
+    if (m === 'arm') row([ICON.ring, T('图例·能下网'), '#e8f4f0'], [ICON.ring, T('图例·被挡住'), '#ff5c47']);
+    if (m === 'sail' || m === 'arm') row([ICON.reach, T('图例·网最远'), '#e8f4f0']);
     if (m === 'arm') {
-      const marks = [[ICON.yes, '带得上来', '#ffd36a'], [ICON.miss, '带不上来', '#e2ecea']];
-      if (this.forecast.marks.some((k) => k.k === 'hard')) marks.push([ICON.hard, '会刮到硬东西', '#ff9a4a']);
+      const marks = [[ICON.yes, T('图例·带得上来'), '#ffd36a'], [ICON.miss, T('图例·带不上来'), '#e2ecea']];
+      if (this.forecast.marks.some((k) => k.k === 'hard')) marks.push([ICON.hard, T('图例·硬东西'), '#ff9a4a']);
       row(...marks);
-      row([ICON.crate, '带得上来几件'], [ICON.fuel, '这一网的油']);
+      row([ICON.crate, T('图例·件数')], [ICON.fuel, T('图例·这一网的油')]);
     }
-    if (m === 'net' || m === 'reveal') row(['<svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.2" fill="#09161a" stroke="#c99a48" stroke-width="2"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="3.6"/><path d="M12 5.6a6.4 6.4 0 0 1 6.4 6.4" fill="none" stroke="currentColor" stroke-width="3.6"/></svg>', '圈走满：这一网收回来、冲洗完', '#e8f4f0']);
-    if (this.trip.haul.length) row([ICON.crate + ICON.coin, '船上的件数和总价值', '#ffd36a']);
+    if (m === 'net' || m === 'reveal') row(['<svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.2" fill="#09161a" stroke="#c99a48" stroke-width="2"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="3.6"/><path d="M12 5.6a6.4 6.4 0 0 1 6.4 6.4" fill="none" stroke="currentColor" stroke-width="3.6"/></svg>', T('图例·圈走满'), '#e8f4f0']);
+    if (this.trip.haul.length) row([ICON.crate + ICON.coin, T('图例·船上'), '#ffd36a']);
     const keys = [];
     const pad = this.ui.device === 'pad';
     // 键盘上还能按的另一个键（空格也能进打捞、下网；Esc 也能退出打捞）
@@ -1931,11 +2059,12 @@ export class Game {
     if (this.moment.on) {
       rows.push([{ ic: ICON.bundle, t: T('暂停·甲板'), color: '#b8936a' }]);
       if (m === 'arm') keys.push(...this.moment.pauseKeys(K, alt));
+      if (this.moment.run && (m === 'arm' || m === 'net')) keys.push([key(K.quit, 'b'), T('键·按住回港')]);
     } else if (m === 'arm') keys.push([key(K.aim), '挪白圈'], [alt(K.a, K.aAlt, 'a'), '下网'], [alt(K.b, K.bAlt, 'b'), '退出打捞'], [key(K.move), '照样开船'], [key(K.zoom), '拉近拉远']);
     if (m === 'net') keys.push([key(K.zoom), '拉近拉远']);
     if (m === 'net' && this.moment.on && !pad) keys.push([key(T('键名·左Shift')), T('键·看海底')]);  // 表的 id，不是玩家看的
-    if (m === 'reveal' || m === 'batch') keys.push([alt(K.wash, K.aAlt, 'a'), '按住冲洗加快']);
-    return { place: this.moment.on ? T('地名·沉船') : this.placeName(), rows, keys };
+    if (m === 'reveal' || m === 'batch') keys.push([alt(K.wash, K.aAlt, 'a'), T('键·冲洗加快')]);
+    return { place: this.moment.on && !this.moment.run ? T('地名·沉船') : this.placeName(), rows, keys };
   }
 
   // 玩家这一趟看见过哪些值得捞的东西（和界面上的标记、机器人用同一份「看得见」）。看见过一次就记住。
@@ -1967,16 +2096,21 @@ export class Game {
   checkEnd(dt) {
     if (['sail', 'arm', 'net', 'reveal'].includes(this.mode)) this.trackSeen(dt);
     if (!this.trip.ended && !this.netop.busy && !this.reveal.active) {
-      if (this.trip.fuel < MIN_NET_COST) this.endTrip('油不够下一网了');
+      if (this.trip.fuel < MIN_NET_COST) this.endTrip(T('收工·油不够'));
       else {
         const left = this.items.onSeabed().filter((i) => i.def.value >= 12 && this.seenIds.has(i.id));
         // 收之前把还没看见过的再轮着看完一遍：刚出现在画面上的也算看见了（多等零点几秒）
         if (left.length || this.spotsFished() < SPOTS_TO_END) this.endAt = null;
         else if (this.endAt == null) this.endAt = this.seenRound + 2;
-        else if (this.seenRound >= this.endAt) this.endTrip('看得见的都捞上来了');
+        else if (this.seenRound >= this.endAt) this.endTrip(T('收工·捞完'));
       }
     }
-    if (this.trip.ended && this.mode !== 'summary' && !this.netop.busy && !this.reveal.active) {
+    this.endingTick(dt);
+  }
+
+  // 这一趟到头了（自己回港、游戏替你回港）：网收回来、冲洗完以后收工（C14），扎进舱里开舱清点（C15）
+  endingTick(dt) {
+    if (this.trip.ended && this.mode !== 'summary' && !this.netop.busy && !this.reveal.active && !this.batch.on) {
       if (!this.ending) this.startEnding();
       const E = this.ending;
       E.t += dt;
@@ -1992,7 +2126,9 @@ export class Game {
         this.ui.setHud(false);
         this.ui.fadeHud(false);
         this.audio.hush(0.3, 0.8);
-        this.tally.begin(this.trip, { why: this.trip.endReason, deeds: this.tripDeeds() });
+        this.tally.begin(this.trip, this.run.on
+          ? { why: this.trip.endReason, deeds: this.tripDeeds(), compare: this.run.compare(this.trip.total), next: T('收获单·进港') }
+          : { why: this.trip.endReason, deeds: this.tripDeeds() });
         if (!this.firsts.summary) { this.firsts.summary = true; this.cue('F10'); }
       }
     }
@@ -2098,7 +2234,7 @@ export class Game {
     // - 摆放的位置（离船多远、往哪边让开船身）用弹簧跟过去，跟着船走、不跳；
     // - 到了这一串线索的终点附近（标杆、沉船、坡下），箭头缩小、淡掉收起来
     // 拉回大视野后方向箭头最后才出（拉回完 1.5 秒），不和拉回、收获飞进格子抢
-    const L = m === 'sail' && !(this.leadHold > 0) ? this.leadTarget() : null;
+    const L = (m === 'sail' || (this.moment.run && m === 'arm')) && !(this.leadHold > 0) ? this.leadTarget() : null;
     const LS = this.leadS || (this.leadS = { a: null, k: 0, off: null, v: { x: 0, y: 0 } });
     const ldt = clamp(this.clock - (LS.clock ?? this.clock), 0, 0.1);
     LS.clock = this.clock;

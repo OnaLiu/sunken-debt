@@ -1,7 +1,8 @@
-// 标题、暂停、收获单。键盘、手柄、鼠标都能用；机器人也只通过同一套输入操作。
+// 标题、暂停、收获单（字都从配表读）。键盘、手柄、鼠标都能用；机器人也只通过同一套输入操作。
 import { ICON } from './icons.js';
 import { drawStamp, STAMP_N } from './pixring.js';
 import { key } from './hud.js';
+import { T } from '../game/tables.js';
 
 const h = (tag, cls, html) => {
   const e = document.createElement(tag);
@@ -11,27 +12,27 @@ const h = (tag, cls, html) => {
 };
 
 export const WOBBLE_LEVELS = [
-  { v: 0, n: '关' },
-  { v: 0.4, n: '弱' },
-  { v: 0.75, n: '中' },
-  { v: 1.0, n: '强' },
+  { v: 0, n: T('设置·关') },
+  { v: 0.4, n: T('设置·弱') },
+  { v: 0.75, n: T('设置·中') },
+  { v: 1.0, n: T('设置·强') },
 ];
 export const VOLUME_LEVELS = [0, 0.25, 0.5, 0.75, 1];
 // 镜头快慢（开船时鼠标、右摇杆转镜头）：倍数
 export const LOOK_LEVELS = [
-  { v: 0.5, n: '很慢' },
-  { v: 0.7, n: '慢' },
-  { v: 1.0, n: '中' },
-  { v: 1.4, n: '快' },
-  { v: 2.0, n: '很快' },
+  { v: 0.5, n: T('设置·很慢') },
+  { v: 0.7, n: T('设置·慢') },
+  { v: 1.0, n: T('设置·中') },
+  { v: 1.4, n: T('设置·快') },
+  { v: 2.0, n: T('设置·很快') },
 ];
 // 上下反转：关 = 鼠标往上推镜头往上看
-export const INVERT_LEVELS = [{ v: false, n: '关' }, { v: true, n: '开' }];
+export const INVERT_LEVELS = [{ v: false, n: T('设置·关') }, { v: true, n: T('设置·开') }];
 const ADJ = {
-  wobble: { levels: WOBBLE_LEVELS, label: '晃动和折射' },
-  volume: { levels: VOLUME_LEVELS, label: '音量' },
-  look: { levels: LOOK_LEVELS, label: '镜头快慢' },
-  invert: { levels: INVERT_LEVELS, label: '上下反转' },
+  wobble: { levels: WOBBLE_LEVELS, label: T('设置·晃动') },
+  volume: { levels: VOLUME_LEVELS, label: T('设置·音量') },
+  look: { levels: LOOK_LEVELS, label: T('设置·镜头') },
+  invert: { levels: INVERT_LEVELS, label: T('设置·反转') },
 };
 export const DEMO_SUMMARY_WAIT = 3.2; // 自动演示：清点完、「再来一趟」出来以后停多久再点它
 
@@ -63,15 +64,16 @@ export class Menus {
     el.id = 'title';
     el.innerHTML = `<div class="logo"><div class="n">沉债</div><div class="rule"><i></i>${ICON.anchor}<i></i></div></div>`;
     if (demo) {
-      el.append(h('div', 'clickall', `<span class="pl">${ICON.play}</span><span>自动演示</span>`));
+      el.append(h('div', 'clickall', `<span class="pl">${ICON.play}</span><span>${T('标题·演示')}</span>`));
       el.addEventListener('pointerdown', () => (this.pending = 'demo'));
     } else {
       const menu = h('div', 'menu');
-      this.titleOpts = [
-        { k: 'play', t: '开始打捞' },
-        { k: 'demo', t: '自动演示' },
-        { k: 'settings', t: '设置' },
-      ];
+      // 一局有存档：继续那一潮，或者清掉存档从头（按两次才清）
+      const R = this.g.route === 'run' ? this.g.run : null;
+      this.titleOpts = R && R.saved
+        ? [{ k: 'continue', t: T('标题·继续') }, { k: 'new', t: T('标题·新一局') }, { k: 'demo', t: T('标题·演示') }, { k: 'settings', t: T('标题·设置') }]
+        : [{ k: 'play', t: T('标题·开始') }, { k: 'demo', t: T('标题·演示') }, { k: 'settings', t: T('标题·设置') }];
+      this.newArmed = false;
       this.titleSel = 0;
       this.titleOpts.forEach((o, i) => {
         const e = h('div', 'opt sh', o.t);
@@ -152,12 +154,30 @@ export class Menus {
   }
 
   titleInput(inp, dt) {
-    if (this.pending) { const p = this.pending; this.pending = null; return p; }
+    if (this.pending) { const p = this.pending; this.pending = null; return this.titleOpts ? this.confirmNew(p) : p; }
     if (!this.titleOpts) return inp.a || inp.start ? 'demo' : null;
     const d = this.nav(inp, dt);
     if (d) { this.titleSel = (this.titleSel + d + this.titleOpts.length) % this.titleOpts.length; this.renderTitle(); this.g.audio.play('menu'); this.g.cue('D02'); }
-    if (inp.a || inp.start) return this.titleOpts[this.titleSel].k;
+    if (inp.a || inp.start) return this.confirmNew(this.titleOpts[this.titleSel].k);
     return null;
+  }
+
+  // 「新的一局」要按两次：第一次那一项换成「再按一次清掉存档」
+  confirmNew(k) {
+    if (k !== 'new') { this.unarmNew(); return k; }
+    if (this.newArmed) { this.newArmed = false; return 'new'; }
+    this.newArmed = true;
+    const o = this.titleOpts && this.titleOpts.find((x) => x.k === 'new');
+    if (o) { o.el.textContent = T('标题·确认新一局'); o.el.classList.add('warn'); }
+    this.g.audio.play('denyBlocked');
+    return null;
+  }
+
+  unarmNew() {
+    if (!this.newArmed) return;
+    this.newArmed = false;
+    const o = this.titleOpts && this.titleOpts.find((x) => x.k === 'new');
+    if (o) { o.el.textContent = o.t; o.el.classList.remove('warn'); }
   }
 
   // —— 暂停 / 设置 ——
@@ -168,11 +188,12 @@ export class Menus {
     el.id = 'pause';
     const wrap = h('div', 'wrap');
     const box = h('div', 'box panel');
-    box.append(h('div', 'h sh', settingsOnly ? '设置' : '暂停'));
+    box.append(h('div', 'h sh', settingsOnly ? T('设置·标题') : T('暂停·标题字')));
     this.pauseOpts = settingsOnly
-      ? [{ k: 'wobble' }, { k: 'volume' }, { k: 'look' }, { k: 'invert' }, { k: 'back', t: '返回' }]
+      ? [{ k: 'wobble' }, { k: 'volume' }, { k: 'look' }, { k: 'invert' }, { k: 'back', t: T('设置·返回') }]
+      : this.g.run && this.g.run.on ? this.g.run.pauseOpts()
       : this.g.moment && this.g.moment.on ? this.g.moment.pauseOpts()
-      : [{ k: 'resume', t: '继续' }, { k: 'end', t: '结束这一趟' }, { k: 'wobble' }, { k: 'volume' }, { k: 'look' }, { k: 'invert' }, { k: 'title', t: '回到标题' }];
+      : [{ k: 'resume', t: T('暂停·继续') }, { k: 'end', t: T('暂停·结束') }, { k: 'wobble' }, { k: 'volume' }, { k: 'look' }, { k: 'invert' }, { k: 'title', t: T('暂停·回到标题') }];
     this.pauseOpts.forEach((o, i) => {
       const e = h('div', 'opt');
       // 机器人驾驶时真实鼠标不碰菜单（只有 Esc 能接管）
@@ -213,8 +234,8 @@ export class Menus {
     if (!this.pauseOpts) return;
     this.pauseOpts.forEach((o, i) => {
       let html = o.t;
-      if (o.k === 'wobble') html = `<span>晃动和折射</span><span class="val">◀ ${WOBBLE_LEVELS[this.settings.wobble].n} ▶</span>`;
-      if (o.k === 'volume') html = `<span>音量</span><span class="val">◀ ${Math.round(VOLUME_LEVELS[this.settings.volume] * 100)}% ▶</span>`;
+      if (o.k === 'wobble') html = `<span>${T('设置·晃动')}</span><span class="val">◀ ${WOBBLE_LEVELS[this.settings.wobble].n} ▶</span>`;
+      if (o.k === 'volume') html = `<span>${T('设置·音量')}</span><span class="val">◀ ${Math.round(VOLUME_LEVELS[this.settings.volume] * 100)}% ▶</span>`;
       if (o.k === 'look' || o.k === 'invert') html = `<span>${ADJ[o.k].label}</span><span class="val">◀ ${ADJ[o.k].levels[this.settings[o.k]].n} ▶</span>`;
       o.el.innerHTML = html;
       o.el.classList.toggle('on', i === this.pauseSel);
@@ -277,8 +298,10 @@ export class Menus {
     this.hideSummary();
     const el = h('div');
     el.id = 'summary';
-    const head = h('div', 'head', `<span class="t">收获单</span>${o.why ? `<span class="why">${o.why}</span>` : ''}`);
-    const tot = h('div', 'tot', `<span class="lab">这一趟</span><span class="num">${ICON.coin}<b>0</b></span>`);
+    const head = h('div', 'head', `<span class="t">${T('收获单·标题')}</span>${o.why ? `<span class="why">${o.why}</span>` : ''}`);
+    const tot = h('div', 'tot', `<span class="lab">${T('收获单·这一趟')}</span><span class="num">${ICON.coin}<b>0</b></span>`);
+    // 一局里：这一趟比上一趟多（少）多少，总数落定时亮出来
+    if (o.compare != null) tot.append(h('span', 'cmp' + (o.compare >= 0 ? ' up' : ' down'), `<span class="k">${T('收获单·比上一趟')}</span><b>${o.compare >= 0 ? '+' : '−'}${ICON.coin}${Math.abs(o.compare)}</b>`));
     // 入舱章：总数落定时盖下去
     const stamp = h('div', 'stamp');
     const scv = document.createElement('canvas');
@@ -295,9 +318,9 @@ export class Menus {
     });
     if (o.empty) {
       if (deeds.childNodes.length) deeds.prepend(h('i', 'dot'));
-      deeds.prepend(h('span', 'dd empty', '这一趟舱里是空的'));
+      deeds.prepend(h('span', 'dd empty', T('收获单·空')));
     }
-    const again = h('div', 'again', `${key(this.g.ui.device === 'pad' ? 'A' : '空格', 'a')}再来一趟<span class="cd"></span>`);
+    const again = h('div', 'again', `${key(this.g.ui.device === 'pad' ? 'A' : '空格', 'a')}${o.next || T('收获单·再来')}<span class="cd"></span>`);
     el.append(head, tot, tags, fly, deeds, again);
     el.addEventListener('pointerdown', () => { if (!this.g.input.botDriven) this.pending = 'again'; });
     this.root.append(el);

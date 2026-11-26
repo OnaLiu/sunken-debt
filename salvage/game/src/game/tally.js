@@ -6,6 +6,7 @@ import { toon, U } from '../render/materials.js';
 import { GeoBuilder } from '../util/builder.js';
 import { buildRays, poseRays } from './reveal.js';
 import { VIEW_W, VIEW_H } from '../config.js';
+import { T } from './tables.js';
 import { clamp, smoothstep, easeOut, easeInOut, easeOutBack, lerp, damp, mulberry32 } from '../util/math.js';
 
 // C15 收获单：开舱清点。
@@ -36,15 +37,16 @@ const _w = new THREE.Vector3();
 // 这件东西是从哪儿捞上来的（签上第二行）
 const PLACE_OF = {};
 for (const [k, ids] of Object.entries(NET_SPOTS)) {
-  const p = { shoal: '浅滩', anchor: '浅滩', hold: '沉船·断舱', jars: '沉船·船边', pots: '沉船·船边', dig: '沉船·船边', slope: '坡下', trench: '深槽' }[k];
+  // 表的 id，不是玩家看的：地名在配表「文案」
+  const p = { shoal: '地点·浅滩', anchor: '地点·浅滩', hold: '地点·断舱', jars: '地点·船边', pots: '地点·船边', dig: '地点·船边', slope: '地点·坡下', trench: '地点·深槽' }[k];
   for (const id of ids) PLACE_OF[id] = p;
 }
 export function placeOf(id, at) {
-  if (id && PLACE_OF[id]) return PLACE_OF[id];
-  if (id && id.startsWith('trail')) return '航路';
+  if (id && PLACE_OF[id]) return T(PLACE_OF[id]);
+  if (id && id.startsWith('trail')) return T('地点·航路');  // 表的 id，不是玩家看的
   if (at) {
-    if (Math.hypot(at.x - SHOAL.x, at.z - SHOAL.z) < 30) return '浅滩';
-    if (Math.hypot(at.x - WRECK.x, at.z - WRECK.z) < 26) return '沉船·船边';
+    if (Math.hypot(at.x - SHOAL.x, at.z - SHOAL.z) < 30) return T('地点·浅滩');  // 表的 id，不是玩家看的
+    if (Math.hypot(at.x - WRECK.x, at.z - WRECK.z) < 26) return T('地点·船边');  // 表的 id，不是玩家看的
   }
   return '';
 }

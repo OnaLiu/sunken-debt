@@ -1,21 +1,25 @@
 import * as THREE from 'three';
-import { NET_R, ARM_MIN, ARM_MAX, ARM_TIP_H, MAX_WORK_DEPTH, netFuelCost } from '../config.js';
+import { NET_R, ARM_MIN, ARM_MAX, ARM_TIP_H, MAX_WORK_DEPTH, netFuelCost, onNetR } from '../config.js';
 import { BOAT } from '../world/boat.js';
 import { TAG, TAG_TEXT } from '../world/collide.js';
 import { clamp, damp, wrapAngle } from '../util/math.js';
 
 // 打捞：白圈（网的落点）由玩家挪，吊臂照机械的样子自己追过去；每帧算出网口落在哪、碰不碰结构、多深、要多少作业油。
 const RING_N = 40;
-const SAMPLES = (() => {
-  const s = [{ x: 0, z: 0, r: 0 }];
-  for (const [r, n] of [[0.45, 6], [0.9, 12], [NET_R - 0.05, 24]]) {
+// 网口里取样的点：网口大小跟着设备变（船坞里升「网」），变了重排一遍（同一个数组，读它的地方不用换）
+const SAMPLES = [];
+function makeSamples() {
+  SAMPLES.length = 0;
+  SAMPLES.push({ x: 0, z: 0, r: 0 });
+  const k = NET_R / 1.4;
+  for (const [r, n] of [[0.45 * k, 6], [0.9 * k, 12], [NET_R - 0.05, 24]]) {
     for (let i = 0; i < n; i++) {
       const a = (i / n) * Math.PI * 2;
-      s.push({ x: Math.cos(a) * r, z: Math.sin(a) * r, r });
+      SAMPLES.push({ x: Math.cos(a) * r, z: Math.sin(a) * r, r });
     }
   }
-  return s;
-})();
+}
+makeSamples();
 
 // 吊臂是一台有分量的液压机器：绕吊机转、伸缩、升降各有自己的最高速度、加速度和「吃劲」的快慢（加加速度）。
 // 起步慢慢吃上劲、匀速转、快到了按刹车曲线提前减速，停得干脆，不冲过头、不回弹。
@@ -37,20 +41,22 @@ const HOME = {
 };
 const _homeSlew = { ...HOME.slew };
 // 网架挂在臂端下面：从驾驶室上方扫过去会撞上（船局部，算上网口半径）
-const CABIN = { x0: -5.2 - NET_R, x1: -2.3 + NET_R, hz: 1.5 + NET_R };
+const CABIN = {};
+const cabinZone = () => Object.assign(CABIN, { x0: -5.2 - NET_R, x1: -2.3 + NET_R, hz: 1.5 + NET_R });
+cabinZone();
 const inCabin = (x, z) => x > CABIN.x0 && x < CABIN.x1 && Math.abs(z) < CABIN.hz;
 // 从吊机往每个方向看，网架要伸到多远以外才不在驾驶室上方（碰不到给 0）：每 0.02 弧度一格
 const CAB_N = 315;
-const CAB_R = (() => {
-  const t = new Float32Array(CAB_N);
+const CAB_R = new Float32Array(CAB_N);
+function cabinTable() {
   for (let i = 0; i < CAB_N; i++) {
     const a = -Math.PI + (i / CAB_N) * Math.PI * 2;
     let out = 0;
     for (let r = 0.5; r < 12; r += 0.05) if (inCabin(BOAT.crane.x + Math.cos(a) * r, Math.sin(a) * r)) out = r;
-    t[i] = out ? out + 0.15 : 0;
+    CAB_R[i] = out ? out + 0.15 : 0;
   }
-  return t;
-})();
+}
+cabinTable();
 // 沿着从 a 转过 da 这段弧，网架最少要伸多远才一路不进驾驶室上方
 const cabinNeed = (a, da) => {
   let need = 0;
@@ -64,6 +70,16 @@ const cabinNeed = (a, da) => {
 // 网口不能压在自己船上：船身周围这一圈落不了网
 export const BOAT_ZONE = { hx: BOAT.halfLen + 0.3 + NET_R, hz: 2.3 + NET_R + 0.2 };
 export const inBoatZone = (x, z) => Math.abs(x) < BOAT_ZONE.hx && Math.abs(z) < BOAT_ZONE.hz;
+// 船身那一圈没加宽时有多宽（甲板加宽的平台在 deck.js 里往外加）
+export const boatZoneHz = () => 2.3 + NET_R + 0.2;
+// 网口变大了：取样点、驾驶室那一圈、船身那一圈跟着重算（甲板加宽的那一截由 deck.js 自己的钩子接着加上）
+onNetR(() => {
+  makeSamples();
+  cabinZone();
+  cabinTable();
+  BOAT_ZONE.hx = BOAT.halfLen + 0.3 + NET_R;
+  BOAT_ZONE.hz = boatZoneHz();
+});
 
 // 一根轴走一帧（st: { p 位置, v 速度, c 加速度 }）。先看加速度收回到 0 要多久、那时到了哪、多快
 // （加速度不能说变就变），再按「从那儿刹得住」的速度去追：远处全速，近了提前减速，最后一小段贴过去

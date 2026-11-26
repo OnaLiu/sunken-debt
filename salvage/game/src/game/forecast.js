@@ -22,7 +22,8 @@ export function crabInNet(x, z, y, cx, cz, restY) {
 }
 
 // 蟹的去留在网落到底那一下定（crab.startle）：那时在这一圈里的出不去、会被兜上来；圈外的、正在逃的跑回窝
-const CRAB_TRAP = NET_R - 0.1;
+// 网口大小跟着设备变：每次现取
+const crabTrap = () => NET_R - 0.1;
 // 预告蟹的时候：落到底的时刻前后各算一点（按 A 的早晚、落网快慢都有出入），三个时刻都稳稳在圈里才给金圈，
 // 都稳稳在外面（或已经钻回窝）才打叉；卡在边上说不准的，不预告
 const CRAB_WINDOW = 0.35;
@@ -90,13 +91,13 @@ export class Forecast {
       const fs = [T - CRAB_WINDOW, T, T + CRAB_WINDOW].map((t) => c.predict(t));
       const gone = (f) => f.hidden || f.st === 'flee' || f.st === 'hide';
       const dist = (f) => Math.hypot(f.x - ev.tip.x, f.z - ev.tip.z);
-      if (level && fs.every((f) => !gone(f) && dist(f) < CRAB_TRAP - CRAB_MARGIN)) {
+      if (level && fs.every((f) => !gone(f) && dist(f) < crabTrap() - CRAB_MARGIN)) {
         // 金圈画在它落网那一刻会在的地方（不是套在蟹身上跟着走，免得看成「锁定」），从蟹身上牵一道虚线过去
         const f = fs[1];
         this.marks.push({ k: 'yes', crab: c, r: c.r * 1.6, at: new THREE.Vector3(f.x, c.pos.y + 0.1, f.z) });
         this.yes++;
         this.yesIds.add('crab' + c.id);
-      } else if (d0 - c.r < NET_R && (!level || fs.every((f) => gone(f) || dist(f) > CRAB_TRAP + 0.1))) {
+      } else if (d0 - c.r < NET_R && (!level || fs.every((f) => gone(f) || dist(f) > crabTrap() + 0.1))) {
         this.marks.push({ k: 'no', crab: c, r: c.r * 1.6 });
       }
     }

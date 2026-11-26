@@ -131,7 +131,9 @@ export class SnapAim {
 
   // 这会儿白圈、预告、小牌亮不亮：鼠标没指着打捞点时只剩各处的记号；指着够不着的，小牌在那一处、白圈不出
   get lit() {
-    if (this.g.castQ || !this.mouse) return true;
+    if (this.g.castQ) return true;
+    // 手柄（没用过鼠标）：白圈停在一处打捞点上才亮；附近一处都没有（港外航路上）就不出白圈
+    if (!this.mouse) return !!this.cur;
     return !!this.hov && !this.hov.far;
   }
 

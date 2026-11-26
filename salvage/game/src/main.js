@@ -5,6 +5,7 @@ import { EffectsPage } from './fx/effects.js';
 import { CssClock } from './ui/cssclock.js';
 import { renderLog, toWav } from './audio/audio.js';
 import { canSee, seeItem, hiddenWhy, itemHiddenWhy, showingOf, compareWreckRay } from './game/sight.js';
+import { tideLayout } from './game/tide.js';
 
 // 固定 1920×1080 的逻辑画面，按放它的框（平时是整个窗口；效果页是右边那一块）整体等比缩放、留边
 const canvas = document.getElementById('view');
@@ -28,23 +29,39 @@ function start() {
   const fxMode = mode === 'effects';
   // 效果页：随机数固定，每次放都一样（只在这一页；游戏和自动演示照旧）
   if (fxMode) EffectsPage.seed(20261016);
-  const game = new Game(canvas, document.getElementById('ui'), { demo: mode === 'demo', tags: fxMode || !!window.SUNKEN_TAGS || q.get('tags') === '1' });
+  // 走哪条路：
+  //   默认（index.html、demo.html）：第一段·归潮沙湾的三小段，一局从标题开始（出海 → 开舱 → 债本 → 船坞 → 再出海）
+  //   xiaoyang=1：小样那一刻（停在沉船旁、码满一甲板一起冲），用户点过头的那一版照旧留着
+  //   trip=1、效果页：原来那一整趟（标题、出港、收获单），效果页还用它
+  const wholeTrip = q.get('trip') === '1' || fxMode;
+  const xiaoyang = !wholeTrip && q.get('xiaoyang') === '1';
+  const route = wholeTrip ? 'trip' : xiaoyang ? 'moment' : 'run';
+  const game = new Game(canvas, document.getElementById('ui'), { route, demo: mode === 'demo', tags: fxMode || !!window.SUNKEN_TAGS || q.get('tags') === '1' });
   window.__game = game;
 
-  // 一打开就是第一段·归潮沙湾的这一刻（小样）：停在沉船旁边、在打捞模式里。
-  // trip=1：原来那一整趟（标题、出港、收获单），留着给效果页和以后的段用
-  const wholeTrip = q.get('trip') === '1' || fxMode;
   const touch = !!(window.HengPing && window.HengPing.touch);
-  if (!wholeTrip) {
+  const wantDemo = mode === 'demo' || q.get('demo') === '1' || q.get('autostart') === 'demo' || touch;
+  const hush = () => { if (window.HengPing) window.HengPing.onPause((on) => { const c = game.audio.ctx; if (c) { if (on) c.suspend(); else c.resume(); } }); };
+  if (route === 'moment') {
     game.moment.begin();
     // fill=1：从「甲板码满、等开冲」那一刻放（展示页里看招牌那一扇小窗）；再来一次也从这儿
     if (q.get('fill') === '1') { game.moment.autoFill = [['jar', 'jar2', 'rope'], ['copperset'], ['barrel'], ['seal'], ['chest', 'sack']]; game.moment.prefill(game.moment.autoFill); }
-    // 自动演示：demo.html、地址里带 demo=1 / autostart=demo、触屏（手机平板只看演示）
-    if (mode === 'demo' || q.get('demo') === '1' || q.get('autostart') === 'demo' || touch) game.startMomentDemo();
+    if (wantDemo) game.startMomentDemo();
     // 触屏：点一下暂停时挑看哪一段（这一版只有这一刻的开头）；暂停时声音也停
     if (window.HengPing) {
       window.HengPing.segments([{ name: game.moment.segName(), go: () => { game.moment.begin(); if (!game.bot) game.startMomentDemo(); else game.bot.restart(); } }]);
-      window.HengPing.onPause((on) => { const c = game.audio.ctx; if (c) { if (on) c.suspend(); else c.resume(); } });
+      hush();
+    }
+  } else if (route === 'run') {
+    // seg=1/2/3：直接从第一趟、船坞、第二潮开始（试跑、手机上挑段）；照这一局走到那里时的样子摆好，不动玩家的存档
+    const seg = Number(q.get('seg') || 0);
+    const jump = (n, bot) => game.jumpSeg(n, bot);
+    if (seg) jump(seg, wantDemo);
+    else if (wantDemo) game.later(touch || mode === 'demo' ? 3.2 : 0.1, () => { if (game.mode === 'title') game.startPlay(true); });
+    else if (q.get('autostart') === 'play') game.startPlay(false);
+    if (window.HengPing) {
+      window.HengPing.segments([1, 2, 3].map((n) => ({ name: game.run.segName(n), go: () => jump(n, true) })));
+      hush();
     }
   } else if (q.get('autostart') === 'demo') game.startPlay(true);
   else if (q.get('autostart') === 'play') game.startPlay(false);
@@ -59,6 +76,8 @@ function start() {
   window.__audioLib = { renderLog, toWav };
   // 自查用：「看得见」的判断（界面标记和机器人用的同一份），tools/seecheck.mjs 拿它和画面对
   window.__sight = { canSee, seeItem, hiddenWhy, itemHiddenWhy, showingOf, compareWreckRay };
+  // 自查用：第 n 潮海底摆了什么（tide.js）
+  window.__tide = tideLayout;
 
   const fx = fxMode ? new EffectsPage(game, q) : null;
   window.__fx = fx;
@@ -100,6 +119,7 @@ function start() {
     avgMs: +((ft.reduce((a, b) => a + b, 0) / Math.max(1, ft.length)) * 1000).toFixed(2),
     maxMs: +(Math.max(...ft) * 1000).toFixed(1),
     bot: game.bot ? game.bot.stage : null,
+    run: game.run.on ? { phase: game.run.phase, money: game.run.st.money, tide: game.run.st.tide, gear: { ...game.run.st.gear }, paid: game.run.st.paid } : null,
     seen: game.bot ? game.bot.seen.size : 0,
   });
 }

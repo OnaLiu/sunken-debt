@@ -69,10 +69,10 @@ export function keepOut(x, y, w, h, extra) {
 }
 
 const MODE = {
-  sail: { n: '开船', ic: ICON.sail },
-  arm: { n: '打捞', ic: ICON.arm },
-  net: { n: '作业', ic: ICON.net },
-  reveal: { n: '作业', ic: ICON.net },
+  sail: { n: T('模式·开船'), ic: ICON.sail },
+  arm: { n: T('模式·打捞'), ic: ICON.arm },
+  net: { n: T('模式·作业'), ic: ICON.net },
+  reveal: { n: T('模式·作业'), ic: ICON.net },
 };
 
 export class UI {
@@ -90,16 +90,16 @@ export class UI {
     // 货格：揭晓后只摆这一网收上来的（一件一格、格里是那件的小图，旁边是这一网的价值）；暂停时才看整趟（件数、总价值）
     this.tallyEl = h('div', 'panel', `<span class="net"><span class="slots"></span><span class="it">${ICON.coin}<b class="nv">+0</b></span></span><span class="trip"><span class="it"><span class="cell">${ICON.crate}</span><b class="n roll">0</b></span><span class="it">${ICON.coin}<b class="v">0</b></span></span>`);
     this.tallyEl.id = 'tally';
-    this.modeEl = h('div', '', `<div class="why panel sh"></div><div class="chip"><span class="mi"></span><span class="mn"></span><canvas class="qr" width="${QUIT_N}" height="${QUIT_N}"></canvas><span class="qn">收工</span></div><div class="keys panel"></div>`);
+    this.modeEl = h('div', '', `<div class="why panel sh"></div><div class="chip"><span class="mi"></span><span class="mn"></span><canvas class="qr" width="${QUIT_N}" height="${QUIT_N}"></canvas><span class="qn">${T('模式·回港')}</span></div><div class="keys panel"></div>`);
     this.modeEl.id = 'modebar';
     this.tipEl = h('div', 'panel', `<span class="do"></span><span class="n">${ICON.crate}<b class="roll"></b></span><span class="c"><span class="fi">${ICON.fuel}</span><b></b></span><span class="x">${ICON.no}</span><span class="r"></span>`);
     this.tipEl.id = 'tip';
-    this.sonarEl = h('div', 'panel', `<div class="t"><span class="di">${ICON.depth}</span><b class="sd">--</b><span class="u">米</span></div>`);
+    this.sonarEl = h('div', 'panel', `<div class="t"><span class="di">${ICON.depth}</span><b class="sd">--</b><span class="u">${T('单位·米')}</span></div>`);
     this.sonarEl.id = 'sonar';
     this.cards = h('div');
     this.bigEl = h('div', '', `<div class="n"></div><br><div class="v">${ICON.coin}<b></b></div><div class="d"></div>`);
     this.bigEl.id = 'big';
-    this.demoEl = h('div', 'panel', `<div class="dot"></div><span>自动演示</span>${key('Esc')}<span>接管</span>`);
+    this.demoEl = h('div', 'panel', `<div class="dot"></div><span>${T('演示·标牌')}</span>${key('Esc')}<span>${T('演示·接管')}</span>`);
     this.demoEl.id = 'demo';
     // 指针旁边的一句（没指着打捞点就点了这类）
     this.sayEl = h('div', 'panel');
@@ -250,6 +250,8 @@ export class UI {
       }
     }
     if (!L.zoom) out.push([key(K.zoom), '键·远近']);  // 表的 id，不是玩家看的
+    // 一局里：下过一网以后说一次按住 Q（手柄 B）回港，回过一次港就收起
+    if (this.g.moment.run && L.arm && !L.quit && this.mode === 'arm') out.push([key(K.quit, 'b'), '键·按住回港']);  // 表的 id，不是玩家看的
     return out.map(([k, t]) => `<span>${k}${T(t)}</span>`).join('');
   }
 

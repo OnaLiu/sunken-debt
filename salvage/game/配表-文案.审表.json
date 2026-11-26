@@ -1,20 +1,37 @@
 {
  "id": "sd-wenan",
  "kind": "文案",
- "title": "小样的字（海上这一屏）",
- "say": "不在捞获上的字：按键提示、开冲的牌子、结算、暂停。一眼读得懂、放得下、是游戏界面的说法。",
+ "title": "界面上的字",
+ "say": "不在捞获上、玩家看得到的字：标题、按键提示、开冲的牌子、收获单、船坞、债本、暂停。一眼读得懂、放得下、是游戏界面的说法。",
  "source": "配表.md#文案",
  "key": "id",
  "columns": {
-  "字": {"player": true, "options": false, "max": "最多几个字"},
+  "字": {
+   "player": true,
+   "options": false,
+   "max": "最多几个字"
+  },
   "哪一屏": {},
   "在哪": {},
-  "什么时候": {"options": false},
+  "什么时候": {
+   "options": false
+  },
   "谁说": {},
-  "作用": {"options": false},
+  "作用": {
+   "options": false
+  },
   "最多几个字": {}
  },
- "lines": {"text": "字", "screen": "哪一屏", "when": "什么时候", "who": "谁说", "where": "在哪", "why": "作用"},
- "vary": {"{n}": "12"},
+ "lines": {
+  "text": "字",
+  "screen": "哪一屏",
+  "when": "什么时候",
+  "who": "谁说",
+  "where": "在哪",
+  "why": "作用"
+ },
+ "vary": {
+  "{n}": "12"
+ },
  "game": "表/生成/文案.js"
 }

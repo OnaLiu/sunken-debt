@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { BOAT, halfB } from '../world/boat.js';
-import { BOAT_ZONE } from './arm.js';
-import { NET_R } from '../config.js';
+import { BOAT_ZONE, boatZoneHz } from './arm.js';
+import { NET_R, onNetR } from '../config.js';
 import { GeoBuilder } from '../util/builder.js';
 import { toon } from '../render/materials.js';
 import { clamp, lerp, easeOut } from '../util/math.js';
@@ -22,7 +22,6 @@ const C = {
 };
 const _v = new THREE.Vector3();
 const _q = new THREE.Quaternion();
-const BOAT_HZ = BOAT_ZONE.hz;
 
 // 某一处（船局部 x）船身外沿多宽：平台贴着这一条
 const hullAt = (x) => halfB(clamp(x, -BOAT.halfLen, BOAT.halfLen));
@@ -46,6 +45,7 @@ export class DeckStack {
     g.boat.body.add(this.group);
     this.buildSponsons();
     this.reset();
+    onNetR(() => this.zone());
   }
 
   // 开：甲板加宽（平台露出来），网包从此码在甲板上
@@ -53,10 +53,15 @@ export class DeckStack {
     this.on = on;
     this.cap = cap;
     this.group.visible = on;
-    // 网口不能压在自己船上：加宽的那一截也算船身
-    BOAT_ZONE.hz = on ? Math.max(BOAT_HZ, SPONSON.w + hullAt(2.5) + NET_R + 0.1) : BOAT_HZ;
+    this.zone();
     this.makeSlots();
     this.reset();
+  }
+
+  // 网口不能压在自己船上：加宽的那一截也算船身（网口变大了也跟着重算）
+  zone() {
+    const base = boatZoneHz();
+    BOAT_ZONE.hz = this.on ? Math.max(base, SPONSON.w + hullAt(2.5) + NET_R + 0.1) : base;
   }
 
   makeSlots() {

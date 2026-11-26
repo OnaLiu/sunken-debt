@@ -23,7 +23,8 @@ export class ItemSystem {
     this.scarMat = toon({ color: 0xffffff, vertexColors: true, transparent: false });
   }
 
-  reset() {
+  // tide：这一潮重铺的散货（tide.js 的 tideLayout）；不给就是第一趟原来的摆法（银币匣一定在）
+  reset(tide = null) {
     for (const it of this.items) {
       it.model.group.parent && it.model.group.parent.remove(it.model.group);
       if (it.mound) this.group.remove(it.mound);
@@ -41,7 +42,7 @@ export class ItemSystem {
         id: spec.id, kind: spec.kind, def, model,
         x, z, y: sy, rot: spec.rot || 0, tilt: spec.tilt || 0, bury: spec.bury || 0, grip: spec.grip, moundAt: spec.moundAt || 0,
         h: model.info.h, r: def.r, state: 'seabed', inHold: !!opts.inHold, seed,
-        surfaceTag: opts.tag || 0,
+        surfaceTag: opts.tag || 0, from: spec.from || '',
       };
       this.placeItem(it);
       this.group.add(model.group);
@@ -49,14 +50,19 @@ export class ItemSystem {
       this.items.push(it);
       return it;
     };
-    for (const s of LOOSE_ITEMS) add(s, s.x, s.z);
-    for (const s of OUTER_ITEMS) {
-      const w = wreckToWorld(s.along, s.side);
-      add(s, w.x, w.z);
+    if (tide) for (const s of tide.loose) add(s, s.x, s.z);
+    else {
+      for (const s of LOOSE_ITEMS) add(s, s.x, s.z);
+      for (const s of OUTER_ITEMS) {
+        const w = wreckToWorld(s.along, s.side);
+        add(s, w.x, w.z);
+      }
     }
+    // 线索（船板、桶板、断缆、碎陶片）每一潮都在：地形、沉船和线索不变，走熟了的海认得出来
     for (const t of TRAIL) add({ id: 'trail-' + t.kind + t.x, kind: t.kind, rot: t.rot, bury: 0.2 }, t.x, t.z);
-    // 印章：事先就埋着（蟹翻泥会把它翻出来）
-    {
+    // 印章：事先就埋着（蟹翻泥会把它翻出来）。只在第一趟：那是第一趟的事，以后每一潮船边冲出来的铜印照 tide.js
+    this.seal = null;
+    if (!tide) {
       const w = wreckToWorld(SEAL_SPOT.along, SEAL_SPOT.side);
       this.seal = add({ id: 'seal', kind: 'seal', rot: 0.7, bury: SEAL_SPOT.bury }, w.x, w.z, null, { noMound: true });
     }
@@ -69,8 +75,13 @@ export class ItemSystem {
         // 舱里的东西蒙着一层灰白的细淤，压在更暗的舱底上看得出轮廓
         return add(spec, p.x, p.z, p.y, { inHold: true, tag: 1, mud: 0.46, mudColor: 0x8c8473 });
       };
-      this.chest = put({ id: 'chest', kind: 'chest', rot: 0.4, tilt: 0.12, bury: 0.32 }, 2.75, 0.55);
-      put({ id: 'sack', kind: 'sack', rot: 2.2, tilt: 0.2, bury: 0.2 }, 1.85, 0.42);
+      if (tide) {
+        this.chest = null;
+        for (const s of tide.hold) { const it = put(s, s.lx, s.t); if (s.kind === 'chest') this.chest = it; }
+      } else {
+        this.chest = put({ id: 'chest', kind: 'chest', rot: 0.4, tilt: 0.12, bury: 0.32 }, 2.75, 0.55);
+        put({ id: 'sack', kind: 'sack', rot: 2.2, tilt: 0.2, bury: 0.2 }, 1.85, 0.42);
+      }
     }
   }
 

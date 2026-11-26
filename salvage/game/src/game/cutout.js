@@ -9,7 +9,8 @@ import { N } from './tables.js';
 // 全游戏一份。
 const PTR_R = 1.7; // 鼠标的口子在海底那儿多大（米）
 const PTR_PEEK = 0.9; // 靠近到底时再大多少
-const RING_R = NET_R + 0.35, NETHOLE_R = NET_R + 0.55;
+// 网口大小跟着设备变：每次现取
+const ringR = () => NET_R + 0.35, netHoleR = () => NET_R + 0.55;
 const NET_Y = 1.2; // 网低到离水面这么近才会被船挡住；挂在臂端、提在半空时比船高，不挖
 const IN = 0.1, OUT = 0.12; // 口子张开、合上（秒）
 const MAX = 8;
@@ -50,7 +51,7 @@ export class Cutout {
     } else if (g.moment.on) {
       // 镜头靠近的那一点（鼠标挪到别处时它慢慢跟过去）
       if (g.peek.on) yield ['ptr', g.peek.p, PTR_R + PTR_PEEK * g.peek.k, 0.2];
-      const at = (s) => ['s:' + s.key, _v.set(s.x, s.y, s.z), RING_R, 0.2];
+      const at = (s) => ['s:' + s.key, _v.set(s.x, s.y, s.z), ringR(), 0.2];
       if (g.mode === 'arm' && !g.castQ) {
         const s = S.mouse ? S.hov : S.cur;
         if (s && !s.far) yield at(s);
@@ -60,10 +61,10 @@ export class Cutout {
       }
     } else if (g.mode === 'arm') {
       const A = g.arm, e = A.eval;
-      if (e && e.restY > -100) yield ['aim', _v.set(A.aim.x, e.restY, A.aim.z), RING_R, 0.2];
+      if (e && e.restY > -100) yield ['aim', _v.set(A.aim.x, e.restY, A.aim.z), ringR(), 0.2];
     }
     // 网在水里；往甲板上转、放下时在船的上面，不挖
-    if (no.netPos.y < NET_Y && !['swing', 'set', 'release'].includes(no.phase)) yield ['net', _v.copy(no.netPos).setY(no.netPos.y - 0.5), NETHOLE_R, NETHOLE_R];
+    if (no.netPos.y < NET_Y && !['swing', 'set', 'release'].includes(no.phase)) yield ['net', _v.copy(no.netPos).setY(no.netPos.y - 0.5), netHoleR(), netHoleR()];
   }
 
   update(dt) {

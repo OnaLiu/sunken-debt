@@ -1,0 +1,18 @@
+{
+ "id": "sd-mingci",
+ "kind": "文案",
+ "title": "名词",
+ "say": "会接到别的规则上的词：处处上同一个颜色。",
+ "source": "配表.md#名词",
+ "key": "词",
+ "columns": {
+  "词": {
+   "player": true
+  },
+  "颜色": {},
+  "意思": {
+   "player": true
+  }
+ },
+ "game": "表/生成/名词.js"
+}

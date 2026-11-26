@@ -138,7 +138,9 @@ export class BatchWash {
     if (!this.on) return;
     const g = this.g;
     const speed = aHeld ? SPEEDUP : 1;
-    this.clock += dt * speed;
+    // 水泵升过级：冲得快几倍（船坞里的「水泵」）
+    const pump = g.washK || 1;
+    this.clock += dt * speed * pump;
     this.phaseT += dt;
     // 压轴以前镜头在看整个甲板的机位上；压轴那一段归揭晓的近景管
     if (g.cam.alt.w > 0 && (this.phase === 'wash' || this.phase === 'tag')) this.overview(dt);
@@ -157,7 +159,7 @@ export class BatchWash {
       }
       for (const e of this.list) {
         if (e.state !== 'wash') continue;
-        e.w = Math.min(1, e.w + (dt / e.D) * speed);
+        e.w = Math.min(1, e.w + (dt / e.D) * speed * pump);
         this.washOne(e, dt, speed);
         washing++;
         mud = Math.max(mud, 1 - 0.6 * smoothstep(0.4, 0.85, e.w));
@@ -313,7 +315,7 @@ export class BatchWash {
     const entries = [];
     for (const it of b.items) {
       g.reveal.addCargo(it);
-      entries.push({ kind: it.kind, def: it.def, it, from: placeOf(it.id) });
+      entries.push({ kind: it.kind, def: it.def, it, from: it.from || placeOf(it.id) });
       this.got.push({ it, t: 0, y0: it.model.group.position.y, hop: clamp(0.11 - it.r * 0.06, 0.04, 0.09) });
     }
     if (b.crab) {

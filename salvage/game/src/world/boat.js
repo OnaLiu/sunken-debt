@@ -524,24 +524,26 @@ function buildNetFrame() {
   const root = new THREE.Group();
   root.name = 'netframe';
   const ringMat = toon({ color: 0xb24a2c, spec: 0.3, shin: 20 });
-  const ring = new THREE.Mesh(new THREE.TorusGeometry(NET_R, 0.075, 6, 28), ringMat);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(1.4, 0.075, 6, 28), ringMat);
   ring.rotation.x = Math.PI / 2;
   ring.castShadow = true;
   root.add(ring);
   const lead = toon({ color: 0x55585c, spec: 0.3 });
+  const weights = [];
   for (let i = 0; i < 8; i++) {
     const a = (i / 8) * Math.PI * 2;
     const w = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.14, 0.16), lead);
-    w.position.set(Math.cos(a) * NET_R, -0.05, Math.sin(a) * NET_R);
+    w.position.set(Math.cos(a) * 1.4, -0.05, Math.sin(a) * 1.4);
     w.castShadow = true;
     root.add(w);
+    weights.push({ w, a });
   }
   // 吊链
   const chainB = new GeoBuilder();
   const hook = new THREE.Vector3(0, 1.25, 0);
   for (let i = 0; i < 4; i++) {
     const a = (i / 4) * Math.PI * 2 + Math.PI / 4;
-    const p = new THREE.Vector3(Math.cos(a) * NET_R, 0.02, Math.sin(a) * NET_R);
+    const p = new THREE.Vector3(Math.cos(a) * 1.4, 0.02, Math.sin(a) * 1.4); // 照 1.4 米的网口做，网口变大时 setR 放大
     chainB.beam(p, hook, new THREE.Vector3(0, 1, 0), 0.04, 0.04, new THREE.Color(0.25, 0.25, 0.27));
   }
   chainB.cylinder(new THREE.Vector3(0, 1.2, 0), new THREE.Vector3(0, 1.45, 0), 0.09, 0.07, 6, new THREE.Color(0.2, 0.2, 0.2));
@@ -602,7 +604,17 @@ function buildNetFrame() {
   const bag = new THREE.Group();
   bag.position.y = -0.7;
   root.add(bag);
-  return { root, ring, skirt, state, updateSkirt, bag, hookY: 1.45 };
+  // 网口变大（船坞里升「网」）：网圈、配重、吊链照新的半径摆，网圈和配重也粗一圈；网衣每帧照 NET_R 自己长
+  const R0 = 1.4;
+  function setR(r) {
+    const k = r / R0;
+    ring.scale.set(k, k, Math.sqrt(k));
+    for (const { w, a } of weights) { w.position.set(Math.cos(a) * r, -0.05, Math.sin(a) * r); w.scale.setScalar(Math.sqrt(k)); }
+    chains.scale.set(k, 1, k);
+    updateSkirt();
+  }
+  if (NET_R !== R0) setR(NET_R);
+  return { root, ring, skirt, state, updateSkirt, bag, hookY: 1.45, setR };
 }
 
 // 由臂端目标（船局部坐标）求转台角、臂长、仰角

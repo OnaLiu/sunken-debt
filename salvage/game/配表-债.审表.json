@@ -1,0 +1,18 @@
+{
+ "id": "sd-zhai",
+ "kind": "build",
+ "title": "债",
+ "say": "债本一页一页：要还多少、还清以后开放哪一片海。",
+ "source": "配表.md#债",
+ "key": "页",
+ "columns": {
+  "页": {},
+  "要还": {
+   "player": true
+  },
+  "还清以后": {
+   "player": true
+  }
+ },
+ "game": "表/生成/债.js"
+}

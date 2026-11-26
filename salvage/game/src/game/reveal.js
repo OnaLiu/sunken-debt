@@ -578,7 +578,8 @@ export class Reveal {
       const speed = aHeld ? WASH_SPEEDUP : 1;
       if (aHeld && !c.fast) g.cue('B13', 1.5);
       c.fast = aHeld;
-      c.w = Math.min(1, c.w + (dt / c.T) * speed);
+      // 水泵升过级：冲得快几倍（船坞里的「水泵」）
+      c.w = Math.min(1, c.w + (dt / c.T) * speed * (g.washK || 1));
       const w = c.w;
       if (w > 0.02 && !c.cued) { c.cued = true; g.cue('B12'); }
       this.washVisuals(dt, w, speed);
@@ -940,7 +941,7 @@ export class Reveal {
       it.state = 'deck';
       const cg = new Cargo(this, it, it.model.group);
       this.cargo.push(cg);
-      entries.push({ kind: it.kind, def: it.def, it, from: placeOf(it.id) });
+      entries.push({ kind: it.kind, def: it.def, it, from: it.from || placeOf(it.id) });
       // 泥一甩掉，东西往上一弹（越轻弹得越高）
       c.got.push({ it, y0: it.model.group.position.y, hop: clamp(0.11 - it.r * 0.06, 0.04, 0.09) });
     }

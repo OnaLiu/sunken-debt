@@ -1184,6 +1184,8 @@ export class Crew {
       if (s.cheerUntil && s.t > s.cheerUntil) { s.cheerUntil = 0; if (s.pose === 'cheer') s.pose = s.task && s.task.kind === 'watch' ? 'watch' : 'stand'; }
       const T = s.task;
       if (T && T.kind === 'carry') this.updateCarry(s, T, dt);
+      // 船坞里装设备：走过去、蹲下、拧几下，由 game/dock.js 一步步带着，这里不管
+      else if (T && T.kind === 'install') { /* dock.js */ }
       else if (T && T.kind === 'wash') {
         if (!s.moving) {
           s.faceT = Math.atan2(-(this.washSpot.z - s.z), this.washSpot.x - s.x);

@@ -1,0 +1,20 @@
+{
+ "id": "sd-shebei",
+ "kind": "build",
+ "title": "设备",
+ "say": "船坞里每一样设备每一级的价钱和升到这一级以后的数。",
+ "source": "配表.md#设备",
+ "key": "id",
+ "columns": {
+  "id": {
+   "hide": true
+  },
+  "设备": {},
+  "级": {},
+  "价钱": {
+   "player": true
+  },
+  "数": {}
+ },
+ "game": "表/生成/设备.js"
+}

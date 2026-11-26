@@ -1,8 +1,15 @@
 // 沉债的这一份（主文件夹这条线）：怎么直接到第一段·归潮沙湾小样的每一刻。
 // 页面带 manual=1 时画面不自己走，由 __advance 一帧一帧推（固定 1/60 秒），不画的帧 game.noDraw 跳过画面（状态照样算，跳不跳截出来的一样）。
 export default {
-  owns: ['这一刻', '演示', '一整趟', '码满', '码满·没去舱里', '触屏'],
+  owns: ['这一刻', '演示', '一整趟', '码满', '码满·没去舱里', '触屏', '标题', '一局演示', '第一趟', '第一趟·演示', '船坞', '船坞·演示', '第二潮', '第二潮·演示', '触屏·三小段'],
   reaches: [
+    '三小段（index.html 默认走这条路，一局从标题开始）：',
+    '  标题：标题画面，自己玩；有存档时是「继续 / 新的一局」（localStorage 的 sunken-run-v1）。一局演示：标题上直接开自动演示，从第一趟一路放到第二潮回港（约 6 分钟，`--until window.__demoEnd`）。',
+    '  第一趟：从港外航路出发（seg=1），甲板没加宽、一网一揭，银币匣一定在；按住 Q 一秒回港 → 收获单 → 第一次翻开债本 → 船坞。',
+    '  船坞：第一趟捞完回来（seg=2，钱照配表「段·第一趟带回来的钱」），先翻开债本，合上进船坞；`__game.run.ui.at(\'net\')` 是那一样设备的牌子在画面上哪一点（net/tank/deck/pump/buy/sail/book/close/pay）。',
+    '  第二潮：船坞里升过甲板、网、油箱以后出海（seg=3）：海底重铺过，码满一甲板一起冲。几个都有 ·演示（机器人从那一段开头接着放）。',
+    '  `__game.run.st` 是这一局（钱、第几潮、设备几级、还到第几页）；--probe @一局 看它和这一屏。触屏·三小段：手机、平板打开三小段。',
+    '小样（xiaoyang=1，用户 11-25 点过头的那一版）：',
     '这一刻：一打开就停在沉船旁边（小样），自己玩（没有机器人）。',
     '自己玩的手（每一段都有，发的是真的鼠标键盘事件，走玩家那条路）：__hand.move(x,y) 指针挪到画面上一点（1920×1080）、__hand.at(\'jar\') 指到含这件东西的那一处打捞点、',
     '  __hand.click()、__hand.down(键号)/up(键号)（0 左 2 右）、__hand.wheel(±1)、__hand.key(\'KeyW\',true|false)、__hand.tap(\'KeyE\')；__hand.spots() 列出打捞点和它们在画面上的位置；__adv(秒) 快进。',
@@ -21,7 +28,15 @@ export default {
     '素材对照（换素材前后比）：--probe @素材对照·捞获 / @素材对照·场地，用法见文件里这两条探针上面的注释；截图对的是 素材/基准/ 里同名的图。@素材对照·近看：舱里的杂货、礁石、沉船散件（断桅横桁、舱盖、埋着的船材、尾楼）推近（基准里没有，比上一版同机位）。',
   ].join('\n'),
   page: 'index.html',
-  query: (seg = '') => (seg = seg || '', seg === '触屏' ? 'manual=1&touch=1' : seg.startsWith('演示') || seg.startsWith('码满') ? 'manual=1&demo=1' : seg === '一整趟' ? 'manual=1&trip=1&autostart=demo' : 'manual=1'),
+  query: (seg = '') => {
+    seg = seg || '';
+    // 三小段（默认那条路）
+    const run = { 标题: '', 一局演示: '&demo=1', 第一趟: '&seg=1', 船坞: '&seg=2', 第二潮: '&seg=3', '触屏·三小段': '&touch=1' };
+    const base = seg.split('·演示')[0];
+    if (base in run) return 'manual=1' + run[base] + (seg.endsWith('·演示') ? '&demo=1' : '');
+    // 小样（xiaoyang=1）、原来那一整趟
+    return seg === '触屏' ? 'manual=1&touch=1&xiaoyang=1' : seg.startsWith('演示') || seg.startsWith('码满') ? 'manual=1&demo=1&xiaoyang=1' : seg === '一整趟' ? 'manual=1&trip=1&autostart=demo' : 'manual=1&xiaoyang=1';
+  },
   // 触屏：在页面自己的脚本之前把「指针」改成只有手指（kit/hengping.js 照这个判断）
   pre: `if (location.search.includes('touch=1')) { const mm = window.matchMedia.bind(window); window.matchMedia = (q) => (/pointer: coarse/.test(q) ? { matches: true, media: q, addEventListener() {}, addListener() {} } : /pointer: fine/.test(q) ? { matches: false, media: q, addEventListener() {}, addListener() {} } : mm(q)); }
 window.__adv = (t) => { const g = window.__game; g.noDraw = true; window.__advance(Math.max(1, Math.round(t * 60)) - 1); g.noDraw = false; window.__advance(1); };
@@ -51,6 +66,7 @@ window.__hand = (() => {
     real: 'window.__manual = false',
   },
   probes: {
+    一局: `return (() => { const g = window.__game, R = g.run; return { mode: g.mode, phase: R.phase, money: R.st.money, tide: R.st.tide, gear: R.st.gear, paid: R.st.paid, fuel: +g.trip.fuel.toFixed(1), nets: g.trip.nets, deck: g.deck.on ? g.deck.filled + '/' + g.deck.slots.length : 'off', haul: g.trip.haul.length, total: g.trip.total, boat: [+g.boatCtl.pos.x.toFixed(1), +g.boatCtl.pos.z.toFixed(1)], flags: { shoal: !!g.flags.shoal, wreck: !!g.flags.wreck, trail: g.flags.trailIdx }, bot: g.bot && g.bot.stage, demoEnd: !!window.__demoEnd }; })()`,
     状态: `return (() => { const g = window.__game; return { mode: g.mode, fuel: +g.trip.fuel.toFixed(1), deck: g.deck.filled + '/' + g.deck.slots.length, spots: g.snap.spots.length, cur: g.snap.cur && g.snap.cur.key, far: g.snap.cur && g.snap.cur.far, batch: g.batch.phase, total: g.batch.total, bot: g.bot && g.bot.stage, haul: g.trip.haul.map((h) => h.name), demoEnd: !!window.__demoEnd }; })()`,
     // 素材对照：把这一刻海底的几件捞获洗干净摆在水面上一件件推近（每一刻拍上一件：第 2 刻起依次是陶罐、缆绳卷、铜锅、箍桶、货袋、银币匣、铜印、信筒、铜灯），
     // 给做素材、换素材的轮次对照现在的样子：node tools/moment.mjs 这一刻 0.5,1,1.5,2,2.5,3,3.5,4,4.5,5 --probe @素材对照·捞获
