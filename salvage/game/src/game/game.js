@@ -492,7 +492,7 @@ export class Game {
     });
     // 出了岔子才说一句
     E.on('hitHard', (e) => {
-      this.ui.toast('网口碰到埋着的硬东西', 2.6);
+      this.ui.toast(T('提示·碰到硬东西'), 2.6);  // 表的 id，不是玩家看的
       const end = this.showTimberCorner(e.x, e.z);
       this.cue('B23');
       this.firsts = this.firsts || {};
@@ -1131,7 +1131,7 @@ export class Game {
     }
     if (ev.cost > this.trip.fuel) {
       this.audio.play('denyFuel');
-      this.ui.tipDeny('油不够这一网');
+      this.ui.tipDeny(T('拒·油不够'));  // 表的 id，不是玩家看的
       this.cue('A21');
       return;
     }
@@ -1159,7 +1159,7 @@ export class Game {
     if (!ev.ok || ev.cost > this.trip.fuel || Q.t > 10) {
       this.castQ = null;
       if (!ev.ok) { this.audio.play('denyBlocked'); this.ui.tipDeny(ev.reason); this.cue('A21'); }
-      else if (ev.cost > this.trip.fuel) { this.audio.play('denyFuel'); this.ui.tipDeny('油不够这一网'); this.cue('A21'); }
+      else if (ev.cost > this.trip.fuel) { this.audio.play('denyFuel'); this.ui.tipDeny(T('拒·油不够')); this.cue('A21'); }  // 表的 id，不是玩家看的
       return;
     }
     const still = Math.abs(bc.speed) < 0.06 && Math.abs(bc.turnRate) < 0.03;
@@ -1269,7 +1269,7 @@ export class Game {
           break;
         case 'reveal':
           bc.brake = true;
-          if (inp.b || inp.rclick || this.stickPushed(inp) || this.busyPoke(inp, dt)) { this.audio.play('busy'); this.ui.deny('船员在冲洗'); this.cue('A22'); }
+          if (inp.b || inp.rclick || this.stickPushed(inp) || this.busyPoke(inp, dt)) { this.audio.play('busy'); this.ui.deny(T('拒·在冲洗')); this.cue('A22'); }  // 表的 id，不是玩家看的
           break;
       }
       this.stickWas = Math.hypot(inp.mx, inp.my) > 0.6;
@@ -1926,19 +1926,20 @@ export class Game {
     const m = this.prevMode;
     const rows = [];
     const row = (...cells) => rows.push(cells.map(([ic, t, color]) => ({ ic, t, color })));
-    row([ICON.fuel, '燃油'], [ICON.net, '还够下几网', '#cfe3df']);
-    row([ICON.depth, '水深，亮点是水里在动的东西', '#7fd8d0']);
-    if (m === 'sail' && this.leadTarget()) row([ICON.arrow, '下一处线索的方向', '#ffd36a']);
-    if (m === 'arm') row([ICON.ring, '能下网', '#e8f4f0'], [ICON.ring, '被挡住', '#ff5c47']);
-    if (m === 'sail' || m === 'arm') row([ICON.reach, '网最远罩得到的地方', '#e8f4f0']);
+    // 图例的字从文案表来（T 的参数是表的 id，不是玩家看的）
+    row([ICON.fuel, T('图例·燃油')], [ICON.net, T('图例·还够几网'), '#cfe3df']);
+    row([ICON.depth, T('图例·水深'), '#7fd8d0']);
+    if (m === 'sail' && this.leadTarget()) row([ICON.arrow, T('图例·线索'), '#ffd36a']);
+    if (m === 'arm') row([ICON.ring, T('图例·能下网'), '#e8f4f0'], [ICON.ring, T('图例·被挡住'), '#ff5c47']);
+    if (m === 'sail' || m === 'arm') row([ICON.reach, T('图例·网罩得到'), '#e8f4f0']);
     if (m === 'arm') {
-      const marks = [[ICON.yes, '带得上来', '#ffd36a'], [ICON.miss, '带不上来', '#e2ecea']];
-      if (this.forecast.marks.some((k) => k.k === 'hard')) marks.push([ICON.hard, '会刮到硬东西', '#ff9a4a']);
+      const marks = [[ICON.yes, T('图例·带得上来'), '#ffd36a'], [ICON.miss, T('图例·带不上来'), '#e2ecea']];
+      if (this.forecast.marks.some((k) => k.k === 'hard')) marks.push([ICON.hard, T('图例·硬东西'), '#ff9a4a']);
       row(...marks);
-      row([ICON.crate, '带得上来几件'], [ICON.fuel, '这一网的油']);
+      row([ICON.crate, T('图例·几件')], [ICON.fuel, T('图例·这一网的油')]);
     }
-    if (m === 'net' || m === 'reveal') row(['<svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.2" fill="#09161a" stroke="#c99a48" stroke-width="2"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="3.6"/><path d="M12 5.6a6.4 6.4 0 0 1 6.4 6.4" fill="none" stroke="currentColor" stroke-width="3.6"/></svg>', '圈走满：这一网收回来、冲洗完', '#e8f4f0']);
-    if (this.trip.haul.length) row([ICON.crate + ICON.coin, '船上的件数和总价值', '#ffd36a']);
+    if (m === 'net' || m === 'reveal') row(['<svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.2" fill="#09161a" stroke="#c99a48" stroke-width="2"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="3.6"/><path d="M12 5.6a6.4 6.4 0 0 1 6.4 6.4" fill="none" stroke="currentColor" stroke-width="3.6"/></svg>', T('图例·收网圈'), '#e8f4f0']);
+    if (this.trip.haul.length) row([ICON.crate + ICON.coin, T('图例·船上'), '#ffd36a']);
     const keys = [];
     const pad = this.ui.device === 'pad';
     // 键盘上还能按的另一个键（空格也能进打捞、下网；Esc 也能退出打捞）
@@ -1948,9 +1949,9 @@ export class Game {
       rows.push([{ ic: ICON.bundle, t: T('暂停·甲板'), color: '#b8936a' }]);
       if (m === 'arm') keys.push(...this.moment.pauseKeys(K, alt));
     } else if (m === 'arm') keys.push([key(K.aim), '挪白圈'], [alt(K.a, K.aAlt, 'a'), '下网'], [alt(K.b, K.bAlt, 'b'), '退出打捞'], [key(K.move), '照样开船'], [key(K.zoom), '拉近拉远']);
-    if (m === 'net') keys.push([key(K.zoom), '拉近拉远']);
+    if (m === 'net') keys.push([key(K.zoom), T('暂停·键·拉近')]);
     if (m === 'net' && this.moment.on && !pad) keys.push([key(T('键名·左Shift')), T('键·看海底')]);  // 表的 id，不是玩家看的
-    if (m === 'reveal' || m === 'batch') keys.push([alt(K.wash, K.aAlt, 'a'), '按住冲洗加快']);
+    if (m === 'reveal' || m === 'batch') keys.push([alt(K.wash, K.aAlt, 'a'), T('暂停·键·冲洗加快')]);
     return { place: this.moment.on ? T('地名·沉船') : this.placeName(), rows, keys };
   }
 
@@ -2082,7 +2083,7 @@ export class Game {
       if (this.moment.on && this.snap.cur && this.snap.cur.under) s.tip.n = Math.max(s.tip.n, this.snap.cur.n);
       // 小样：这一处按哪个键、按了是什么，写在这一处的小牌上（按了下网、等吊臂到的那一会儿收起）
       if (this.moment.on) s.tip.act = s.tip.bad || s.tip.poor || this.castQ ? null : 'cast';
-      s.tip.reason = ev.ok ? (s.tip.poor ? '油不够这一网' : null) : ev.reason;
+      s.tip.reason = ev.ok ? (s.tip.poor ? T('拒·油不够') : null) : ev.reason;  // 表的 id，不是玩家看的
       // 小牌子不压自己的船（白圈穿过船身也画出来，牌子挪到旁边不压船的地方）
       s.tip.boat = this.boatOnScreen();
       // 小牌不压别处打捞点的箭头

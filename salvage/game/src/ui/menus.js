@@ -12,27 +12,29 @@ const h = (tag, cls, html) => {
 };
 
 export const WOBBLE_LEVELS = [
-  { v: 0, n: '关' },
-  { v: 0.4, n: '弱' },
-  { v: 0.75, n: '中' },
-  { v: 1.0, n: '强' },
+  // n 是文案表的 id，画的时候 T() 换成表里的字
+  { v: 0, n: '设置·关' },
+  { v: 0.4, n: '设置·弱' },
+  { v: 0.75, n: '设置·中' },
+  { v: 1.0, n: '设置·强' },
 ];
 export const VOLUME_LEVELS = [0, 0.25, 0.5, 0.75, 1];
 // 镜头快慢（开船时鼠标、右摇杆转镜头）：倍数
 export const LOOK_LEVELS = [
-  { v: 0.5, n: '很慢' },
-  { v: 0.7, n: '慢' },
-  { v: 1.0, n: '中' },
-  { v: 1.4, n: '快' },
-  { v: 2.0, n: '很快' },
+  { v: 0.5, n: '设置·很慢' },
+  { v: 0.7, n: '设置·慢' },
+  { v: 1.0, n: '设置·中' },
+  { v: 1.4, n: '设置·快' },
+  { v: 2.0, n: '设置·很快' },
 ];
 // 上下反转：关 = 鼠标往上推镜头往上看
-export const INVERT_LEVELS = [{ v: false, n: '关' }, { v: true, n: '开' }];
+export const INVERT_LEVELS = [{ v: false, n: '设置·关' }, { v: true, n: '设置·开' }];
 const ADJ = {
-  wobble: { levels: WOBBLE_LEVELS, label: '晃动和折射' },
-  volume: { levels: VOLUME_LEVELS, label: '音量' },
-  look: { levels: LOOK_LEVELS, label: '镜头快慢' },
-  invert: { levels: INVERT_LEVELS, label: '上下反转' },
+  // label 是文案表的 id
+  wobble: { levels: WOBBLE_LEVELS, label: '设置·晃动' },
+  volume: { levels: VOLUME_LEVELS, label: '设置·音量' },
+  look: { levels: LOOK_LEVELS, label: '设置·镜头快慢' },
+  invert: { levels: INVERT_LEVELS, label: '设置·上下反转' },
 };
 export const DEMO_SUMMARY_WAIT = 3.2; // 自动演示：清点完、「再来一趟」出来以后停多久再点它
 
@@ -169,7 +171,7 @@ export class Menus {
     el.id = 'pause';
     const wrap = h('div', 'wrap');
     const box = h('div', 'box panel');
-    box.append(h('div', 'h sh', settingsOnly ? '设置' : '暂停'));
+    box.append(h('div', 'h sh', settingsOnly ? '设置' : T('暂停·标题')));  // 表的 id，不是玩家看的
     this.pauseOpts = settingsOnly
       ? [{ k: 'wobble' }, { k: 'volume' }, { k: 'look' }, { k: 'invert' }, { k: 'back', t: '返回' }]
       : this.g.moment && this.g.moment.on ? this.g.moment.pauseOpts()
@@ -214,9 +216,9 @@ export class Menus {
     if (!this.pauseOpts) return;
     this.pauseOpts.forEach((o, i) => {
       let html = o.t;
-      if (o.k === 'wobble') html = `<span>晃动和折射</span><span class="val">◀ ${WOBBLE_LEVELS[this.settings.wobble].n} ▶</span>`;
-      if (o.k === 'volume') html = `<span>音量</span><span class="val">◀ ${Math.round(VOLUME_LEVELS[this.settings.volume] * 100)}% ▶</span>`;
-      if (o.k === 'look' || o.k === 'invert') html = `<span>${ADJ[o.k].label}</span><span class="val">◀ ${ADJ[o.k].levels[this.settings[o.k]].n} ▶</span>`;
+      if (o.k === 'wobble') html = `<span>${T(ADJ.wobble.label)}</span><span class="val">◀ ${T(WOBBLE_LEVELS[this.settings.wobble].n)} ▶</span>`;
+      if (o.k === 'volume') html = `<span>${T(ADJ.volume.label)}</span><span class="val">◀ ${Math.round(VOLUME_LEVELS[this.settings.volume] * 100)}% ▶</span>`;
+      if (o.k === 'look' || o.k === 'invert') html = `<span>${T(ADJ[o.k].label)}</span><span class="val">◀ ${T(ADJ[o.k].levels[this.settings[o.k]].n)} ▶</span>`;
       o.el.innerHTML = html;
       o.el.classList.toggle('on', i === this.pauseSel);
       // 刚调过：新的值从上面落下来（innerHTML 新建的元素，动画自己从头放）
