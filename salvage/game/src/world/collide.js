@@ -14,13 +14,14 @@ export const TAG = {
 };
 
 export const TAG_TEXT = {
-  [TAG.HULL]: '船壳挡住，网下不去',
-  [TAG.RIB]: '船肋挡住网口',
-  [TAG.DECK]: '甲板挡住，网穿不过',
-  [TAG.CASTLE]: '船尾楼有顶，网穿不过',
-  [TAG.MAST]: '断桅挡住网口',
-  [TAG.COAMING]: '舱口太窄，网口卡在舱沿',
-  [TAG.CARGO]: '舱里的桶和箱子挡住网口',
+  // 文案表的 id（玩家看的字在 配表.md「文案」，arm.js 用 T() 换）
+  [TAG.HULL]: '挡·船壳',
+  [TAG.RIB]: '挡·船肋',
+  [TAG.DECK]: '挡·甲板',
+  [TAG.CASTLE]: '挡·尾楼',
+  [TAG.MAST]: '挡·断桅',
+  [TAG.COAMING]: '挡·舱口',
+  [TAG.CARGO]: '挡·舱里杂货',
 };
 
 export class TopZ {

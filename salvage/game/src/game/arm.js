@@ -3,6 +3,7 @@ import { NET_R, ARM_MIN, ARM_MAX, ARM_TIP_H, MAX_WORK_DEPTH, netFuelCost, onNetR
 import { BOAT } from '../world/boat.js';
 import { TAG, TAG_TEXT } from '../world/collide.js';
 import { clamp, damp, wrapAngle } from '../util/math.js';
+import { T } from './tables.js';
 
 // 打捞：白圈（网的落点）由玩家挪，吊臂照机械的样子自己追过去；每帧算出网口落在哪、碰不碰结构、多深、要多少作业油。
 const RING_N = 40;
@@ -399,23 +400,23 @@ export class Arm {
     const center = S[0];
     // 白圈压在自己船上（从船身上挪过去的半路）：网下不到这儿
     const onBoat = Math.hypot(this.local.x - this.target.x, this.local.y - this.target.y) > 0.05;
-    if (onBoat) reason = '网口压着自己的船';
+    if (onBoat) reason = T('拒·压着船');  // 表的 id，不是玩家看的
     if (!reason && floorRef < -1e8) {
       blockTag = center.tag;
-      reason = TAG_TEXT[center.tag] || '这里网下不去';
+      reason = TAG_TEXT[center.tag] ? T(TAG_TEXT[center.tag]) : T('拒·下不去');  // 表的 id，不是玩家看的
     }
     const obstruct = [];
     let topY = floorRef;
     for (const s of S) {
       if (!workable(s) && s.y > floorRef + 0.45) {
         obstruct.push(s);
-        if (!reason) { blockTag = s.tag; reason = TAG_TEXT[s.tag] || '有东西挡住网口'; }
+        if (!reason) { blockTag = s.tag; reason = TAG_TEXT[s.tag] ? T(TAG_TEXT[s.tag]) : T('拒·挡住网口'); }  // 表的 id，不是玩家看的
       }
       if (workable(s)) topY = Math.max(topY, s.y);
     }
     const restY = floorRef;
     const depth = -restY;
-    if (!reason && depth > MAX_WORK_DEPTH) reason = `太深了，网只下得到 ${MAX_WORK_DEPTH} 米`;
+    if (!reason && depth > MAX_WORK_DEPTH) reason = T('拒·太深', { n: MAX_WORK_DEPTH });  // 表的 id，不是玩家看的
     const cost = netFuelCost(Math.min(depth, MAX_WORK_DEPTH));
     this.eval = {
       tip: tip.clone(), restY, depth, cost, ok: !reason, reason, blockTag, onBoat,

@@ -19,8 +19,9 @@ const h = (tag, cls, html) => {
 // 开船模式：开船、转镜头、进打捞；打捞模式：挪白圈、下网、退出（照样能开船）。
 // a 是绿的（进打捞、下网、冲洗加快），b 是红的（退出、按住收工）；alt 是键盘上另一个也能按的键
 export const KEYS = {
-  kb: { move: 'WASD', look: '鼠标', aim: '鼠标', zoom: '滚轮', a: '左键', aAlt: '空格', b: '右键', bAlt: 'Esc', quit: 'Q', wash: '左键', menu: 'Esc', go: 'E' },
-  pad: { move: '左摇杆', look: '右摇杆', aim: '右摇杆', zoom: 'LT/RT', a: 'A', b: 'B', quit: 'B', wash: 'A', menu: '☰', go: 'Y' },
+  // 键帽上的字从文案表来（T 的参数是表的 id，不是玩家看的）
+  kb: { move: 'WASD', look: T('键名·鼠标'), aim: T('键名·鼠标'), zoom: T('键名·滚轮'), a: T('键名·左键'), aAlt: T('键名·空格'), b: T('键名·点右键'), bAlt: 'Esc', quit: 'Q', wash: T('键名·左键'), menu: 'Esc', go: 'E' },
+  pad: { move: T('键名·左摇杆'), look: T('键名·右摇杆'), aim: T('键名·右摇杆'), zoom: 'LT/RT', a: 'A', b: 'B', quit: 'B', wash: 'A', menu: '☰', go: 'Y' },
 };
 export const key = (k, cls = '') => `<span class="key ${cls}">${k}</span>`;
 
@@ -69,10 +70,10 @@ export function keepOut(x, y, w, h, extra) {
 }
 
 const MODE = {
-  sail: { n: '开船', ic: ICON.sail },
-  arm: { n: '打捞', ic: ICON.arm },
-  net: { n: '作业', ic: ICON.net },
-  reveal: { n: '作业', ic: ICON.net },
+  sail: { n: T('模式·开船'), ic: ICON.sail },  // 表的 id，不是玩家看的
+  arm: { n: T('模式·打捞'), ic: ICON.arm },  // 表的 id，不是玩家看的
+  net: { n: T('模式·作业'), ic: ICON.net },  // 表的 id，不是玩家看的
+  reveal: { n: T('模式·作业'), ic: ICON.net },  // 表的 id，不是玩家看的
 };
 
 export class UI {
@@ -94,12 +95,12 @@ export class UI {
     this.modeEl.id = 'modebar';
     this.tipEl = h('div', 'panel', `<span class="do"></span><span class="n">${ICON.crate}<b class="roll"></b></span><span class="c"><span class="fi">${ICON.fuel}</span><b></b></span><span class="x">${ICON.no}</span><span class="r"></span>`);
     this.tipEl.id = 'tip';
-    this.sonarEl = h('div', 'panel', `<div class="t"><span class="di">${ICON.depth}</span><b class="sd">--</b><span class="u">米</span></div>`);
+    this.sonarEl = h('div', 'panel', `<div class="t"><span class="di">${ICON.depth}</span><b class="sd">--</b><span class="u">${T('单位·米')}</span></div>`);
     this.sonarEl.id = 'sonar';
     this.cards = h('div');
     this.bigEl = h('div', '', `<div class="n"></div><br><div class="v">${ICON.coin}<b></b></div><div class="d"></div>`);
     this.bigEl.id = 'big';
-    this.demoEl = h('div', 'panel', `<div class="dot"></div><span>自动演示</span>${key('Esc')}<span>接管</span>`);
+    this.demoEl = h('div', 'panel', `<div class="dot"></div><span>${T('演示·自动演示')}</span>${key('Esc')}<span>${T('演示·接管')}</span>`);
     this.demoEl.id = 'demo';
     // 指针旁边的一句（没指着打捞点就点了这类）
     this.sayEl = h('div', 'panel');
@@ -226,7 +227,7 @@ export class UI {
       case 'net':
         return this.g.moment && this.g.moment.on ? this.momentHints(K) : '';
       case 'reveal':
-        return this.learned.reveal || !this.washing ? '' : `<span>按住${key(K.wash, 'a')}冲洗加快</span>`;
+        return this.learned.reveal || !this.washing ? '' : `<span>${T('键·按住')}${key(K.wash, 'a')}${T('键·冲洗加快')}</span>`;  // 表的 id，不是玩家看的
       default:
         return '';
     }

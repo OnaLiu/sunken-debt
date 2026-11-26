@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>沉债审字</title>
+<!-- 第一段·归潮沙湾 审字：游戏里玩家看得到的字一次列全。字直接从游戏读的那几张表（表/生成/*.js）来，表一改，这一页跟着变。 -->
+<script src="表/生成/文案.js"></script>
+<script src="表/生成/捞获.js"></script>
+<script src="表/生成/设备.js"></script>
+<script src="表/生成/债本.js"></script>
+<style>
+:root {
+  --bg: #f4efe4; --card: #fffaf0; --ink: #1f2a2c; --mute: #6b6559; --line: #e0d6c2;
+  --accent: #a8641a; --changed: #fff1c9; --changed-line: #e2b34a; --ok: #2f7a55; --bad: #b2402c; --field: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1719; --card: #162226; --ink: #ece4d2; --mute: #9aa6a3; --line: #263a3f;
+    --accent: #e8b04a; --changed: #2d2a17; --changed-line: #8a6d22; --ok: #6cc79a; --bad: #f08a72; --field: #0f1a1d;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1719; --card: #162226; --ink: #ece4d2; --mute: #9aa6a3; --line: #263a3f;
+  --accent: #e8b04a; --changed: #2d2a17; --changed-line: #8a6d22; --ok: #6cc79a; --bad: #f08a72; --field: #0f1a1d;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif; }
+main { max-width: 980px; margin: 0 auto; padding: 24px 16px 120px; }
+h1 { font-size: 26px; margin: 0 0 4px; }
+.sub { color: var(--mute); margin: 0 0 18px; }
+.how { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 18px; }
+.how ol { margin: 6px 0 0; padding-left: 22px; }
+.stats { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0 0; }
+.stats span { background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 2px 12px; font-size: 14px; }
+nav.toc { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 20px; }
+nav.toc a { color: var(--accent); text-decoration: none; border: 1px solid var(--line); border-radius: 6px; padding: 2px 10px; font-size: 14px; background: var(--card); }
+section { margin: 28px 0; }
+section h2 { font-size: 20px; margin: 0 0 4px; }
+section .say { color: var(--mute); margin: 0 0 10px; font-size: 14px; }
+figure { margin: 0 0 12px; }
+figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--line); display: block; }
+figcaption { font-size: 13px; color: var(--mute); margin-top: 4px; }
+.row { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin: 8px 0; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; }
+.row.changed { background: var(--changed); border-color: var(--changed-line); }
+.row .t { font-size: 19px; font-weight: 600; word-break: break-all; }
+.row .meta { grid-column: 1 / -1; font-size: 13px; color: var(--mute); }
+.row .was { grid-column: 1 / -1; font-size: 14px; }
+.row .was s { color: var(--mute); }
+.row .n { font-size: 12px; color: var(--mute); white-space: nowrap; align-self: start; padding-top: 4px; }
+.row .act { grid-column: 1 / -1; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.row button { font: inherit; font-size: 13px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 6px; padding: 2px 10px; cursor: pointer; }
+.row.edit button.e { border-color: var(--bad); color: var(--bad); }
+.row .box { grid-column: 1 / -1; display: none; gap: 6px; flex-direction: column; }
+.row.edit .box { display: flex; }
+.row input, .row textarea { font: inherit; width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; background: var(--field); color: var(--ink); }
+.row textarea { min-height: 52px; font-size: 14px; }
+.tag { font-size: 12px; border-radius: 4px; padding: 0 6px; background: var(--changed-line); color: #1d1405; margin-left: 6px; vertical-align: 2px; }
+.ph { color: var(--accent); font-weight: 400; }
+details.later { margin-top: 28px; }
+details.later summary { cursor: pointer; color: var(--mute); }
+footer.bar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1px solid var(--line); padding: 10px 16px; display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap; }
+footer.bar button { font: inherit; border: 0; background: var(--accent); color: #1d1405; border-radius: 8px; padding: 8px 18px; cursor: pointer; font-weight: 600; }
+footer.bar .c { color: var(--mute); font-size: 14px; }
+#out { display: none; max-width: 980px; margin: 0 auto 12px; }
+#out textarea { width: 100%; min-height: 160px; font: 14px/1.5 monospace; background: var(--field); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+@media (max-width: 600px) { h1 { font-size: 22px; } .row .t { font-size: 17px; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>沉债 · 第一段·归潮沙湾 · 审字</h1>
+  <p class="sub">这一段游戏里玩家看得到的每一句字，照玩家碰到的先后一屏一屏排。字是游戏现在读的那一份。</p>
+  <div class="how">
+    <b>怎么审</b>
+    <ol>
+      <li>从上往下读。黄底的是这一轮先对过一遍、改了说法的，旁边写着原来的字和为什么改。</li>
+      <li>哪一句不对，点它的「要改」，写上改成什么或者哪里不对。没点的都算过了。</li>
+      <li>读完点最底下的「复制我的意见」，把复制出来的那一段贴回对话里。一句都不改，就在对话里说「审字过了」。</li>
+    </ol>
+    <div class="stats" id="stats"></div>
+  </div>
+  <nav class="toc" id="toc"></nav>
+  <div id="list"></div>
+</main>
+<div id="out"><textarea readonly></textarea></div>
+<footer class="bar"><span class="c" id="count">还没有要改的</span><button id="copy">复制我的意见</button></footer>
+<script>
+(() => {
+  const G = globalThis.GAME_TABLES || {};
+  const rows = (id) => (G[id] ? G[id].rows : []);
+
+  // 这一轮（审字前设计线对一遍）改过的字：原来的字、为什么改。改字不改意思。
+  const CHANGED = {
+    '键·前后': { was: '前进 刹车倒船', why: '三个词连在一起，读不出哪个对 W、哪个对 S；中间加一道斜线分开。' },
+    '拒·没有打捞点': { was: '够得着的地方没有看得清的东西', why: '原来没说玩家该做什么，也没用「打捞点」这个叫法；照这一句的作用改成说出要把船开近。' },
+    '开舱·活蟹': { was: '兜到{n}只活蟹', why: '捞上来时名牌上叫「石蟹」，收获单上换成「活蟹」像是另一样东西；统一叫石蟹。' },
+    'tank·2': { was: '再多一只油桶：一趟多下六网', why: '前面写了「再多」，读成比 1 级再多六网；实际是比起步多六网。' },
+    '图例·燃油': { was: '燃油', why: '名词表和别处都叫「油」，只有这里叫燃油。' },
+  };
+  // 代码里写死、这一轮收进表的字（以前表里没有，这是第一次给你看）
+  const NEWROW = new Set(['键名·鼠标','键名·滚轮','键名·左键','键名·左摇杆','键名·右摇杆','模式·开船','模式·打捞','模式·作业','键·冲洗加快','拒·油不够','拒·在冲洗','拒·压着船','拒·下不去','拒·挡住网口','拒·太深','挡·船壳','挡·船肋','挡·甲板','挡·尾楼','挡·断桅','挡·舱口','挡·舱里杂货','提示·碰到硬东西','单位·米','演示·自动演示','演示·接管','暂停·标题','设置·晃动','设置·音量','设置·镜头快慢','设置·上下反转','设置·关','设置·开','设置·弱','设置·中','设置·强','设置·很慢','设置·慢','设置·快','设置·很快','图例·燃油','图例·还够几网','图例·水深','图例·线索','图例·能下网','图例·被挡住','图例·网罩得到','图例·带得上来','图例·带不上来','图例·硬东西','图例·几件','图例·这一网的油','图例·收网圈','图例·船上','暂停·键·冲洗加快']);
+
+  const SCREENS = [
+    { k: '打捞', t: '打捞（停在沉船旁）', say: '一打开就在这一屏：挑打捞点、下网、开船。', shots: [['打捞', '打捞：底下一排是第一次的按键提示，打捞点旁的小牌写这一处按什么'], ['第二潮', '出海以后的第二潮：左上地名带上第几潮']] },
+    { k: '开冲', t: '开冲（一甲板一起冲）', say: '甲板码满或按 E，泥包一包接一包冲开、揭晓。', shots: [['开冲', '开冲：上方是这一甲板的总数'], ['压轴', '压轴：最贵的那一包最后揭晓，名牌上是名字、价值、说明']] },
+    { k: '结算', t: '结算', say: '一甲板冲完以后的那一张。', shots: [['结算', '结算']] },
+    { k: '开舱', t: '回港开舱（收获单）', say: '按住 Q 或点「回港开舱」以后。', shots: [['开舱', '收获单：总数底下一行是这一趟做到的事']] },
+    { k: '债本', t: '债本', say: '收获单之后翻开，船坞里也能点开。', shots: [['债本', '第一次翻开的债本：钱不够时按钮写还差多少']] },
+    { k: '船坞', t: '船坞', say: '点船上的设备牌子看设备卡、升级；出海回到沉船旁。', shots: [['船坞', '船坞：设备卡上是名字、升了以后的数和「船上多了什么」']] },
+    { k: '暂停', t: '暂停', say: '按 Esc。左边是菜单和设置，右边写这一屏每个图标是什么、能按的键。', shots: [['暂停', '打捞时暂停']] },
+    { k: '自动演示', t: '自动演示', say: 'demo.html，或者手机、平板打开时。', shots: [] },
+  ];
+  const LATER = /原来那一整趟/;
+
+  const list = document.getElementById('list');
+  const toc = document.getElementById('toc');
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const showText = (s) => esc(s).replace(/\{(\w+)\}/g, '<span class="ph" title="游戏填进去的数">{$1}</span>');
+  const len = (s) => String(s).replace(/\{\w+\}/g, '').replace(/\s/g, '').length;
+
+  let notes = {};
+  try { notes = JSON.parse(localStorage.getItem('sd-shenzi') || '{}') || {}; } catch (e) { notes = {}; }
+  const save = () => { try { localStorage.setItem('sd-shenzi', JSON.stringify(notes)); } catch (e) { /* 没有本地存储也能审，只是关了页面不留 */ } updateCount(); };
+
+  const all = [];
+  function rowEl(key, text, meta, max, label) {
+    const ch = CHANGED[key];
+    const el = document.createElement('div');
+    el.className = 'row' + (ch ? ' changed' : '');
+    const n = len(text);
+    el.innerHTML = `<div class="t">${showText(text)}${ch ? '<span class="tag">改过</span>' : NEWROW.has(key) ? '<span class="tag" style="background:var(--line);color:var(--ink)">新收进表</span>' : ''}</div>`
+      + `<div class="n">${max ? `${n} / 最多 ${esc(max)} 字` : `${n} 字`}</div>`
+      + (ch ? `<div class="was">原来：<s>${showText(ch.was)}</s>　为什么：${esc(ch.why)}</div>` : '')
+      + `<div class="meta">${meta}</div>`
+      + `<div class="act"><button class="e">要改</button></div>`
+      + `<div class="box"><input placeholder="改成（不填就只写意见）"><textarea placeholder="哪里不对、为什么（可以不写）"></textarea></div>`;
+    const inp = el.querySelector('input'), ta = el.querySelector('textarea');
+    const cur = notes[key];
+    if (cur) { el.classList.add('edit'); inp.value = cur.to || ''; ta.value = cur.say || ''; }
+    el.querySelector('button.e').addEventListener('click', () => {
+      el.classList.toggle('edit');
+      if (el.classList.contains('edit')) { notes[key] = notes[key] || { to: '', say: '' }; inp.focus(); }
+      else delete notes[key];
+      save();
+    });
+    const upd = () => { notes[key] = { to: inp.value.trim(), say: ta.value.trim() }; save(); };
+    inp.addEventListener('input', upd); ta.addEventListener('input', upd);
+    all.push({ key, text, label });
+    return el;
+  }
+
+  function section(id, title, say, shots) {
+    const s = document.createElement('section');
+    s.id = 's-' + id;
+    s.innerHTML = `<h2>${esc(title)}</h2>` + (say ? `<p class="say">${esc(say)}</p>` : '');
+    for (const [f, cap] of shots || []) s.insertAdjacentHTML('beforeend', `<figure><img loading="lazy" src="审字/${encodeURI(f)}.jpg" alt="${esc(cap)}" width="1280" height="720"><figcaption>${esc(cap)}</figcaption></figure>`);
+    const a = document.createElement('a'); a.href = '#s-' + id; a.textContent = title.replace(/（.*）/, ''); toc.append(a);
+    return s;
+  }
+
+  // —— 文案：照「哪一屏」第一个写的那一屏放 ——
+  const wen = rows('sd-wenan');
+  const later = [];
+  const by = {};
+  for (const r of wen) {
+    if (LATER.test(r.哪一屏 || '') || LATER.test(r.什么时候 || '') && !/三小段/.test(r.什么时候 || '')) { later.push(r); continue; }
+    const first = (r.哪一屏 || '').split('、')[0];
+    const k = first === '开船' ? '打捞' : first;
+    (by[k] = by[k] || []).push(r);
+  }
+  const wenMeta = (r) => `<b>${esc(r.在哪 || '')}</b>　${esc(r.什么时候 || '')}<br>作用：${esc(r.作用 || '')}${r.哪一屏 && r.哪一屏.includes('、') ? `　（${esc(r.哪一屏)}都有）` : ''}`;
+  let count = 0;
+  for (const sc of SCREENS) {
+    const rs = by[sc.k] || [];
+    if (!rs.length) continue;
+    const s = section(sc.k, sc.t, sc.say, sc.shots);
+    for (const r of rs) { s.append(rowEl(r.id, r.字, wenMeta(r), r.最多几个字, r.id)); count++; }
+    // 揭晓那一刻的名牌（捞获）放在开冲后面
+    if (sc.k === '开冲') {
+      const h = document.createElement('h2'); h.style.marginTop = '22px'; h.style.fontSize = '17px'; h.textContent = '揭晓时的名牌：捞上来的东西'; s.append(h);
+      s.insertAdjacentHTML('beforeend', '<p class="say">每一件揭晓时名牌上的名字、价值和底下那一行说明；收获单上也是这个名字。</p>');
+      for (const r of rows('sd-laohuo')) {
+        s.append(rowEl('捞获·' + r.id + '·名字', r.名字, `名字　价值 ${esc(r.价值)}${r.珍贵 === '是' ? '　珍贵物（走单独的揭晓）' : ''}`, '', r.名字 + '（名字）'));
+        if (r.说明) s.append(rowEl('捞获·' + r.id + '·说明', r.说明, `「${esc(r.名字)}」名牌底下那一行`, '', r.名字 + '（说明）'));
+        count += r.说明 ? 2 : 1;
+      }
+    }
+    if (sc.k === '债本') {
+      const h = document.createElement('h2'); h.style.marginTop = '22px'; h.style.fontSize = '17px'; h.textContent = '每一页还清以后开的海'; s.append(h);
+      for (const r of rows('sd-zhaiben')) { s.append(rowEl('债本·' + r.页, r.还清以后, `第 ${esc(r.页)} 页，要还 ${esc(r.要还)}：右页「还清后开放」后面的海名`, '', '第' + r.页 + '页 还清以后')); count++; }
+    }
+    if (sc.k === '船坞') {
+      const h = document.createElement('h2'); h.style.marginTop = '22px'; h.style.fontSize = '17px'; h.textContent = '设备卡'; s.append(h);
+      const seen = new Set();
+      for (const r of rows('sd-shebei')) {
+        if (!seen.has(r.id)) { seen.add(r.id); s.append(rowEl(r.id + '·名', r.设备, '设备卡最上面的名字；船上的牌子也写它', '', r.设备 + '（名字）')); s.append(rowEl(r.id + '·管', r.管什么, `「${esc(r.设备)}」升了以后变的那个数叫什么`, '', r.设备 + '（管什么）')); count += 2; }
+        if (r.船上多了什么) { s.append(rowEl(r.id + '·' + r.级, r.船上多了什么, `「${esc(r.设备)}」${esc(r.级)} 级：设备卡上升到这一级多了什么${r.价钱 ? `（${esc(r.价钱)}）` : '（起步就有，玩家看不到这一句）'}`, '', `${r.设备} ${r.级} 级`)); count++; }
+      }
+    }
+    list.append(s);
+  }
+  if (later.length) {
+    const d = document.createElement('details'); d.className = 'later';
+    d.innerHTML = `<summary>这一版玩不到的 ${later.length} 句（原来那一整趟，trip=1 才有）：可以不看</summary>`;
+    for (const r of later) d.append(rowEl(r.id, r.字, wenMeta(r), r.最多几个字, r.id));
+    list.append(d);
+  }
+  document.getElementById('stats').innerHTML = `<span>一共 ${count} 句</span><span>改过说法 ${Object.keys(CHANGED).length} 句（黄底）</span><span>从代码里收进表 ${NEWROW.size} 句</span>`;
+
+  function updateCount() {
+    const n = Object.keys(notes).length;
+    document.getElementById('count').textContent = n ? `要改 ${n} 句` : '还没有要改的';
+  }
+  updateCount();
+
+  document.getElementById('copy').addEventListener('click', async () => {
+    const lines = [];
+    for (const a of all) {
+      const v = notes[a.key];
+      if (!v) continue;
+      lines.push(`- 「${a.text}」（${a.label}）${v.to ? ` → 改成「${v.to}」` : ''}${v.say ? `：${v.say}` : ''}`);
+    }
+    const txt = lines.length ? `审字·第一段·归潮沙湾，要改 ${lines.length} 句：\n${lines.join('\n')}\n其余的都过了。` : '审字·第一段·归潮沙湾：都过了。';
+    const out = document.getElementById('out'); out.style.display = 'block';
+    const ta = out.querySelector('textarea'); ta.value = txt; ta.select();
+    try { await navigator.clipboard.writeText(txt); document.getElementById('copy').textContent = '已复制，贴回对话里'; } catch (e) { document.getElementById('copy').textContent = '选中下面的字复制'; }
+    out.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  });
+})();
+</script>
+</body>
+</html>
