@@ -65,7 +65,7 @@ window.__hand = (() => {
     // 给做素材、换素材的轮次对照现在的样子：node tools/moment.mjs 这一刻 0.5,1,1.5,2,2.5,3,3.5,4,4.5,5 --probe @素材对照·捞获
     '素材对照·捞获': `return (() => {
   const g = __game;
-  const kinds = 'jar,rope,copperset,barrel,sack,chest,seal,tube2,lantern'.split(',');
+  const kinds = (window.__kinds || 'jar,rope,copperset,barrel,sack,chest,seal,tube2,lantern').split(',');
   if (!window.__studio) {
     document.getElementById('ui').style.display = 'none';
     const scene = g.world.scene;
