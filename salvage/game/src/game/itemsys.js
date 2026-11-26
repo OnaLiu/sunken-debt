@@ -85,7 +85,7 @@ export class ItemSystem {
     const { kinds: pool, at: SPILL_AT, n: SPILL_N } = SEA.spill;
     const total = pool.reduce((a, [, w]) => a + w, 0);
     const pick = () => { let r = rnd() * total; for (const [k, w] of pool) if ((r -= w) <= 0) return k; return pool[0][0]; };
-    const n = SPILL_N[0] + Math.min(tide - 1, SPILL_N[1]);
+    const n = SPILL_N[0] + Math.min((tide - 1) * (SPILL_N[2] ?? 1), SPILL_N[1]);
     const placed = this.items.filter((i) => !i.inHold).map((i) => ({ x: i.x, z: i.z, r: i.r }));
     for (let i = 0, tries = 0; i < n && tries < 200; tries++) {
       const A = SPILL_AT[Math.floor(rnd() * SPILL_AT.length)];

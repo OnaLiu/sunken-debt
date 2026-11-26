@@ -24,6 +24,16 @@ for (const r of rows('sd-laohuo')) {
 // —— 小样的数（三小段的数往这张表里接着加）——
 const nums = {};
 for (const r of rows('sd-xiaoyang-shu')) nums[r.项] = num(r.值);
+// —— 切片的数（切片路线比三小段多出来的：港外开局、每潮冲出来的货）——
+for (const r of rows('sd-qiepian-shu')) nums[r.项] = num(r.值);
+// 每潮冲出来的是哪几样、各几成机会：「冲出来·<捞获的名字>」那几行（同名的取捞获表里先写的那一样）
+export const SPILL_KINDS = [];
+for (const r of rows('sd-qiepian-shu')) {
+  const m = /^冲出来·(.+)$/.exec(r.项 || '');
+  if (!m) continue;
+  const id = Object.keys(LOOT).find((k) => LOOT[k].name === m[1]);
+  if (id) SPILL_KINDS.push([id, num(r.值) || 0]);
+}
 
 // —— 设备：船坞里升的每一样、每一级（第 0 级是起步就有的那一级，没有价钱）——
 export const GEAR = {};

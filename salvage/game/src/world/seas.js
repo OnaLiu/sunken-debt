@@ -4,7 +4,7 @@
 // 后面的段（锈钟峡、无光层、债底）做三小段时在这里把自己那一份填上、`ready` 改成 true，
 // 地形、沉船、摆放照沙湾那一套代码出（world/terrain、wreck、layout），只换数和摆放，不另写一份共用的。
 import { WRECK, SHOAL, NET_SPOTS } from './layout.js';
-import { T } from '../game/tables.js';
+import { T, N, SPILL_KINDS } from '../game/tables.js';
 
 // 沙湾摆好的那几处 → 名牌上写的出处（文案表的 id）
 const FROM = {};
@@ -20,12 +20,15 @@ export const SEAS = [
     depth: [0, 30], // 米：设计第 8 节
     gear: [], // 起步就有
     ready: true,
-    // 每潮重铺（设计第 2 节「一趟一潮」）：冲出来的是哪几样（几成机会），落在哪两堆旁边（沉船坐标，along、side 上下各浮动多少），
-    // 每潮几件（第 2 潮几件、以后每潮多一件、最多多几件）
-    spill: {
-      kinds: [['jar', 3], ['rope', 2], ['copperset', 2], ['barrel', 2], ['shards', 2], ['stave', 1], ['ropebit', 1]],
-      at: [{ along: 3.1, side: 8.1, da: 1.6, ds: 1.3 }, { along: -3.1, side: 8.1, da: 1.6, ds: 1.3 }],
-      n: [6, 3],
+    // 每潮重铺（设计「一趟一潮」）：冲出来的是哪几样（几成机会）、落在哪两堆旁边（沉船坐标，along、side 上下各散开多少）、
+    // 每潮几件（第 2 潮几件、以后每潮多几件、最多多几件）。数在 配表.md「切片的数」，两堆在哪是这片海的摆放
+    get spill() {
+      const da = N('冲出来·一堆多长'), ds = N('冲出来·一堆多宽');
+      return {
+        kinds: SPILL_KINDS,
+        at: [{ along: 3.1, side: 8.1, da, ds }, { along: -3.1, side: 8.1, da, ds }],
+        n: [N('冲出来·第2潮几件'), N('冲出来·最多多几件'), N('冲出来·每潮多几件')],
+      };
     },
     // 这件东西是从哪儿捞上来的（揭晓、开舱名牌的第二行）：摆好的那几处按 NET_SPOTS 认，别的按捞的地方离哪近
     from(id, at) {
