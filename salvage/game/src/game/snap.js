@@ -58,7 +58,9 @@ export class SnapAim {
     const P = g.crabLife.digPatch;
     // 按住左 Shift 靠近时它多半出了画面：原来列着的就还列着
     const had = g.peek.k > 0 && this.spots.some((s) => s.dig);
-    if (P && P.amount > 0.3 && (had || canSee(g, P.mesh.position, 0.5, 0.92))) {
+    // 底下的铜印已经捞走了：翻过的泥里没东西，不再算一处（接着捞下一甲板时不会白下一网）
+    const under = !g.items.seal || g.items.seal.state === 'seabed';
+    if (P && under && P.amount > 0.3 && (had || canSee(g, P.mesh.position, 0.5, 0.92))) {
       const p = P.mesh.position;
       if (Math.hypot(p.x - crane.x, p.z - crane.z) <= ARM_MAX + FAR) cand.push({ id: 'dig', x: p.x, y: p.y, z: p.z, r: 0.3, hold: false, dig: true });
     }

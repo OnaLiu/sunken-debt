@@ -26,7 +26,7 @@ export class KeyShow {
     this.g = g;
     const el = (this.el = document.createElement('div'));
     el.id = 'keyshow';
-    el.innerHTML = `<div class="kb"><span class="k w">W</span><span class="row"><span class="k a">A</span><span class="k s">S</span><span class="k d">D</span></span><span class="k lsh">${T('键名·左Shift')}</span></div><span class="k e">E</span><div class="mouse">${MOUSE}</div>`;
+    el.innerHTML = `<div class="kb"><span class="k w">W</span><span class="row"><span class="k a">A</span><span class="k s">S</span><span class="k d">D</span></span><span class="k lsh">${T('键名·左Shift')}</span></div><div class="kb2"><span class="k q">Q</span><span class="k e">E</span><span class="k sp">${T('键名·空格')}</span></div><div class="mouse">${MOUSE}</div>`;
     // 指针：玩家的是浏览器自己的光标（换成这一支），机器人的是画出来的这一支
     const st = document.getElementById('stage').style;
     st.setProperty('--cur-arrow', `url(${cursorURL(false)})`);
@@ -35,10 +35,10 @@ export class KeyShow {
     this.cur.id = 'vcur';
     root.append(el, this.cur);
     this.k = {};
-    for (const n of ['w', 'a', 's', 'd', 'e', 'lsh']) this.k[n] = el.querySelector('.k.' + n);
+    for (const n of ['w', 'a', 's', 'd', 'e', 'lsh', 'q', 'sp']) this.k[n] = el.querySelector('.k.' + n);
     this.lb = el.querySelector('.lb');
     this.rb = el.querySelector('.rb');
-    this.hold = { e: 0, lb: 0, rb: 0 };
+    this.hold = { e: 0, lb: 0, rb: 0, sp: 0 };
     this.pos = null;
     this.on = false;
   }
@@ -77,7 +77,9 @@ export class KeyShow {
   beside(P) {
     const st = document.getElementById('stage').getBoundingClientRect(), k = (st.width || VIEW_W) / VIEW_W;
     const rects = [];
-    for (const el of [this.g.ui.tipEl, this.g.ui.sonarEl, this.g.ui.fuelEl, this.g.ui.deckEl, this.g.ui.modeEl]) {
+    const H = this.g.harbor, extra = H ? [H.debtEl.querySelector('.book'), H.debtEl.querySelector('.next'), H.dockEl.querySelector('.gcard'), H.dockEl.querySelector('.foot'), H.dockEl.querySelector('.money'), document.querySelector('#summary')] : [];
+    for (const el of [this.g.ui.tipEl, this.g.ui.sonarEl, this.g.ui.fuelEl, this.g.ui.deckEl, this.g.ui.modeEl, ...extra]) {
+      if (!el) continue;
       const r = el.getBoundingClientRect();
       if (r.width && getComputedStyle(el).opacity > 0.05) rects.push([(r.left - st.left) / k - 12, (r.top - st.top) / k - 12, (r.right - st.left) / k + 12, (r.bottom - st.top) / k + 12]);
     }
@@ -115,8 +117,9 @@ export class KeyShow {
     const s = g.input.state;
     // 一下的（下网、开冲）亮一小会儿，看得清按过
     const H0 = this.hold;
-    if (s.a || s.click) H0.lb = 0.24;
+    if (s.click) H0.lb = 0.24;
     if (s.go) H0.e = 0.3;
+    if (s.a) H0.sp = 0.3;
     if (s.rclick) H0.rb = 0.24;
     for (const k in H0) H0[k] = Math.max(0, H0[k] - dt);
     this.k.w.classList.toggle('on', s.my > 0.3);
@@ -125,6 +128,8 @@ export class KeyShow {
     this.k.d.classList.toggle('on', s.mx > 0.3);
     this.k.e.classList.toggle('on', H0.e > 0);
     this.k.lsh.classList.toggle('on', !!s.peek);
+    this.k.q.classList.toggle('on', !!s.bHeld);
+    this.k.sp.classList.toggle('on', H0.sp > 0);
     this.lb.classList.toggle('on', H0.lb > 0 || !!s.aHeld);
     this.rb.classList.toggle('on', H0.rb > 0 || !!s.drag);
     if (P.ok) {

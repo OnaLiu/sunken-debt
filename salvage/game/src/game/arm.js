@@ -1,12 +1,13 @@
 import * as THREE from 'three';
-import { NET_R, ARM_MIN, ARM_MAX, ARM_TIP_H, MAX_WORK_DEPTH, netFuelCost } from '../config.js';
+import { NET_R, ARM_MIN, ARM_MAX, ARM_TIP_H, MAX_WORK_DEPTH, netFuelCost, onNetR } from '../config.js';
 import { BOAT } from '../world/boat.js';
 import { TAG, TAG_TEXT } from '../world/collide.js';
 import { clamp, damp, wrapAngle } from '../util/math.js';
 
 // 打捞：白圈（网的落点）由玩家挪，吊臂照机械的样子自己追过去；每帧算出网口落在哪、碰不碰结构、多深、要多少作业油。
 const RING_N = 40;
-const SAMPLES = (() => {
+// 网口里取的采样点（网口变大以后跟着重算，见文件末尾 onNetR）
+const samplesFor = () => {
   const s = [{ x: 0, z: 0, r: 0 }];
   for (const [r, n] of [[0.45, 6], [0.9, 12], [NET_R - 0.05, 24]]) {
     for (let i = 0; i < n; i++) {
@@ -15,7 +16,10 @@ const SAMPLES = (() => {
     }
   }
   return s;
-})();
+};
+let SAMPLES = samplesFor();
+// 起步那一级网口的采样：网口升大了以后，从沉船的舱口下到舱里时网口收到这么大（舱口就这么宽）
+const SAMPLES0 = samplesFor();
 
 // 吊臂是一台有分量的液压机器：绕吊机转、伸缩、升降各有自己的最高速度、加速度和「吃劲」的快慢（加加速度）。
 // 起步慢慢吃上劲、匀速转、快到了按刹车曲线提前减速，停得干脆，不冲过头、不回弹。
@@ -38,19 +42,21 @@ const HOME = {
 const _homeSlew = { ...HOME.slew };
 // 网架挂在臂端下面：从驾驶室上方扫过去会撞上（船局部，算上网口半径）
 const CABIN = { x0: -5.2 - NET_R, x1: -2.3 + NET_R, hz: 1.5 + NET_R };
+const cabinFor = (r) => Object.assign(CABIN, { x0: -5.2 - r, x1: -2.3 + r, hz: 1.5 + r });
 const inCabin = (x, z) => x > CABIN.x0 && x < CABIN.x1 && Math.abs(z) < CABIN.hz;
 // 从吊机往每个方向看，网架要伸到多远以外才不在驾驶室上方（碰不到给 0）：每 0.02 弧度一格
 const CAB_N = 315;
-const CAB_R = (() => {
-  const t = new Float32Array(CAB_N);
+const CAB_R = new Float32Array(CAB_N);
+const cabRFill = () => {
+  const t = CAB_R;
   for (let i = 0; i < CAB_N; i++) {
     const a = -Math.PI + (i / CAB_N) * Math.PI * 2;
     let out = 0;
     for (let r = 0.5; r < 12; r += 0.05) if (inCabin(BOAT.crane.x + Math.cos(a) * r, Math.sin(a) * r)) out = r;
     t[i] = out ? out + 0.15 : 0;
   }
-  return t;
-})();
+};
+cabRFill();
 // 沿着从 a 转过 da 这段弧，网架最少要伸多远才一路不进驾驶室上方
 const cabinNeed = (a, da) => {
   let need = 0;
@@ -63,6 +69,14 @@ const cabinNeed = (a, da) => {
 };
 // 网口不能压在自己船上：船身周围这一圈落不了网
 export const BOAT_ZONE = { hx: BOAT.halfLen + 0.3 + NET_R, hz: 2.3 + NET_R + 0.2 };
+// 船坞里升了「网」：网口变大，采样圈、驾驶室上方那一圈、船身那一圈跟着变（甲板加宽的那一截由 deck.js 再算一次）
+onNetR((r) => {
+  SAMPLES = samplesFor();
+  cabinFor(r);
+  cabRFill();
+  BOAT_ZONE.hx = BOAT.halfLen + 0.3 + r;
+  BOAT_ZONE.hz = 2.3 + r + 0.2;
+});
 export const inBoatZone = (x, z) => Math.abs(x) < BOAT_ZONE.hx && Math.abs(z) < BOAT_ZONE.hz;
 
 // 一根轴走一帧（st: { p 位置, v 速度, c 加速度 }）。先看加速度收回到 0 要多久、那时到了哪、多快
@@ -369,10 +383,10 @@ export class Arm {
     return floorRef > -100 ? floorRef : this.world.surfaceAt(x, z).y;
   }
 
-  evaluate() {
+  evaluate(samples = SAMPLES) {
     const tip = this.tipWorld();
     const S = [];
-    for (const p of SAMPLES) {
+    for (const p of samples) {
       const x = tip.x + p.x, z = tip.z + p.z;
       const s = this.world.surfaceAt(x, z);
       S.push({ x, z, y: s.y, tag: s.tag, r: p.r });
@@ -407,6 +421,12 @@ export class Arm {
       tip: tip.clone(), restY, depth, cost, ok: !reason, reason, blockTag, onBoat,
       obstruct, inHold: center.tag === TAG.FLOOR, topY,
     };
+    // 网口升大以后对着沉船的舱口：网口收到起步那么大从舱口下去（不然升了网反倒进不了舱）
+    if (reason && !onBoat && samples !== SAMPLES0 && SAMPLES !== SAMPLES0 && center.tag === TAG.FLOOR) {
+      const keep = this.eval, e0 = this.evaluate(SAMPLES0);
+      if (e0.ok) return e0;
+      this.eval = keep;
+    }
     return this.eval;
   }
 }

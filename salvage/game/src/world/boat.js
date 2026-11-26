@@ -529,25 +529,45 @@ function buildNetFrame() {
   ring.castShadow = true;
   root.add(ring);
   const lead = toon({ color: 0x55585c, spec: 0.3 });
+  const weights = [];
   for (let i = 0; i < 8; i++) {
-    const a = (i / 8) * Math.PI * 2;
     const w = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.14, 0.16), lead);
-    w.position.set(Math.cos(a) * NET_R, -0.05, Math.sin(a) * NET_R);
     w.castShadow = true;
+    weights.push(w);
     root.add(w);
   }
   // 吊链
-  const chainB = new GeoBuilder();
-  const hook = new THREE.Vector3(0, 1.25, 0);
-  for (let i = 0; i < 4; i++) {
-    const a = (i / 4) * Math.PI * 2 + Math.PI / 4;
-    const p = new THREE.Vector3(Math.cos(a) * NET_R, 0.02, Math.sin(a) * NET_R);
-    chainB.beam(p, hook, new THREE.Vector3(0, 1, 0), 0.04, 0.04, new THREE.Color(0.25, 0.25, 0.27));
-  }
-  chainB.cylinder(new THREE.Vector3(0, 1.2, 0), new THREE.Vector3(0, 1.45, 0), 0.09, 0.07, 6, new THREE.Color(0.2, 0.2, 0.2));
-  const chains = new THREE.Mesh(chainB.build(), toon({ vertexColors: true }));
+  const chainGeo = (R) => {
+    const chainB = new GeoBuilder();
+    const hook = new THREE.Vector3(0, 1.25, 0);
+    for (let i = 0; i < 4; i++) {
+      const a = (i / 4) * Math.PI * 2 + Math.PI / 4;
+      const p = new THREE.Vector3(Math.cos(a) * R, 0.02, Math.sin(a) * R);
+      chainB.beam(p, hook, new THREE.Vector3(0, 1, 0), 0.04, 0.04, new THREE.Color(0.25, 0.25, 0.27));
+    }
+    chainB.cylinder(new THREE.Vector3(0, 1.2, 0), new THREE.Vector3(0, 1.45, 0), 0.09, 0.07, 6, new THREE.Color(0.2, 0.2, 0.2));
+    return chainB.build();
+  };
+  const chains = new THREE.Mesh(chainGeo(NET_R), toon({ vertexColors: true }));
   chains.castShadow = true;
   root.add(chains);
+  // 船坞里升了「网」：钢环、铅坠、吊链照新的网口重摆（网衣每帧照 NET_R 算，自己跟上）
+  let builtR = -1;
+  const resize = (R) => {
+    if (Math.abs(R - builtR) < 1e-6) return;
+    if (builtR > 0) {
+      ring.geometry.dispose();
+      ring.geometry = new THREE.TorusGeometry(R, 0.075 * Math.sqrt(R / 1.4), 6, Math.round(28 * Math.sqrt(R / 1.4)));
+      chains.geometry.dispose();
+      chains.geometry = chainGeo(R);
+    }
+    builtR = R;
+    weights.forEach((w, i) => {
+      const a = (i / 8) * Math.PI * 2;
+      w.position.set(Math.cos(a) * R, -0.05, Math.sin(a) * R);
+    });
+  };
+  resize(NET_R);
 
   // 网衣：车床曲面，顶点每帧按收口程度和网兜鼓起程度更新
   const RAD = 24, LEV = 7;
@@ -580,8 +600,9 @@ function buildNetFrame() {
     for (let j = 0; j <= LEV; j++) {
       const t = j / LEV;
       // 收口：越往下越收；鼓起：中段往外撑
-      const bottomR = NET_R * (1 - state.close * 0.86);
-      let r = NET_R + (bottomR - NET_R) * Math.pow(t, 1.4);
+      const R = builtR > 0 ? builtR : NET_R;
+      const bottomR = R * (1 - state.close * 0.86);
+      let r = R + (bottomR - R) * Math.pow(t, 1.4);
       r += Math.sin(t * Math.PI) * state.bulge * (0.4 + state.close * 0.5);
       const y = -t * (state.depth + state.close * 0.35);
       for (let i = 0; i <= RAD; i++) {
@@ -602,7 +623,7 @@ function buildNetFrame() {
   const bag = new THREE.Group();
   bag.position.y = -0.7;
   root.add(bag);
-  return { root, ring, skirt, state, updateSkirt, bag, hookY: 1.45 };
+  return { root, ring, skirt, state, updateSkirt, bag, hookY: 1.45, resize: (R) => { resize(R); updateSkirt(); } };
 }
 
 // 由臂端目标（船局部坐标）求转台角、臂长、仰角
