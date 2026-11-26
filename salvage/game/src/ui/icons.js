@@ -45,6 +45,10 @@ export const ICON = {
   deck: svg('<path fill="currentColor" d="M1.5 16h21l-2.4 4.6H3.9z"/><path fill="currentColor" d="M3.4 15.2c-.5-2.6 1-4.8 3.9-4.9 2.9-.1 4.4 2 3.9 4.9zM12.8 15.2c-.5-2.6 1-4.8 3.9-4.9 2.9-.1 4.4 2 3.9 4.9z"/><path d="M1.5 13.6h21" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2 1.6"/>'),
   // 水泵：泵身、一根水管喷出水（素材还没有，先用代码画：素材/待画.md「图标-水泵」）
   pump: svg('<rect x="2.5" y="11" width="9" height="9.5" rx="1.4" fill="currentColor"/><circle cx="7" cy="15.7" r="2.4" fill="none" stroke="rgba(0,0,0,.42)" stroke-width="1.6"/><path d="M11.5 13.5h3.6a3 3 0 0 0 3-3V7" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M18 5.4l-2.6-2.6M18 5.4V1.6M18 5.4l2.6-2.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>'),
+  // 锁：债本上还没还清的那一页，还清才开放的那片海（界面上的小图标，代码画）
+  lock: svg('<path d="M7.2 10.5V7.6a4.8 4.8 0 0 1 9.6 0v2.9" fill="none" stroke="currentColor" stroke-width="2.4"/><rect x="4" y="10.5" width="16" height="11" fill="currentColor"/><rect x="11" y="14" width="2" height="4" fill="rgba(0,0,0,.45)"/>'),
+  // 打开的锁：还清了的那一页
+  unlock: svg('<path d="M7.2 10.5V7.6a4.8 4.8 0 0 1 9.4-1.4" fill="none" stroke="currentColor" stroke-width="2.4"/><rect x="4" y="10.5" width="16" height="11" fill="currentColor"/><rect x="11" y="14" width="2" height="4" fill="rgba(0,0,0,.45)"/>'),
 };
 
 // 做好了素材的图标（素材/规格.md 第 9 节）：12×12 格的白色剪影，用 CSS 遮罩照所在的地方上色（和原来的矢量图一样跟着 currentColor），

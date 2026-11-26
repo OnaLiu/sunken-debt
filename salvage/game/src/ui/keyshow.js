@@ -4,9 +4,11 @@ import { VIEW_W, VIEW_H } from '../config.js';
 import { clamp } from '../util/math.js';
 import { cursorURL } from './pixring.js';
 import { T } from '../game/tables.js';
+import { KEYS } from './hud.js';
 
 // 自动演示时屏幕上的手：这一刻按着的键和鼠标（只在自动演示里，只给内部看；对外的版本里没有）。
-// 只画这个游戏用到的：WASD、左 Shift、E、鼠标（左键、右键分开亮），和一支画出来的指针（机器人的鼠标这一刻在画面上哪一点）。
+// 只画这个游戏用到的：WASD、左 Shift、E、Q（按住回港）、空格、鼠标（左键、右键分开亮），和一支画出来的指针（机器人的鼠标这一刻在画面上哪一点）。
+// 每一屏只亮出这一屏用得上的键：海上是开船、看海底、开冲、回港和鼠标；收获单是空格和鼠标；船坞、债本是空格、E、Q 和鼠标。
 // 跟着看演示的人这一刻正看着的地方走（平时是指针，开船时是船，开冲时是甲板），挨在它旁边、不压在它身上。
 // 全游戏一份：以后每一段的演示都用这一份。
 
@@ -26,7 +28,8 @@ export class KeyShow {
     this.g = g;
     const el = (this.el = document.createElement('div'));
     el.id = 'keyshow';
-    el.innerHTML = `<div class="kb"><span class="k w">W</span><span class="row"><span class="k a">A</span><span class="k s">S</span><span class="k d">D</span></span><span class="k lsh">${T('键名·左Shift')}</span></div><span class="k e">E</span><div class="mouse">${MOUSE}</div>`;
+    const K = KEYS.kb;
+    el.innerHTML = `<div class="kb"><span class="k w">W</span><span class="row"><span class="k a">A</span><span class="k s">S</span><span class="k d">D</span></span><span class="k lsh">${T('键名·左Shift')}</span></div><div class="side"><span class="k q">${K.quit}</span><span class="k e">${K.go}</span></div><span class="k spc">${K.aAlt}</span><div class="mouse">${MOUSE}</div>`;
     // 指针：玩家的是浏览器自己的光标（换成这一支），机器人的是画出来的这一支
     const st = document.getElementById('stage').style;
     st.setProperty('--cur-arrow', `url(${cursorURL(false)})`);
@@ -35,10 +38,11 @@ export class KeyShow {
     this.cur.id = 'vcur';
     root.append(el, this.cur);
     this.k = {};
-    for (const n of ['w', 'a', 's', 'd', 'e', 'lsh']) this.k[n] = el.querySelector('.k.' + n);
+    for (const n of ['w', 'a', 's', 'd', 'e', 'lsh', 'q', 'spc']) this.k[n] = el.querySelector('.k.' + n);
     this.lb = el.querySelector('.lb');
     this.rb = el.querySelector('.rb');
-    this.hold = { e: 0, lb: 0, rb: 0 };
+    this.hold = { e: 0, lb: 0, rb: 0, q: 0, spc: 0 };
+    this.screen = null;
     this.pos = null;
     this.on = false;
   }
@@ -68,6 +72,7 @@ export class KeyShow {
       const p = g.project(g.boat.root.localToWorld(_v.set(m === 'batch' ? 3.3 : 0, BOAT.deckY, 0)));
       return { x: p.x + (m === 'batch' ? 330 : 200), y: p.y + 120 };
     }
+    // 船坞、债本、收获单：指针旁边，不压设备卡、牌子、债本、按钮（beside 照这一屏的东西躲开）
     // 指针旁边：左下、右下、左上、右上里挑一处不压小牌、测深图、油量栏、模式条的
     const P = inp.ptr;
     if (P.ok) return this.beside(P);
@@ -77,7 +82,8 @@ export class KeyShow {
   beside(P) {
     const st = document.getElementById('stage').getBoundingClientRect(), k = (st.width || VIEW_W) / VIEW_W;
     const rects = [];
-    for (const el of [this.g.ui.tipEl, this.g.ui.sonarEl, this.g.ui.fuelEl, this.g.ui.deckEl, this.g.ui.modeEl]) {
+    const own = document.querySelectorAll('#dock .gcard.on, #dock .pin, #dock .sail, #dock .purse, #dock .book, #ledger .bk, #summary .again, #summary .tags .card:not(.mini)');
+    for (const el of [this.g.ui.tipEl, this.g.ui.sonarEl, this.g.ui.fuelEl, this.g.ui.deckEl, this.g.ui.modeEl, ...own]) {
       const r = el.getBoundingClientRect();
       if (r.width && getComputedStyle(el).opacity > 0.05) rects.push([(r.left - st.left) / k - 12, (r.top - st.top) / k - 12, (r.right - st.left) / k + 12, (r.bottom - st.top) / k + 12]);
     }
@@ -112,11 +118,16 @@ export class KeyShow {
     }
     if (on !== this.on) { this.on = on; this.el.classList.toggle('on', on); this.pos = null; }
     if (!on) return;
+    const scr = g.mode === 'dock' || g.mode === 'ledger' ? 'dock' : g.mode === 'summary' || g.mode === 'ending' ? 'tally' : 'sea';
+    if (scr !== this.screen) { this.el.classList.remove('sea', 'dock', 'tally'); this.el.classList.add(scr); this.screen = scr; this.pos = null; }
     const s = g.input.state;
     // 一下的（下网、开冲）亮一小会儿，看得清按过
     const H0 = this.hold;
-    if (s.a || s.click) H0.lb = 0.24;
+    // 海上的空格和左键一样是下网（亮左键，和原来一样）；船坞、债本、收获单的空格亮空格
+    if (s.click || (s.a && scr === 'sea')) H0.lb = 0.24;
     if (s.go) H0.e = 0.3;
+    if (s.b) H0.q = 0.3;
+    if (s.a && !s.click && scr !== 'sea') H0.spc = 0.24;
     if (s.rclick) H0.rb = 0.24;
     for (const k in H0) H0[k] = Math.max(0, H0[k] - dt);
     this.k.w.classList.toggle('on', s.my > 0.3);
@@ -125,7 +136,9 @@ export class KeyShow {
     this.k.d.classList.toggle('on', s.mx > 0.3);
     this.k.e.classList.toggle('on', H0.e > 0);
     this.k.lsh.classList.toggle('on', !!s.peek);
-    this.lb.classList.toggle('on', H0.lb > 0 || !!s.aHeld);
+    this.k.q.classList.toggle('on', H0.q > 0 || (!!s.bHeld && scr === 'sea'));
+    this.k.spc.classList.toggle('on', H0.spc > 0);
+    this.lb.classList.toggle('on', H0.lb > 0 || (!!s.aHeld && scr === 'sea'));
     this.rb.classList.toggle('on', H0.rb > 0 || !!s.drag);
     if (P.ok) {
       const dn = H0.lb > 0.12 || s.aHeld;

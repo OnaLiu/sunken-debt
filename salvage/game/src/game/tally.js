@@ -330,7 +330,7 @@ export class Tally {
     pc.uDim.value = 0;
     pc.uFocus.value.z = 0;
     pc.uFlash.value = 0;
-    g.menus.showSummary(trip, { why: this.why, deeds: this.deeds, n: this.all.length, empty: !this.all.length });
+    g.menus.showSummary(trip, { why: this.why, deeds: this.deeds, n: this.all.length, empty: !this.all.length, compare: o.compare, next: o.next });
     g.cue('C15');
   }
 
@@ -727,12 +727,13 @@ export class Tally {
     }
   }
 
-  // 签挂在东西前面（画面上在东西下面），跟着镜头走
+  // 签跟着镜头走：y 是帆布前沿（小价签贴在这），top 是这件东西在画面上的最高点（整签挂在这上面）
   tagPos(s) {
     const g = this.g;
     const p = g.project(this.root.localToWorld(_v.set(s.x, 0.02, s.z + s.d * 0.5 + 0.12)));
-    const q = g.project(this.root.localToWorld(_w.set(s.x, s.ht, s.z)));
-    return { x: p.x, y: p.y + 6, top: q.y };
+    const q = g.project(this.root.localToWorld(_w.set(s.x, s.ht, s.z - s.d * 0.5)));
+    const c = g.project(this.root.localToWorld(_w.set(s.x, s.ht, s.z)));
+    return { x: p.x, y: p.y + 6, top: Math.min(q.y, c.y) };
   }
 
   tagsUpdate() {
@@ -747,24 +748,25 @@ export class Tally {
         R.x0 = Math.min(R.x0, q.x); R.x1 = Math.max(R.x1, q.x); R.y0 = Math.min(R.y0, q.y); R.y1 = Math.max(R.y1, q.y);
       }
     }
-    // 整签互相压着的时候，后挂的那张往下让（按落下的先后）
+    // 整签（名字、价值、从哪捞的）贴在那件东西正上方、和它对正，从它身上冒出来；收成小价签以后贴在帆布前沿。
+    // 两张整签一起挂着（同款对上）互相压着时，后挂的那张往上摞，还是对着自己那一件
     const full = [];
     for (const s of this.all) {
       if (!s.tag) continue;
       const p = this.tagPos(s);
       let y = p.y;
       let x = p.x;
-      if (R && s !== st && p.x > R.x0 - 40 && p.x < R.x1 + 40 && p.y > R.y0 - 30 && p.y < R.y1) {
-        // 挂到东西外侧那一头（离红布远的那边），和东西一样高
+      if (!s.mini) {
+        const w = s.tag.offsetWidth, h = s.tag.offsetHeight;
+        y = p.top - h - 8;
+        for (const q of full) if (Math.abs(q.x - x) < (q.w + w) / 2 + 4 && y < q.y + q.h + 4 && y + h > q.y - 4) y = q.y - h - 6;
+        full.push({ x, y, w, h });
+      } else if (R && s !== st && p.x > R.x0 - 40 && p.x < R.x1 + 40 && p.y > R.y0 - 30 && p.y < R.y1) {
+        // 小价签落进压轴那一件（连红布）占的那块：挂到东西外侧那一头（离红布远的那边），和东西一样高
         const sg = s.x < (st ? st.x : 0) ? -1 : 1;
         const q = this.g.project(this.root.localToWorld(_v.set(s.x + sg * (s.w * 0.5 + 0.12), 0.02, s.z)));
         x = q.x + (sg * s.tag.offsetWidth) / 2;
         y = q.y - s.tag.offsetHeight / 2;
-      }
-      if (!s.mini) {
-        const w = s.tag.offsetWidth, h = s.tag.offsetHeight;
-        for (const q of full) if (Math.abs(q.x - x) < (q.w + w) / 2 + 4 && y < q.y + q.h + 4 && y + h > q.y - 4) y = q.y + q.h + 6;
-        full.push({ x, y, w, h });
       }
       this.g.menus.tallyTagAt(s.tag, x, y);
     }
