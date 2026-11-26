@@ -6,19 +6,20 @@ import { canSee, seeItem, exposedOf } from './sight.js';
 // 网口的规则：闭网那一刻（netop.capture）和调臂时的预告用同一份。
 // 'yes' 带得上来；'edge' 压在网口边上；'deep' 埋得太深；'away' 不在这一网落的那一面（舱里/舱外）；null 网口碰不到。
 // margin：预告时留的余量。网落下去会偏几厘米，贴着网口边的不打包票说带得上来。
-export function netVerdict(it, x, z, restY, inHold, hitHard = false, margin = 0) {
+// r：这一网的网口（舱里收拢过的，见 arm.js 的 netRFor；不给就是船上的网口）；drop：落在坡上时网口里海底最低处比网落的那一层低多少（网兜顺坡垂下去）
+export function netVerdict(it, x, z, restY, inHold, hitHard = false, margin = 0, r = NET_R, drop = 0) {
   const d = Math.hypot(it.x - x, it.z - z);
-  if (d - it.r > NET_R) return null;
-  if (Math.abs(it.y - restY) > 1.1 || it.inHold !== !!inHold) return 'away';
-  if (d + it.r * 0.6 > NET_R - margin) return 'edge';
+  if (d - it.r > r) return null;
+  if (it.y - restY > 1.1 || restY - it.y > 1.1 + drop || it.inHold !== !!inHold) return 'away';
+  if (d + it.r * 0.6 > r - margin) return 'edge';
   // 刮到硬东西：扎得深的会被震掉（grip 是只给这条规则用的扎进去多深，没给就按埋得多深）
   if (hitHard ? (it.grip ?? it.bury) > 0.3 : it.bury * it.h > 0.45) return 'deep';
   return 'yes';
 }
 
 // 活物：闭网这一刻真正在网口里的才算
-export function crabInNet(x, z, y, cx, cz, restY) {
-  return Math.hypot(x - cx, z - cz) < NET_R - 0.15 && Math.abs(y - restY) < 1.0;
+export function crabInNet(x, z, y, cx, cz, restY, r = NET_R) {
+  return Math.hypot(x - cx, z - cz) < r - 0.15 && Math.abs(y - restY) < 1.0;
 }
 
 // 蟹的去留在网落到底那一下定（crab.startle）：那时在这一圈里的出不去、会被兜上来；圈外的、正在逃的跑回窝
@@ -74,7 +75,7 @@ export class Forecast {
       if (it.state !== 'seabed') continue;
       if (Math.hypot(it.x - crane.x, it.z - crane.z) > ARM_MAX + NET_R - it.r * 0.6) continue;
       if (!seeItem(g, it)) continue;
-      const v = ev.ok ? netVerdict(it, ev.tip.x, ev.tip.z, ev.restY, ev.inHold, hard, 0.05) : null;
+      const v = ev.ok ? netVerdict(it, ev.tip.x, ev.tip.z, ev.restY, ev.inHold, hard, 0.05, ev.r, ev.drop) : null;
       const k = v === 'yes' ? 'yes' : v ? 'no' : 'near';
       this.marks.push({ k, p: new THREE.Vector3(it.x, it.y + exposedOf(it) * 0.5, it.z), r: it.r, id: it.id });
       if (k === 'yes') { this.yes++; this.yesIds.add(it.id); }

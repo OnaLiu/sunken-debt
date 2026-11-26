@@ -736,6 +736,27 @@ export class Tally {
     return { x: p.x, y: p.y + 6, top: Math.min(q.y, c.y) };
   }
 
+  // 一张签（x 是正中、y 是上沿）挂在这儿，压住别的东西多少：每一件压住的那一块占它自己的几成，加起来（价签算半件）
+  hides(x, y, w, h, self) {
+    const x0 = x - w / 2, x1 = x + w / 2, y1 = y + h;
+    const cover = (b) => Math.max(0, Math.min(x1, b.x1) - Math.max(x0, b.x0)) * Math.max(0, Math.min(y1, b.y1) - Math.max(y, b.y0)) / Math.max(1, (b.x1 - b.x0) * (b.y1 - b.y0));
+    let sum = 0;
+    for (const o of this.all) {
+      if (o === self || !o.landed) continue;
+      const b = { x0: 1e9, x1: -1e9, y0: 1e9, y1: -1e9 };
+      for (const dx of [-0.5, 0.5]) for (const dz of [-0.5, 0.5]) for (const yy of [0, o.ht]) {
+        const q = this.g.project(this.root.localToWorld(_v.set(o.x + dx * o.w, yy, o.z + dz * o.d)));
+        b.x0 = Math.min(b.x0, q.x); b.x1 = Math.max(b.x1, q.x); b.y0 = Math.min(b.y0, q.y); b.y1 = Math.max(b.y1, q.y);
+      }
+      sum += cover(b);
+      if (o.tag && o.tag.offsetWidth) {
+        const r = o.tag.getBoundingClientRect(), st = document.getElementById('stage').getBoundingClientRect(), k = st.width / 1920;
+        sum += 0.5 * cover({ x0: (r.left - st.left) / k, x1: (r.right - st.left) / k, y0: (r.top - st.top) / k, y1: (r.bottom - st.top) / k });
+      }
+    }
+    return sum;
+  }
+
   tagsUpdate() {
     // 压轴那一件（连红布）在画面上占的那块：后排的价签落进这块就挂到东西上面去，不压着它
     let R = null;
@@ -748,6 +769,7 @@ export class Tally {
         R.x0 = Math.min(R.x0, q.x); R.x1 = Math.max(R.x1, q.x); R.y0 = Math.min(R.y0, q.y); R.y1 = Math.max(R.y1, q.y);
       }
     }
+    this.starBox = R; // 演示的按键块也躲开它（keyshow.js）
     // 整签（名字、价值、从哪捞的）贴在那件东西正上方、和它对正，从它身上冒出来；收成小价签以后贴在帆布前沿。
     // 两张整签一起挂着（同款对上）互相压着时，后挂的那张往上摞，还是对着自己那一件
     const full = [];
@@ -759,7 +781,20 @@ export class Tally {
       if (!s.mini) {
         const w = s.tag.offsetWidth, h = s.tag.offsetHeight;
         y = p.top - h - 8;
-        for (const q of full) if (Math.abs(q.x - x) < (q.w + w) / 2 + 4 && y < q.y + q.h + 4 && y + h > q.y - 4) y = q.y - h - 6;
+        // 压轴那一张整签一直挂着：挂上面会压住后排的东西，就挂到它正下方（红布前沿），哪边压得少挂哪边；挂上以后不再换边
+        if (s === st) {
+          if (!s.tagSide && h > 0) s.tagSide = this.hides(x, y, w, h, s) > this.hides(x, p.y + 4, w, h, s) + 0.05 ? 'below' : 'above';
+          if (s.tagSide === 'below') y = p.y + 4;
+        }
+        // 和先挂的那张压着：并排的两件（同款一对）左右让开，各自还对着自己那一件；差不多叠在一起的才往上摞
+        for (const q of full) {
+          if (!(Math.abs(q.x - x) < (q.w + w) / 2 + 4 && y < q.y + q.h + 4 && y + h > q.y - 4)) continue;
+          const ov = (q.w + w) / 2 + 6 - Math.abs(q.x - x);
+          if (ov < w * 0.6) x += (x >= q.x ? 1 : -1) * ov;
+          else y = q.y - h - 6;
+        }
+        // 不顶到上面的总数（收获单、总数那一块到 1080 画面的 190 上下）
+        y = Math.max(y, 194);
         full.push({ x, y, w, h });
       } else if (R && s !== st && p.x > R.x0 - 40 && p.x < R.x1 + 40 && p.y > R.y0 - 30 && p.y < R.y1) {
         // 小价签落进压轴那一件（连红布）占的那块：挂到东西外侧那一头（离红布远的那边），和东西一样高

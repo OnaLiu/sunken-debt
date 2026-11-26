@@ -94,6 +94,9 @@ export class NetOp {
     this.t += dt;
     const ringY = () => this.netPos.y;
     if (this.phase !== 'idle') this.elapsed += dt;
+    // 往舱里下的这一网：网架在空中收拢到舱口放得下的大小，收回来再张开（arm.js 的 netRFor）
+    const wantR = this.phase === 'idle' || !ev || !ev.r ? NET_R : ev.r, nowR = net.state.r ?? NET_R;
+    if (Math.abs(nowR - wantR) > 0.002) net.setR(Math.abs(nowR - wantR) < 0.01 ? wantR : nowR + (wantR - nowR) * Math.min(1, dt * 5));
     switch (this.phase) {
       case 'idle':
         return;
@@ -442,7 +445,7 @@ export class NetOp {
     this.g.pressList.push({ v: pr, t: 0 });
     g.audio.play('touch');
     g.events.emit('netTouch', { x: p.x, y, z: p.z });
-    g.items.addScar(p.x, p.z, NET_R, (x, z) => (this.ev.inHold ? y : seabedY(x, z)));
+    g.items.addScar(p.x, p.z, this.ev.r || NET_R, (x, z) => (this.ev.inHold ? y : seabedY(x, z)));
   }
 
   capture() {
@@ -452,14 +455,14 @@ export class NetOp {
     const got = [];
     // 和调臂时的预告同一套规则（forecast.js）
     for (const it of g.items.onSeabed()) {
-      if (netVerdict(it, p.x, p.z, ev.restY, ev.inHold, this.hitHard) === 'yes') got.push(it);
+      if (netVerdict(it, p.x, p.z, ev.restY, ev.inHold, this.hitHard, 0, ev.r, ev.drop) === 'yes') got.push(it);
     }
     for (const it of got) g.items.removeFromSeabed(it);
     // 活物：闭网这一刻真正在网口里的才算
     let crab = null;
     for (const c of g.crabs) {
       if (!c.catchable) continue;
-      if (crabInNet(c.pos.x, c.pos.z, c.pos.y, p.x, p.z, ev.restY)) { crab = c; break; }
+      if (crabInNet(c.pos.x, c.pos.z, c.pos.y, p.x, p.z, ev.restY, ev.r)) { crab = c; break; }
     }
     if (crab) { crab.capture(); this.capturedCrab = crab; }
     this.bundle = new Bundle(got, { crab: crab ? crab.makeCaptive() : null });

@@ -87,10 +87,16 @@ export class KeyShow {
       const r = el.getBoundingClientRect();
       if (r.width && getComputedStyle(el).opacity > 0.05) rects.push([(r.left - st.left) / k - 12, (r.top - st.top) / k - 12, (r.right - st.left) / k + 12, (r.bottom - st.top) / k + 12]);
     }
+    // 收获单：压轴那一件（连红布）也不压
+    const SB = this.g.mode === 'summary' && this.g.tally.starBox;
+    if (SB) rects.push([SB.x0 - 12, SB.y0 - 12, SB.x1 + 12, SB.y1 + 12]);
     let best = null;
-    [[P.sx - W - 30, P.sy + 60], [P.sx + 60, P.sy + 60], [P.sx - W - 30, P.sy - H - 40], [P.sx + 60, P.sy - H - 40]].forEach(([x0, y0], i) => {
+    // 先挑贴着指针的四个角；四个角都压着东西（指针正指着卡片上的按钮）时，再往外挪到卡片外面
+    const near = [[P.sx - W - 30, P.sy + 60], [P.sx + 60, P.sy + 60], [P.sx - W - 30, P.sy - H - 40], [P.sx + 60, P.sy - H - 40]];
+    const far = [[P.sx - W - 320, P.sy - H / 2], [P.sx + 320, P.sy - H / 2], [P.sx - W / 2, P.sy - H - 260], [P.sx - W - 320, P.sy + 60], [P.sx + 320, P.sy + 60]];
+    [...near, ...far].forEach(([x0, y0], i) => {
       const x = clamp(x0, 40, VIEW_W - W - 40), y = clamp(y0, 150, VIEW_H - H - 120);
-      let c = i * 300 + (i === this.side ? -900 : 0) + Math.hypot(x - x0, y - y0) * 20;
+      let c = i * 300 + (i >= near.length ? 6000 : 0) + (i === this.side ? -900 : 0) + Math.hypot(x - x0, y - y0) * 20;
       for (const [l, t, r, b] of rects) c += Math.max(0, Math.min(x + W, r) - Math.max(x, l)) * Math.max(0, Math.min(y + H, b) - Math.max(y, t));
       if (!best || c < best.c) best = { c, x, y, i };
     });

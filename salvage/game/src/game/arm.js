@@ -3,6 +3,7 @@ import { NET_R, ARM_MIN, ARM_MAX, ARM_TIP_H, MAX_WORK_DEPTH, netFuelCost, onNetR
 import { BOAT } from '../world/boat.js';
 import { TAG, TAG_TEXT } from '../world/collide.js';
 import { clamp, damp, wrapAngle } from '../util/math.js';
+import { N } from './tables.js';
 
 // 打捞：白圈（网的落点）由玩家挪，吊臂照机械的样子自己追过去；每帧算出网口落在哪、碰不碰结构、多深、要多少作业油。
 const RING_N = 40;
@@ -20,6 +21,11 @@ function makeSamples() {
   }
 }
 makeSamples();
+
+// 这一网的网口多大：海底照船上的网口（NET_R）；落进舱里时网口从露天舱口收拢着穿下去，最大只张到舱口放得下的那么大
+// （配表「舱口里网口最大」）。网口升级以后舱里照样下得去，舱外一网多罩一两件（设计：设备越来越好，越捞越多）。
+// 全游戏一份：白圈、预告、闭网兜到什么、打捞点怎么分组都用它
+export const netRFor = (inHold) => (inHold ? Math.min(NET_R, N('舱口里网口最大', 1.4)) : NET_R);
 
 // 吊臂是一台有分量的液压机器：绕吊机转、伸缩、升降各有自己的最高速度、加速度和「吃劲」的快慢（加加速度）。
 // 起步慢慢吃上劲、匀速转、快到了按刹车曲线提前减速，停得干脆，不冲过头、不回弹。
@@ -388,10 +394,12 @@ export class Arm {
   evaluate() {
     const tip = this.tipWorld();
     const S = [];
+    // 正中落在舱底：网口收拢到舱口放得下的大小，照收拢以后的那一圈看挡不挡
+    const netR = netRFor(this.world.surfaceAt(tip.x, tip.z).tag === TAG.FLOOR), k = netR / NET_R;
     for (const p of SAMPLES) {
-      const x = tip.x + p.x, z = tip.z + p.z;
+      const x = tip.x + p.x * k, z = tip.z + p.z * k;
       const s = this.world.surfaceAt(x, z);
-      S.push({ x, z, y: s.y, tag: s.tag, r: p.r });
+      S.push({ x, z, y: s.y, tag: s.tag, r: p.r * k });
     }
     const workable = (s) => s.tag === TAG.NONE || s.tag === TAG.FLOOR;
     let floorRef = -1e9;
@@ -415,13 +423,16 @@ export class Arm {
       }
       if (workable(s)) topY = Math.max(topY, s.y);
     }
+    // 落在坡上：网架搁在高的那一边，网兜顺坡垂下去，低的那一边也兜得到（forecast.js 的 netVerdict 照这个放宽「同一层」）
+    let lowY = floorRef;
+    for (const s of S) if (workable(s) && s.y > floorRef - 3) lowY = Math.min(lowY, s.y);
     const restY = floorRef;
     const depth = -restY;
     if (!reason && depth > MAX_WORK_DEPTH) reason = `太深了，网只下得到 ${MAX_WORK_DEPTH} 米`;
     const cost = netFuelCost(Math.min(depth, MAX_WORK_DEPTH));
     this.eval = {
       tip: tip.clone(), restY, depth, cost, ok: !reason, reason, blockTag, onBoat,
-      obstruct, inHold: center.tag === TAG.FLOOR, topY,
+      obstruct, inHold: center.tag === TAG.FLOOR, topY, r: netR, drop: Math.max(0, floorRef - lowY),
     };
     return this.eval;
   }
@@ -484,7 +495,7 @@ class Footprint {
     const bad = !ev.ok;
     const ok = locked ? [1.0, 0.95, 0.78] : [0.82, 0.96, 0.92];
     // 按下那一下圈收进来一点再回去（0.25 秒）
-    const R = NET_R * (1 - 0.06 * Math.sin(Math.min(1, this.lockT / 0.25) * Math.PI));
+    const R = (ev.r || NET_R) * (1 - 0.06 * Math.sin(Math.min(1, this.lockT / 0.25) * Math.PI));
     const red = [1.0, 0.36, 0.28];
     const amber = [1.0, 0.75, 0.3];
     for (let i = 0; i <= n; i++) {

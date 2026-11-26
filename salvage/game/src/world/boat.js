@@ -582,8 +582,9 @@ function buildNetFrame() {
     for (let j = 0; j <= LEV; j++) {
       const t = j / LEV;
       // 收口：越往下越收；鼓起：中段往外撑
-      const bottomR = NET_R * (1 - state.close * 0.86);
-      let r = NET_R + (bottomR - NET_R) * Math.pow(t, 1.4);
+      const R = state.r ?? NET_R;
+      const bottomR = R * (1 - state.close * 0.86);
+      let r = R + (bottomR - R) * Math.pow(t, 1.4);
       r += Math.sin(t * Math.PI) * state.bulge * (0.4 + state.close * 0.5);
       const y = -t * (state.depth + state.close * 0.35);
       for (let i = 0; i <= RAD; i++) {
@@ -607,6 +608,7 @@ function buildNetFrame() {
   // 网口变大（船坞里升「网」）：网圈、配重、吊链照新的半径摆，网圈和配重也粗一圈；网衣每帧照 NET_R 自己长
   const R0 = 1.4;
   function setR(r) {
+    state.r = r;
     const k = r / R0;
     ring.scale.set(k, k, Math.sqrt(k));
     for (const { w, a } of weights) { w.position.set(Math.cos(a) * r, -0.05, Math.sin(a) * r); w.scale.setScalar(Math.sqrt(k)); }

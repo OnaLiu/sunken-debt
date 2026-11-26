@@ -1288,8 +1288,9 @@ export class Game {
         if (!this.chase.on) this.cam.zoom(inp.zoom, dt);
         if (this.moment.on) this.dragLook(inp);
       }
-      // 镜头自己偏过去看沉船的那一眼：玩家一动鼠标、推右摇杆（或缩放）就还给玩家
-      if (this.lookTo && (Math.hypot(inp.lx, inp.ly) > 0.25 || Math.hypot(inp.px, inp.py) > 6 || inp.zoom)) this.lookTo.release = true;
+      // 镜头自己偏过去看沉船的那一眼：玩家一动鼠标、推右摇杆（或缩放）就还给玩家；
+      // 跟船的镜头（一局、打捞这一屏）开着船看一眼照样看，按住右键拖、滚轮才还给玩家
+      if (this.lookTo && (this.chase.on ? inp.drag || inp.zoom : Math.hypot(inp.lx, inp.ly) > 0.25 || Math.hypot(inp.px, inp.py) > 6 || inp.zoom)) this.lookTo.release = true;
       switch (this.mode) {
         case 'sail': {
           drive = driveOf(inp);
@@ -1577,8 +1578,8 @@ export class Game {
     }
     // 视点上下跟得慢一点的时候：网在水里（视点跟着网往下沉、往上提）
     cam.pivotWy = this.mode === 'net' ? 3.2 : 0;
-    // 偏过去看沉船的那一眼只在开船时：换了模式就收掉（镜头距离还回去）
-    if (this.lookTo && this.mode !== 'sail') {
+    // 偏过去看沉船的那一眼只在开船时（跟船的镜头：打捞这一屏没在下网）：换了模式、下了网就收掉（镜头距离还回去）
+    if (this.lookTo && this.mode !== 'sail' && !(this.chase.on && this.mode === 'arm' && !this.netop.busy && !this.castQ)) {
       if (this.lookTo.relT === undefined) cam.distT = this.lookTo.d0;
       this.lookTo = null;
     }
@@ -2193,8 +2194,8 @@ export class Game {
       const ry = ev.restY > -100 ? ev.restY : this.world.surfaceAt(ev.tip.x, ev.tip.z).y;
       const p = this.project(new THREE.Vector3(ev.tip.x, ry, ev.tip.z));
       // 标签放在网口圈外面，不盖住这一网要兜的东西
-      const px = this.project(new THREE.Vector3(ev.tip.x + NET_R, ry, ev.tip.z));
-      const pz = this.project(new THREE.Vector3(ev.tip.x, ry, ev.tip.z + NET_R));
+      const px = this.project(new THREE.Vector3(ev.tip.x + (ev.r || NET_R), ry, ev.tip.z));
+      const pz = this.project(new THREE.Vector3(ev.tip.x, ry, ev.tip.z + (ev.r || NET_R)));
       const r = Math.max(Math.hypot(px.x - p.x, px.y - p.y), Math.hypot(pz.x - p.x, pz.y - p.y));
       s.tip = { show: true, x: p.x, y: p.y, r, cost: ev.cost, bad: !ev.ok, poor: ev.ok && ev.cost > this.trip.fuel, n: this.forecast.yes, wait: !!this.castQ };
       // 这一处这会儿压在自己船底下：预告的圈看不见、数不出来，照打捞点记着的件数

@@ -3,6 +3,7 @@ import { pilot } from './pilot.js';
 import { MIN_NET_COST } from './trip.js';
 import { WRECK, TRAIL } from '../world/layout.js';
 import { N } from './tables.js';
+import { netVerdict } from './forecast.js';
 
 // 一局（三小段）的自动演示：和玩家一样只动鼠标和键盘。
 // 第一趟：W、A、S、D 顺着方向箭头开（浅滩先下一网，再顺着船板找到沉船），在沉船那儿一网一揭，按住 Q 回港；
@@ -143,14 +144,16 @@ export class RunBot extends MomentBot {
     }
     yield* this.wait(0.25);
     if (!this.netted || o.hold) { this.stage = 'look'; yield* this.closeLook(1.8); }
+    // 下网以前看一眼预告：这一网一个金圈都没有（压在网口边上、埋得太深）就不下，换一处（玩家也是看着金圈下网）
+    if (!o.dig && !this.yesAt(o)) { this.failed.add(s.key); return true; }
     this.stage = 'cast';
     yield* this.click();
     yield* this.wait(0.25);
     if (!this.busy) { this.failed.add(s.key); return true; }
     this.netted++;
-    // 等网收回来、冲洗、揭晓完：冲到一半按住左键冲得快
+    // 等网收回来、冲洗、揭晓完：冲到一半按住左键冲得快（按下以后吊臂还在走、网还没下去时也算在等）
     let w = 0;
-    while (g.mode !== 'arm' && w < 40) {
+    while ((g.mode !== 'arm' || this.busy || g.reveal.active) && w < 40) {
       const c = g.reveal.cur;
       this.v.aHeld = !!(c && c.phase === 'wash' && c.w > 0.45);
       w += this.dt;
@@ -159,6 +162,16 @@ export class RunBot extends MomentBot {
     this.v.aHeld = false;
     yield* this.wait(0.6);
     return true;
+  }
+
+  // 白圈落在这一处，预告里有几个金圈（和 forecast.js 同一条规则）
+  yesAt(o) {
+    const g = this.g, ev = g.snap.evalAt(o.x, o.z);
+    if (!ev || !ev.ok) return 0;
+    return o.ids.filter((id) => {
+      const it = g.items.items.find((i) => i.id === id);
+      return it && it.state === 'seabed' && netVerdict(it, o.x, o.z, ev.restY, ev.inHold, false, 0.05, ev.r, ev.drop) === 'yes';
+    }).length;
   }
 
   // 一网一揭捞几网（油不够了就停）

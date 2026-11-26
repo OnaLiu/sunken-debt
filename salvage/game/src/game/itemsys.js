@@ -5,6 +5,7 @@ import { seabedY, seabedNormal } from '../world/terrain.js';
 import { floorPoint } from '../world/wreck.js';
 import { toon } from '../render/materials.js';
 import { mulberry32 } from '../util/math.js';
+import { TAG } from '../world/collide.js';
 
 // 海底的每一件东西：开局时就生成并固定位置；被网收走就真的离开海底，留下压痕。
 // 泥包最高是东西露出泥面那截的几成
@@ -21,6 +22,24 @@ export class ItemSystem {
     this.items = [];
     this.moundMat = toon({ vertexColors: true });
     this.scarMat = toon({ color: 0xffffff, vertexColors: true, transparent: false });
+  }
+
+  // 海底 (x, z) 这一件网下得去吗：网口正中挪开一点也算（打捞点会自己挪），船上原来那个网口（1.4 米）罩得住它、
+  // 网口那一圈没有比海底高出一截的船壳、断桅压着（和 arm.js 的 evaluate 一样的挡法）
+  nettable(x, z) {
+    const W = this.world, R = 1.35;
+    const ring = [[0, 0]];
+    for (const rr of [0.6, 0.95, R]) for (let k = 0; k < 12; k++) ring.push([Math.cos((k / 12) * Math.PI * 2) * rr, Math.sin((k / 12) * Math.PI * 2) * rr]);
+    const free = (cx, cz) => {
+      const S = ring.map(([ox, oz]) => ({ s: W.surfaceAt(cx + ox, cz + oz), r: Math.hypot(ox, oz) }));
+      let floor = -1e9;
+      for (const { s, r } of S) if (r <= 0.95 && s.tag === TAG.NONE) floor = Math.max(floor, s.y);
+      return floor > -1e8 && S.every(({ s }) => s.tag === TAG.NONE || s.y <= floor + 0.45);
+    };
+    for (const rr of [0, 0.3, 0.6]) for (let k = 0; k < (rr ? 8 : 1); k++) {
+      if (free(x + Math.cos((k / 8) * Math.PI * 2) * rr, z + Math.sin((k / 8) * Math.PI * 2) * rr)) return true;
+    }
+    return false;
   }
 
   // tide：这一潮重铺的散货（tide.js 的 tideLayout）；不给就是第一趟原来的摆法（银币匣一定在）
@@ -50,7 +69,8 @@ export class ItemSystem {
       this.items.push(it);
       return it;
     };
-    if (tide) for (const s of tide.loose) add(s, s.x, s.z);
+    // 这一潮冲出来的货：压在断桅、船壳底下，网口怎么摆都罩不进去的不摆（设计：一处聚积的几件一网带得走）
+    if (tide) for (const s of tide.loose) { if (this.nettable(s.x, s.z)) add(s, s.x, s.z); }
     else {
       for (const s of LOOSE_ITEMS) add(s, s.x, s.z);
       for (const s of OUTER_ITEMS) {

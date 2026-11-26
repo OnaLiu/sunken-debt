@@ -674,7 +674,7 @@ html, body { margin: 0; height: 100%; background: #05080a; overflow: hidden; }
 #dock .gcard .buy .price { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 32px; font-weight: 800; }
 #dock .gcard .buy.hot { transform: translateY(-3px); }
 #dock .gcard .buy.poor { filter: grayscale(0.85) brightness(0.8); }
-#dock .gcard .buy.max { justify-content: center; cursor: default; filter: grayscale(0.4); }
+#dock .gcard .buy.max { justify-content: center; cursor: default; filter: grayscale(1) brightness(0.7); text-shadow: none; }
 #dock .gcard .buy.shake { animation: deny 0.3s; }
 /* 翻开债本时，船坞的牌子、卡、按钮收起来（地名、钱留着） */
 #dock .pins, #dock .gcard, #dock .sail, #dock .book { transition: opacity 0.2s; }

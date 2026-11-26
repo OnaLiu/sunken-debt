@@ -7,6 +7,7 @@ import { ICON } from '../ui/icons.js';
 import { key, KEYS } from '../ui/hud.js';
 import { BOAT } from '../world/boat.js';
 import { T, N } from './tables.js';
+import { netRFor } from './arm.js';
 
 // 第一段·归潮沙湾的小样：一打开就停在沉船旁边，挑一处按一下、码满甲板、一甲板一起冲，揭完出这一甲板的结算，再来一次从头。
 // 没有菜单、教学、剧情、一趟的收获单和债本（那些是后面的事）。
@@ -176,9 +177,9 @@ export class Moment {
     const at = (o) => {
       const p = g.project(_p.set(o.x, o.y, o.z));
       if (p.z > 1) return null;
-      const ex = g.project(_q.set(o.x + NET_R, o.y, o.z)), x = p.x, y = p.y;
+      const R = netRFor(!!o.hold), ex = g.project(_q.set(o.x + R, o.y, o.z)), x = p.x, y = p.y;
       const rx = Math.hypot(ex.x - x, ex.y - y);
-      const ez = g.project(_q.set(o.x, o.y, o.z + NET_R));
+      const ez = g.project(_q.set(o.x, o.y, o.z + R));
       return { x, y, r: Math.max(rx, Math.hypot(ez.x - x, ez.y - y)) };
     };
     const busy = g.netop.busy || !!g.castQ || m === 'net';

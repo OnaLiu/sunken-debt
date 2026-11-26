@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { NET_R, ARM_MIN, ARM_MAX, VIEW_W, VIEW_H } from '../config.js';
 import { BOAT } from '../world/boat.js';
-import { BOAT_ZONE, inBoatZone } from './arm.js';
+import { BOAT_ZONE, inBoatZone, netRFor } from './arm.js';
 import { seeItem, canSee, hiddenWhy } from './sight.js';
 import { N } from './tables.js';
 
@@ -72,7 +72,7 @@ export class SnapAim {
         for (const o of near) centers.push({ x: (c.x + o.x) / 2, z: (c.z + o.z) / 2 });
         if (near.length > 1) centers.push({ x: (c.x + near.reduce((s, o) => s + o.x, 0)) / (near.length + 1), z: (c.z + near.reduce((s, o) => s + o.z, 0)) / (near.length + 1) });
         for (const ctr of centers) {
-          const cover = left.filter((o) => o.hold === c.hold && Math.hypot(o.x - ctr.x, o.z - ctr.z) + o.r * 0.6 <= NET_R - 0.12);
+          const cover = left.filter((o) => o.hold === c.hold && Math.hypot(o.x - ctr.x, o.z - ctr.z) + o.r * 0.6 <= netRFor(c.hold) - 0.12);
           if (!cover.includes(c)) continue;
           const score = cover.reduce((s, o) => s + Math.min(1, o.r * 1.6) + 0.4, 0);
           if (!best || score > best.score + 1e-6) best = { ctr, cover, score, hold: c.hold };
@@ -80,7 +80,14 @@ export class SnapAim {
       }
       if (!best) break;
       left = left.filter((o) => !best.cover.includes(o));
-      const S = this.place(best.cover, best.hold, crane);
+      let S = this.place(best.cover, best.hold, crane);
+      // 这一组凑成一网下不去（够得着，可网口那一圈压着断桅、船壳）：少罩一件再试，小的先放下；放下的那件回去自己再分组
+      if ((!S || S.far) && this.blocked && best.cover.length > 1) {
+        for (const drop of best.cover.slice().sort((a, b) => a.r - b.r)) {
+          const T = this.place(best.cover.filter((o) => o !== drop), best.hold, crane);
+          if (T && !T.far) { S = T; left.push(drop); break; }
+        }
+      }
       if (S) spots.push(S);
     }
     return spots;
@@ -89,19 +96,21 @@ export class SnapAim {
   // 这一组东西：白圈放哪儿（罩得住这一组、网下得去、舱里的从舱口下得去）。正中下不去就在周围小范围找
   place(cover, hold, crane) {
     const cx = cover.reduce((s, o) => s + o.x, 0) / cover.length, cz = cover.reduce((s, o) => s + o.z, 0) / cover.length;
-    const fits = (x, z) => cover.every((o) => Math.hypot(o.x - x, o.z - z) + o.r * 0.6 <= NET_R - 0.06);
+    const R = netRFor(hold), fits = (x, z) => cover.every((o) => Math.hypot(o.x - x, o.z - z) + o.r * 0.6 <= R - 0.06);
     const offs = [[0, 0]];
     for (const rr of [0.25, 0.5, 0.8]) for (let k = 0; k < 8; k++) offs.push([Math.cos((k / 8) * Math.PI * 2) * rr, Math.sin((k / 8) * Math.PI * 2) * rr]);
     const ids = cover.map((o) => o.id).sort();
     let fallback = null;
+    this.blocked = false; // 够得着、可哪一处都下不去（被挡住）
     for (const [ox, oz] of offs) {
       const x = cx + ox, z = cz + oz;
       if (!fits(x, z)) continue;
       const ev = this.evalAt(x, z);
+      if (ev && !ev.far) this.blocked = true;
       // 太近、压在自己船头船尾那一线上：这会儿下不了，照样列着（和够不着一样，船挪开了再落上去）
       if (!ev) { if (!fallback) fallback = { x, z, y: cover[0].y, ids, key: ids.join('+'), hold, dig: ids.includes('dig'), far: true, n: cover.length }; continue; }
       const far = Math.hypot(x - crane.x, z - crane.z) > ARM_MAX - 0.05;
-      if (ev.ok && ev.inHold === hold) return { x, z, y: ev.restY, ids, key: ids.join('+'), hold, dig: ids.includes('dig'), far, n: cover.length };
+      if (ev.ok && ev.inHold === hold) { this.blocked = false; return { x, z, y: ev.restY, ids, key: ids.join('+'), hold, dig: ids.includes('dig'), far, n: cover.length }; }
       if (!fallback && far) fallback = { x, z, y: cover[0].y, ids, key: ids.join('+'), hold, dig: ids.includes('dig'), far: true, n: cover.length };
     }
     // 够不着的：这会儿看不准下不下得去（臂伸不到那儿算不了），先按这一组的正中列上，开近了再算
