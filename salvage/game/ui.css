@@ -61,8 +61,10 @@ html, body { margin: 0; height: 100%; background: #05080a; overflow: hidden; }
 /* 跳红、闪一下就停（信息.md「常驻在屏幕上的」）：只在提醒那一刻闪两下，不一直闪 */
 #fuel.w2.flash .track { animation: lowglass2 0.5s steps(2) 2; }
 #fuel.w1.flash .track { animation: lowglass 0.5s steps(2) 2; }
-#fuelsay { position: absolute; right: 52px; top: 132px; padding: 8px 20px; font-size: 26px; font-weight: 700; color: #ffd3a0; white-space: nowrap; border-image-source: var(--px-iron-red); opacity: 0; transform: translateY(-8px); transition: opacity 0.2s, transform 0.25s cubic-bezier(.2,1.6,.4,1); pointer-events: none; }
+/* 挂在油量那一格左边、小尖指着油量（原来在它底下，被甲板那一排盖住看不见） */
+#fuelsay { position: absolute; right: 584px; top: 50px; padding: 8px 20px; font-size: 26px; font-weight: 700; color: #ffd3a0; white-space: nowrap; border-image-source: var(--px-iron-red); opacity: 0; transform: translateX(16px); transition: opacity 0.2s, transform 0.25s cubic-bezier(.2,1.6,.4,1); pointer-events: none; }
 #fuelsay.on { opacity: 1; transform: none; }
+#fuelsay::after { content: ''; position: absolute; right: -24px; top: 50%; margin-top: -12px; border: 12px solid transparent; border-left: 12px solid #b8503a; filter: drop-shadow(3px 0 0 #04090b); }
 @keyframes lowglass2 { 50% { box-shadow: 0 0 0 3px #04090b, 0 0 0 6px rgba(255,150,70,.4); } }
 @keyframes lowglass { 50% { box-shadow: 0 0 0 3px #04090b, 0 0 0 6px rgba(255,106,77,.45); } }
 /* 油还够在这儿下几网 */
@@ -552,7 +554,14 @@ html, body { margin: 0; height: 100%; background: #05080a; overflow: hidden; }
 #result.on .best { opacity: 1; transform: none; transition-delay: 0.9s; }
 #result.on .foot { opacity: 1; transform: none; transition-delay: 1.05s; }
 /* 再来一次：收获单「再来一趟」那一块铜牌 */
-#result .again { position: relative; margin-top: 8px; display: flex; align-items: center; padding: 8px 26px 11px; font-size: 28px; letter-spacing: 4px; color: #2a1806; font-weight: 700; border: 3px solid #e8b04a; border-image: var(--px-brass) 12 fill / 12px / 3px stretch; image-rendering: pixelated; text-shadow: 0 3px 0 rgba(255,238,190,.55); filter: drop-shadow(6px 6px 0 rgba(0,0,0,.35)); overflow: hidden; opacity: 0; transform: translateY(20px); transition: opacity 0.3s, transform 0.4s cubic-bezier(.2,1.5,.4,1); }
+#result .things { flex-wrap: wrap; justify-content: center; row-gap: 6px; }
+/* 底下一排：主按钮（接着捞／回港开舱），能接着捞时旁边一块小铁牌「按住 Q 回港开舱」 */
+#result .acts { display: flex; align-items: center; gap: 22px; margin-top: 8px; }
+#result .alt { position: relative; display: flex; align-items: center; gap: 8px; padding: 8px 18px 11px; font-size: 24px; letter-spacing: 2px; color: #cfe3df; font-weight: 700; border: 3px solid #23414a; border-image: var(--px-iron) 12 / 12px / 3px stretch; background: rgba(10,21,25,.9); image-rendering: pixelated; overflow: hidden; opacity: 0; transform: translateY(20px); transition: opacity 0.3s, transform 0.4s cubic-bezier(.2,1.5,.4,1); }
+#result.on .alt { opacity: 1; transform: none; transition-delay: 1.35s; }
+#result .alt .hold { position: absolute; left: 9px; bottom: 6px; height: 6px; width: 0; max-width: calc(100% - 18px); background: #e8b04a; }
+#result .alt.on { color: #ffe1a0; }
+#result .again { position: relative; display: flex; align-items: center; padding: 8px 26px 11px; font-size: 28px; letter-spacing: 4px; color: #2a1806; font-weight: 700; border: 3px solid #e8b04a; border-image: var(--px-brass) 12 fill / 12px / 3px stretch; image-rendering: pixelated; text-shadow: 0 3px 0 rgba(255,238,190,.55); filter: drop-shadow(6px 6px 0 rgba(0,0,0,.35)); overflow: hidden; opacity: 0; transform: translateY(20px); transition: opacity 0.3s, transform 0.4s cubic-bezier(.2,1.5,.4,1); }
 #result.on .again { opacity: 1; transform: none; transition-delay: 1.2s; }
 #result .again .key { margin-right: 14px; }
 #result .again .cd { position: absolute; left: 9px; bottom: 6px; height: 6px; width: 0; max-width: calc(100% - 18px); background: #5a3a12; box-shadow: 0 -3px 0 rgba(255,238,190,.5); }
@@ -574,10 +583,11 @@ html, body { margin: 0; height: 100%; background: #05080a; overflow: hidden; }
 #stage.point { cursor: var(--cur-arrow) 1 1, auto; }
 #stage.point.nocur { cursor: none; }
 #stage.point.drag { cursor: var(--cur-turn) 24 10, move; }
-#vcur { position: absolute; left: 0; top: 0; z-index: 24; display: none; pointer-events: none; image-rendering: pixelated; width: 39px; height: 54px; background: var(--cur-arrow) 0 0 / 100% 100% no-repeat; filter: drop-shadow(3px 3px 0 rgba(0,0,0,.5)); transform-origin: 2px 2px; }
+#vcur { position: absolute; left: 0; top: 0; z-index: 26; display: none; pointer-events: none; image-rendering: pixelated; width: 39px; height: 54px; background: var(--cur-arrow) 0 0 / 100% 100% no-repeat; filter: drop-shadow(3px 3px 0 rgba(0,0,0,.5)); transform-origin: 2px 2px; }
 #vcur.on { display: block; }
 #vcur.own { filter: none; transform-origin: 0 0; }
-#keyshow { position: absolute; left: 0; top: 0; z-index: 23; display: none; align-items: flex-end; gap: 14px; pointer-events: none; filter: drop-shadow(4px 4px 0 rgba(0,0,0,.45)); opacity: 0.92; }
+/* 演示的手在债本、收获单、结算牌上面（它们盖满画面） */
+#keyshow { position: absolute; left: 0; top: 0; z-index: 25; display: none; align-items: flex-end; gap: 14px; pointer-events: none; filter: drop-shadow(4px 4px 0 rgba(0,0,0,.45)); opacity: 0.92; }
 #keyshow.on { display: flex; }
 #keyshow .kb { display: flex; flex-direction: column; align-items: center; gap: 5px; }
 #keyshow .row { display: flex; gap: 5px; }

@@ -26,7 +26,7 @@ export class Moment {
     this.el = document.createElement('div');
     this.el.id = 'result';
     // 结算牌：和一趟的收获单同一套（金字标题、金色总数两边卷草、铜牌按钮）；中间一排这一甲板冲出来的东西本身的小图，便宜的在前、最贵的在最后
-    this.el.innerHTML = `<div class="box panel"><div class="h"></div><div class="tot"><span class="num">${ICON.coin}<b></b></span><span class="n"></span></div><div class="things"></div><div class="row best"></div><div class="foot"><div class="row fuel"></div><div class="row rec"></div></div><div class="again"><span class="cd"></span></div></div>`;
+    this.el.innerHTML = `<div class="box panel"><div class="h"></div><div class="tot"><span class="num">${ICON.coin}<b></b></span><span class="n"></span></div><div class="things"></div><div class="row best"></div><div class="foot"><div class="row fuel"></div><div class="row rec"></div></div><div class="acts"><div class="again"><span class="cd"></span></div><div class="alt"></div></div></div>`;
     g.ui.root.append(this.el);
     g.events.on('batchDone', (r) => this.onBatchDone(r));
     g.events.on('revealed', (ev) => {
@@ -348,6 +348,9 @@ export class Moment {
     if (best) { const i = list.indexOf(best); if (i >= 0) { list.splice(i, 1); list.push(best); } }
     E.querySelector('.things').innerHTML = list.map((e, i) => `<span class="cell${e === best ? ' star' : ''}" style="animation-delay:${(0.35 + i * 0.07).toFixed(2)}s"><img class="th" src="${thumbs[e.kind] || ''}"></span>`).join('');
     E.querySelector('.things').style.display = list.length ? '' : 'none';
+    // 件数多时折成两三行、每行一样多（一行最多 12 格），牌子不拉得比画面还宽
+    const rows = Math.ceil(list.length / 12), per = Math.ceil(list.length / Math.max(1, rows));
+    E.querySelector('.things').style.maxWidth = list.length ? per * 84 + 12 + 'px' : '';
     E.querySelector('.best').innerHTML = best
       ? `<span class="k">${T('结算·压轴')}</span><span class="nm">${best.def.name}</span><span class="v">${ICON.coin}${best.def.value}</span>`
       : `<span class="nm">${T('结算·没有压轴')}</span>`;
@@ -364,6 +367,10 @@ export class Moment {
     this.more = this.canMore();
     again.innerHTML = `${key(K.a, 'a')}<span>${T(this.more ? '结算·接着捞' : '结算·回港')}</span><span class="cd"></span>`;  // 表的 id，不是玩家看的
     again.classList.remove('press');
+    // 还能接着捞时，旁边一块小铁牌：按住 Q 回港开舱（按住时底下一条走满）
+    const alt = E.querySelector('.alt');
+    alt.innerHTML = this.more ? `<span>${T('键·按住')}</span>${key(K.quit, 'b')}<span>${T('键·回港')}</span><span class="hold"></span>` : '';
+    alt.style.display = this.more ? '' : 'none';
     // 自动演示：按钮底下一条走满，机器人就按（和收获单的「再来一趟」一样）
     const cd = again.querySelector('.cd');
     if (g.bot) cd.style.animationDuration = Math.max(0.5, N('演示结算停多久', 6) - 1.3).toFixed(2) + 's';  // 表的 id，不是玩家看的
@@ -460,6 +467,9 @@ export class Moment {
       if (!inp.bHeld) g.quitHold = null;
       else if ((g.quitHold += dt) >= N('回港按住多久', 0.9)) { g.quitHold = null; this.home(); }  // 表的 id，不是玩家看的
     }
+    const hold = this.el.querySelector('.alt .hold');
+    if (hold) hold.style.width = g.quitHold == null ? '0' : Math.min(100, (g.quitHold / N('回港按住多久', 0.9)) * 100).toFixed(1) + '%';  // 表的 id，不是玩家看的
+    this.el.querySelector('.alt').classList.toggle('on', g.quitHold != null);
   }
 
   // 再来一次：黑一下，回到这一刻开头

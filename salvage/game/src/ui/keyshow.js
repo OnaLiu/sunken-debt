@@ -64,9 +64,15 @@ export class KeyShow {
       const r = box.getBoundingClientRect(), k = (st.width || VIEW_W) / VIEW_W;
       return { x: VIEW_W / 2 - W / 2, y: (r.bottom - st.top) / k + 18 };
     }
+    // 债本、收获单盖满画面：挨在要按的那一样旁边（书的右下、「翻开债本」那一块的右边），不压书页、不压东西的卡
+    if (m === 'debt' || m === 'summary') {
+      const r = this.besideEl(m === 'debt' ? [this.g.harbor && this.g.harbor.debtEl.querySelector('.book')] : ['#summary .again', '#summary .deeds .dd:last-child']);
+      if (r) return r;
+    }
     if ((m === 'arm' || m === 'net') && sailing) {
-      const p = g.project(g.boat.root.localToWorld(_v.set(m === 'batch' ? 3.3 : 0, BOAT.deckY, 0)));
-      return { x: p.x + (m === 'batch' ? 330 : 200), y: p.y + 120 };
+      // 开船：船的右下、左下里挑一处不压测深图、油量栏、模式条的
+      const p = g.project(g.boat.root.localToWorld(_v.set(0, BOAT.deckY, 0)));
+      return this.pick([[p.x + 200, p.y + 120], [p.x - W - 200, p.y + 120], [p.x + 200, p.y - H - 80], [p.x - W - 200, p.y - H - 80]]);
     }
     // 指针旁边：左下、右下、左上、右上里挑一处不压小牌、测深图、油量栏、模式条的
     const P = inp.ptr;
@@ -74,17 +80,36 @@ export class KeyShow {
     return { x: VIEW_W * 0.7, y: VIEW_H * 0.7 };
   }
 
-  beside(P) {
+  // 画面坐标里的一块（1920×1080）
+  rectOf(el) {
     const st = document.getElementById('stage').getBoundingClientRect(), k = (st.width || VIEW_W) / VIEW_W;
+    const r = el.getBoundingClientRect();
+    return [(r.left - st.left) / k, (r.top - st.top) / k, (r.right - st.left) / k, (r.bottom - st.top) / k];
+  }
+
+  // 挨在这几样的右边，底边对齐最后一样；右边放不下就放左边
+  besideEl(list) {
+    const rs = list.map((e) => (typeof e === 'string' ? document.querySelector(e) : e)).filter((e) => e && e.getBoundingClientRect().width).map((e) => this.rectOf(e));
+    if (!rs.length) return null;
+    const right = Math.max(...rs.map((r) => r[2])), left = Math.min(...rs.map((r) => r[0])), bottom = rs[0][3];
+    const x = right + 30 + W <= VIEW_W - 40 ? right + 30 : left - 30 - W;
+    return { x, y: bottom - H };
+  }
+
+  beside(P) {
+    return this.pick([[P.sx - W - 30, P.sy + 60], [P.sx + 60, P.sy + 60], [P.sx - W - 30, P.sy - H - 40], [P.sx + 60, P.sy - H - 40]]);
+  }
+
+  // 几处里挑一处：不出画面、不压常驻的面板（小牌、测深图、油量栏、模式条、船坞的卡和铜牌），先挑前面的、上一回挑的
+  pick(cands) {
     const rects = [];
-    const H = this.g.harbor, extra = H ? [H.debtEl.querySelector('.book'), H.debtEl.querySelector('.next'), H.dockEl.querySelector('.gcard'), H.dockEl.querySelector('.foot'), H.dockEl.querySelector('.money'), document.querySelector('#summary')] : [];
+    const H0 = this.g.harbor, extra = H0 ? [H0.debtEl.querySelector('.book'), H0.debtEl.querySelector('.next'), H0.dockEl.querySelector('.gcard'), H0.dockEl.querySelector('.foot'), H0.dockEl.querySelector('.money')] : [];
     for (const el of [this.g.ui.tipEl, this.g.ui.sonarEl, this.g.ui.fuelEl, this.g.ui.deckEl, this.g.ui.modeEl, ...extra]) {
       if (!el) continue;
-      const r = el.getBoundingClientRect();
-      if (r.width && getComputedStyle(el).opacity > 0.05) rects.push([(r.left - st.left) / k - 12, (r.top - st.top) / k - 12, (r.right - st.left) / k + 12, (r.bottom - st.top) / k + 12]);
+      if (el.getBoundingClientRect().width && getComputedStyle(el).opacity > 0.05) { const [l, t, r, b] = this.rectOf(el); rects.push([l - 12, t - 12, r + 12, b + 12]); }
     }
     let best = null;
-    [[P.sx - W - 30, P.sy + 60], [P.sx + 60, P.sy + 60], [P.sx - W - 30, P.sy - H - 40], [P.sx + 60, P.sy - H - 40]].forEach(([x0, y0], i) => {
+    cands.forEach(([x0, y0], i) => {
       const x = clamp(x0, 40, VIEW_W - W - 40), y = clamp(y0, 150, VIEW_H - H - 120);
       let c = i * 300 + (i === this.side ? -900 : 0) + Math.hypot(x - x0, y - y0) * 20;
       for (const [l, t, r, b] of rects) c += Math.max(0, Math.min(x + W, r) - Math.max(x, l)) * Math.max(0, Math.min(y + H, b) - Math.max(y, t));
