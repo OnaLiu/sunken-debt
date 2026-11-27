@@ -27,7 +27,7 @@ export default {
     '船坞：直接进船坞（手里 2592），点船上的「网」「油箱」牌子看设备卡、升级，E 出海。',
     '第二潮：回过一次港、网和油箱各升了一级以后出海（海底重铺多冲出几件、网口 1.75 米、油 88）。',
     '演示放完一圈：`--until window.__demoEnd`（约 276 秒：捞完一趟、回港开舱、翻开债本、船坞升网和油箱、出海冲完第二潮的第一甲板、再回港还第一页、升油箱、按出海）；演示接着一圈圈放下去。',
-    '素材对照（换素材前后比）：--probe @素材对照·捞获 / @素材对照·场地，用法见文件里这两条探针上面的注释；截图对的是 素材/基准/ 里同名的图。@素材对照·近看：舱里的杂货、礁石、沉船散件（断桅横桁、舱盖、埋着的船材、尾楼）推近（基准里没有，比上一版同机位）。',
+    '素材对照（换素材前后比）：--probe @素材对照·捞获 / @素材对照·场地，用法见文件里这两条探针上面的注释；截图对的是 素材/基准/ 里同名的图。@素材对照·近看：舱里的杂货、礁石、沉船散件（断桅横桁、舱盖、埋着的船材、尾楼）推近（基准里没有，比上一版同机位）。@素材对照·航路（从「小段一」开）：港外航路的浮标、浅滩和标杆、船板线索几个固定机位，对的是 素材/基准/ 里「N小段-」开头的图。',
   ].join('\n'),
   page: 'index.html',
   query: (seg = '') => {
@@ -195,6 +195,39 @@ window.__hand = (() => {
   const v = views[Math.min(window.__nviews.n, views.length - 1)];
   window.__nviews.n++;
   return v.n + (v.n.startsWith('礁石') && rock ? ' ' + rock.x.toFixed(1) + ',' + rock.z.toFixed(1) : '');
+})()`,
+    // 素材对照·航路（N 小段素材单加）：港外航路到沉船那一路的几样固定机位（第 2 刻起：航路俯视、红浮标近看、绿浮标近看、浅滩全景、标杆近看、船板线索俯视）。
+    // 从「小段一」开（港外开局，船板线索都摆着）：node tools/moment.mjs 小段一 0.5,1,1.5,2,2.5,3,3.5 --probe @素材对照·航路；返回这一张截图里是哪个机位
+    '素材对照·航路': `return (() => {
+  const g = __game;
+  const V = (x, y, z) => new g.boat.root.position.constructor(x, y, z);
+  const views = [
+    { n: '航路-俯视', pos: [-160, 46, -26], look: [-160, -4, -40], fov: 45, hide: [] },
+    { n: '航路-红浮标近看', pos: [-138.5, 3.2, -44.5], look: [-142, 0.6, -48.5], fov: 40, hide: ['boat'] },
+    { n: '航路-绿浮标近看', pos: [-130.5, 3.2, -27.5], look: [-134, 0.6, -31.5], fov: 40, hide: ['boat'] },
+    { n: '浅滩-全景', pos: [-68, 30, -8], look: [-82, -4, -30], fov: 45, hide: ['boat'] },
+    { n: '浅滩-标杆近看', pos: [-86, 3.5, -33], look: [-91, 1.8, -38.5], fov: 45, hide: ['boat'] },
+    { n: '航路-船板线索俯视', pos: [-44, 60, -2], look: [-44, -8, -7], fov: 50, hide: ['boat', 'water'] },
+  ];
+  if (!window.__rviews) {
+    document.getElementById('ui').style.display = 'none';
+    window.__rviews = { n: 0 };
+    const objs = { boat: g.boat.root, water: g.world.water };
+    const orig = g.cam.update.bind(g.cam);
+    g.cam.update = (dt) => {
+      const v = views[Math.max(0, Math.min(window.__rviews.n - 1, views.length - 1))];
+      for (const [k, o] of Object.entries(objs)) if (o) o.visible = !v.hide.includes(k);
+      for (const s of g.crew.sailors || []) if (s.root) s.root.visible = !v.hide.includes('boat');
+      g.cam.alt.pos.copy(V(...v.pos));
+      g.cam.alt.look.copy(V(...v.look));
+      g.cam.alt.fov = v.fov;
+      g.cam.alt.w = 1; g.cam.altFrom = 1; g.cam.altTo = 1;
+      return orig(dt);
+    };
+  }
+  const shown = window.__rviews.n === 0 ? '游戏画面' : views[Math.min(window.__rviews.n - 1, views.length - 1)].n;
+  window.__rviews.n++;
+  return shown;
 })()`,
     // 素材·地块：一块海底现在的底色、深浅、沉船占地、断桅、礁石、捞获在哪（世界坐标，米），给 tools/素材摆位图.py 画「底色」「摆位图」。
     // 范围默认 x −14…34、z −8…40（沉船场地），别的地块：--pre "window.__region=[x0,x1,z0,z1]"。
