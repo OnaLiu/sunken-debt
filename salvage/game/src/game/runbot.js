@@ -422,7 +422,7 @@ export class RunBot extends MomentBot {
     this.stage = 'ledger';
     // 钱够还这一页：指着「还这一页」点下去，盖章、翻页，翻过来那张画停一会儿，合上
     const pg = R.page();
-    if (pg && R.st.money >= pg.amount && !U.first) {
+    if (pg && R.st.money >= pg.amount && !U.first && !this.forHand()) {
       yield* this.wait(1.2);
       yield* this.moveTo(() => U.at('pay') || { x: this.v.ptr.x, y: this.v.ptr.y });
       yield* this.wait(0.35);
@@ -438,6 +438,12 @@ export class RunBot extends MomentBot {
     while (R.phase === 'ledger' && w < 3) { w += this.dt; yield; }
   }
 
+  // 这一次进船坞钱留着雇吊机手（他头上有牌子、还没雇、雇得起）
+  forHand() {
+    const R = this.g.run, nx = R.next('hand');
+    return !!(R.handShown && !this.g.hand.hired && nx && R.st.money >= nx.price);
+  }
+
   // —— 船坞：先买加宽甲板，再网、油箱、水泵，钱够的都买；然后出海 ——
   *shop() {
     const g = this.g, R = g.run, U = R.ui;
@@ -451,9 +457,9 @@ export class RunBot extends MomentBot {
       g.leaveToTitle();
       return;
     }
-    // 钱够还第一页：按 Q 翻开债本
+    // 钱够还第一页：按 Q 翻开债本（吊机手头上有牌子还没雇的那一次先雇他，路线是吊机手 → 最后一网 → 还清第一页）
     const pg = R.page();
-    if (pg && R.st.money >= pg.amount) {
+    if (pg && R.st.money >= pg.amount && !this.forHand()) {
       this.stage = 'book';
       this.v.b = true;
       let w = 0;
