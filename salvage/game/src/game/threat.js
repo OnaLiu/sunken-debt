@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import { clamp, smoothstep, damp } from '../util/math.js';
 import { seabedY } from '../world/terrain.js';
 import { trenchZ } from '../world/layout.js';
-import { netFuelCost, VIEW_W, VIEW_H } from '../config.js';
+import { VIEW_W, VIEW_H } from '../config.js';
+import { N } from './tables.js';
 
 // 逼近的威胁（效果清单第 9 节）：油还够几网（W01），深槽里那个东西（W02、C10、C11）。
 // 两样都照「远时平常 → 近了发黄 → 再近发红 → 心跳越来越快」；心跳只是提醒，不催，冲洗近景里让开。
@@ -32,7 +33,7 @@ export class Threat {
     this.bpm = 0;
     this.nl = null;
     // 「还够几网」按上一网真正用掉的油算（还没下过网：按浅滩那么深算）。船开到深水上不跳，只有真花了油才少
-    this.refCost = netFuelCost(4);
+    this.refCost = N('一网最少的油');
     this.windK = 1;
     this.wavesK = 1;
     this.deepK = 0;
@@ -73,8 +74,9 @@ export class Threat {
     }
     // 经过时玩家下网（网一入水）、推近冲洗、这一趟到头：它被惊动，扎回深槽底走了，不跟着下网和冲洗近景待着；
     // 还没让玩家看见过（C10 没响）就过一阵、下一回开船时再来
+    // 三小段以后（沉船旁下够几网、下一网在水里时经过：lev.calm）：网照常收，不惊动它，只有这一趟到头才走
     if (lev.active && !lev.leaving) {
-      this.stirT = g.netop.busy || g.reveal.cur || over ? (this.stirT || 0) + dt : 0;
+      this.stirT = (lev.calm ? over : g.netop.busy || g.reveal.cur || over) ? (this.stirT || 0) + dt : 0;
       if (this.stirT > 0.6) lev.leave(!this.cued.C10 && !over);
     }
     // —— 大轮廓离船多远（身子上最近的那一节）——
@@ -96,12 +98,15 @@ export class Threat {
     if (tier === 2 && !this.cued.C10 && lev.dive < 0.3 && lev.segs.some((sg) => { const p = g.project(sg.m.position); return p.z < 1 && p.x > VIEW_W * 0.1 && p.x < VIEW_W * 0.9 && p.y > VIEW_H * 0.1 && p.y < VIEW_H * 0.9; })) {
       this.cued.C10 = true;
       g.trip.sawLev = true;
+      // 头一回经过算在这一潮（之后每一潮来不来照配表的机会）
+      if (g.gear.levTide == null) g.gear.levTide = g.items.tide || 0;
       g.cue('C10');
       g.cue('F08');
     }
     this.tier = tier;
     // 船员：40 米内停下手里的活，到那一侧舷边看水；离开 46 米外再回去干活
-    const stare = lev.active && !lev.leaving && lev.dive < 0.6 && (this.staring ? d < 46 : d < 40) && work;
+    // 网在水里也看（这只是画面，不卡下网、收网、冲洗和搬运）
+    const stare = lev.active && !lev.leaving && lev.dive < 0.6 && (this.staring ? d < 46 : d < 40) && (work || g.mode === 'net');
     if (stare) g.crew.stare = _v.copy(np);
     else if (this.staring) g.crew.stare = null;
     this.staring = stare;

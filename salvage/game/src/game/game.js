@@ -52,7 +52,7 @@ import { Harbor } from './harbor.js';
 import { model } from '../assets/assets.js';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { KeyShow } from '../ui/keyshow.js';
-import { T } from './tables.js';
+import { T, N } from './tables.js';
 window.__floorPoint = floorPoint;
 
 // 开船（照载具求生）：W 油门、S 刹车和倒船、A/D 打舵；手柄左摇杆推过四成就当那个方向按着（载具求生的 0.38）
@@ -375,7 +375,8 @@ export class Game {
     this.ui.demoBadge(false);
     this.menus.hidePause();
     this.menus.hideSummary();
-    this.menus.showTitle(this.demo);
+    // 开始页三项（开始打捞、自动演示、设置）；自动演示的指针也是过去点「自动演示」（切片第 1 步）
+    this.menus.showTitle(false);
     this.titleT = 0;
     // G01 开场：镜头先停在沉船上方看水底那片暗影，再升高、越过浅滩飞回港外的船上；
     // 快落定时「沉债」压着锚线砸下来，选项一项项亮起（任何键都能让它快一点）
@@ -403,7 +404,8 @@ export class Game {
     if (I.t >= I.dur) I.done = true;
   }
 
-  // G03 出发：标题字沉进水里，镜头从标题机位滑到船后，起动机「咔咔咔」、着火「突」一下、烟囱一口黑烟，界面从边上滑进来，地名画出来
+  // G03 出发：标题字沉进水里，镜头从标题机位滑到船后，起动机「咔咔咔」、着火「突」一下、烟囱一口黑烟，界面从边上滑进来，地名画出来。
+  // 切片（第一段 N 小段）起，开始打捞和自动演示都走三小段那一份（moment）：从港外航路开出，开船、捞、开冲同一屏
   startPlay(withBot) {
     this.audio.unlock();
     this.audio.play('menuGo');
@@ -412,39 +414,77 @@ export class Game {
     // 开场镜头还没飞完就点了开始：接着沿开场那条路飞回船后（快一点），不从沉船上方一下甩到船上。
     // 一帧标题都没显示就开始的（地址里带 autostart，自查工具用）：镜头直接摆在船后
     const I = this.titleIntro;
-    this.introRest = I && !I.done && I.t > 0 && I.t < 5.8 ? { t: Math.max(I.t, 1.2), yaw0: I.yaw0 } : null;
-    const atOnce = !!I && I.t === 0;
+    const rest = I && !I.done && I.t > 0 && I.t < 5.8 ? { t: Math.max(I.t, 1.2), yaw0: I.yaw0 } : null;
     this.titleIntro = null;
-    this.ui.setHud(true);
-    this.ui.hudEnter();
+    // 镜头这一刻在哪：开局（moment.begin）把镜头摆到船后，这里先记下、开局以后放回，接着从标题机位滑过去
+    const cam = this.cam;
+    const keep = { pivot: cam.pivot.clone(), pivotT: cam.pivotT.clone(), yaw: cam.yaw, yawT: cam.yawT, pitch: cam.pitch, pitchT: cam.pitchT, dist: cam.dist, distT: cam.distT };
+    const bot = this.bot;
+    this.moment.begin({ out: true, quiet: true });
+    if (bot) { this.bot = bot; this.input.botDriven = true; this.input.virtual = bot.v; }
+    cam.pivot.copy(keep.pivot); cam.pivotT.copy(keep.pivotT);
+    cam.yaw = keep.yaw; cam.pitch = keep.pitch; cam.dist = keep.dist;
+    cam.yawT = keep.yawT; cam.pitchT = keep.pitchT; cam.distT = keep.distT;
+    this.introRest = rest;
     this.crew.toPosts();
     this.igniteT = 0.95;
     this.startT = 0;
+    this.audio.engine(false);
     this.later(0.25, () => this.audio.play('ignite'));
     for (const [t, k] of [[0.41, 0.28], [0.59, 0.32], [0.77, 0.36]]) this.later(t, () => this.feel.puff(1, k));
     this.later(0.95, () => { this.audio.engine(true); this.feel.puff(2, 0.85); });
     this.cue('G03');
-    this.mode = 'sail';
-    this.ui.setMode('sail');
-    this.trip.time = 0;
-    this.cam.yawT = -Math.PI / 2;
-    this.cam.pitchT = 0.68;
-    this.cam.distT = 27;
-    if (atOnce) {
-      const bc = this.boatCtl, f = bc.forward;
-      this.cam.pivotT.set(bc.pos.x + f.x * 3, 0, bc.pos.z + f.z * 3);
-      this.cam.snapTo();
-    }
-    if (withBot) {
-      this.bot = new Bot(this);
-      this.input.botDriven = true;
-      this.ui.demoBadge(true);
-    } else {
-      // 自己玩：鼠标锁进画面（点「开始打捞」那一下就是要的那次点击）
-      this.input.wantLock = true;
-      this.input.lock();
-    }
+    if (withBot && !this.bot) this.startMomentDemo();
     this.later(1.1, () => this.ui.place(T('地名·港外航路')));
+  }
+
+  // 第一段·归潮沙湾 N 小段的五小段叫什么（触屏暂停时挑段、「你看 N 小段」那一页）
+  segNames() {
+    return ['段·找到沉船', '段·捞', '段·回港', '段·船坞', '段·第二潮'].map((k) => T(k));
+  }
+
+  // 从第几小段开头打开（切片.md「小段」那一张的「从哪一刻起」；用例 SW-段-01）：
+  // 一 开始页；二 沉船旁第一潮（甲板空、满油，大轮廓这一潮会来）；三 照路线捞完第一潮、甲板空着按住 Q 回港那一刻；
+  // 四 船坞（网 0 级、油箱 0 级、手里是第一趟的收获）；五 第二潮（网 1 级、油箱 1 级）。demo：接着照路线自动演示
+  openSeg(n, demo) {
+    const G = this.gear, M = this.moment;
+    const route = ['tube', 'pulley', 'hinge', 'jar', 'jar2', 'rope', 'copperset', 'barrel', 'seal', 'chest', 'sack'];
+    if (n >= 2) this.menus.hideTitle(true), (this.titleIntro = null);
+    if (n >= 3) { G.found = true; G.levTide = 0; }
+    if (n === 2) { G.found = true; M.begin(); }
+    else if (n === 3) {
+      M.begin();
+      M.out = true;
+      // 照路线第一潮捞上来的那几件：揭过、记进这一趟（配表「切片路线的账」2,500），甲板空着；油见底
+      const got = this.items.items.filter((i) => route.includes(i.id));
+      for (const it of got) this.items.removeFromSeabed(it);
+      this.trip.record(got.map((it) => ({ kind: it.kind, def: it.def, from: SEA.from(it.id, it) })));
+      this.trip.nets = 5;
+      this.trip.fuel = 3;
+      this.trip.sawLev = true;
+      M.decks = 1;
+      this.flags.wreckNets = 4;
+      M.home();
+    } else if (n === 4) {
+      G.coins = this.segCoins();
+      G.trips = 1;
+      this.items.assumeRoute(route);
+      this.harbor.enterDock();
+    } else if (n === 5) {
+      G.trips = 1;
+      G.lv.net = 1;
+      G.lv.tank = 1;
+      G.installAll();
+      G.coins = this.segCoins() - G.levels('net', 1).price - G.levels('tank', 1).price;
+      M.begin();
+    }
+    if (demo) this.startMomentDemo();
+  }
+
+  // 第一趟照路线回来手里有多少（配表「捞获」照路线捞上来那几件的价值加起来，「切片路线的账」2,500）
+  segCoins() {
+    const route = ['tube', 'pulley', 'hinge', 'jar', 'jar2', 'rope', 'copperset', 'barrel', 'seal', 'chest', 'sack'];
+    return this.items.items.filter((i) => route.includes(i.id)).reduce((s, i) => s + (i.def.value || 0), 0) || 2500;
   }
 
   // 这一刻的自动演示：机器人照玩家的样子挑一处、按一下、开冲（只通过虚拟手柄）
@@ -478,7 +518,11 @@ export class Game {
     });
     // 在沉船这儿下过几网：之后开船时箭头指向坡下
     E.on('netStart', (ev) => {
-      if (Math.hypot(ev.tip.x - WRECK.x, ev.tip.z - WRECK.z) < 16) this.flags.wreckNets++;
+      if (Math.hypot(ev.tip.x - WRECK.x, ev.tip.z - WRECK.z) < 16) {
+        // 大轮廓：这一潮要来的，找到沉船以后在沉船旁下够几网（配表「切片的数」），下一网在水里时顺着深槽经过（切片第 9 步）
+        if (this.moment.on && this.flags.wreck && this.flags.wreckNets >= N('大轮廓·沉船旁先下几网', 3)) this.levPass();
+        this.flags.wreckNets++;
+      }
     });
     E.on('netEnter', (e) => {
       this.crabLife.disturb(e.x, e.z, 0, 0);
@@ -702,7 +746,15 @@ export class Game {
     this.hitStop = Math.max(this.hitStop || 0, t);
   }
 
+  // 自动演示放到终点：画面停在这一帧，声音慢慢退掉（之后每一帧都不再算、不再画）
+  freeze() {
+    this.frozen = true;
+    this.audio.hush(0, 1.2);
+    if (this.bot) this.bot.stop();
+  }
+
   frame(dt) {
+    if (this.frozen) return;
     // 镜头照真实时间走：世界慢下来那一下镜头不跟着一卡（一顿的是砸下来的东西，不是画面）
     this.camDt = dt;
     if (this.hitStop > 0) {
@@ -909,9 +961,9 @@ export class Game {
   // 这一趟做到的事（收获单底下一行）：只说这一趟真发生过的，数得清的就是舱里摆着的那几件
   tripDeeds() {
     const TR = this.trip, d = [];
-    // 三小段：沉船不用找（一出海就停在它旁边），这一趟说的是冲了几甲板
-    if (this.moment.on) { if (this.moment.decks > 1) d.push(T('开舱·冲了几甲板', { n: this.moment.decks })); }
-    else if (TR.sawWreck) d.push(T('开舱·找到沉船'));
+    // 这一趟从港外开出、第一眼看见了沉船：找到了沉船；冲了不止一甲板：冲了几甲板
+    if (this.moment.on ? this.moment.out && this.flags.wreck : TR.sawWreck) d.push(T('开舱·找到沉船'));
+    if (this.moment.on && this.moment.decks > 1) d.push(T('开舱·冲了几甲板', { n: this.moment.decks }));
     const crabs = TR.haul.filter((h) => h.kind === 'crab').length;
     if (crabs) d.push(T('开舱·活蟹', { n: ['', '一', '两', '三', '四'][crabs] || crabs }));
     const by = {};
@@ -1345,6 +1397,7 @@ export class Game {
     this.pingUpdate(dt);
     this.rippleUpdate(dt);
     this.storyUpdate(dt);
+    if (!idle) this.moment.fuelTick();
     this.feel.update(dt, idle);
     // 「再来一趟」淡出那一下旧的这一趟还是已结束，别再弹一次收获单
     // 三小段里回港（按住 Q、油用完）也走这一段：收工、扎进舱口、开舱
@@ -1564,7 +1617,7 @@ export class Game {
       cam.pitchT = u < 0.5 ? lerp(1.3, 1.02, smoothstep(0, 0.5, u)) : lerp(1.02, 0.68, smoothstep(0.5, 1, u));
       // 转身摊在整段路上（开场原样是后六成里转完）：快放时也不一边俯看一边打转
       cam.yawT = R.yaw0 + wrapAngle(-Math.PI / 2 - R.yaw0) * smoothstep(0.1, 1, u);
-      if (u >= 1 || this.mode !== 'sail') this.introRest = null;
+      if (u >= 1 || (this.mode !== 'sail' && this.mode !== 'arm')) this.introRest = null;
     }
     // 效果页：镜头钉在一处看（蟹、鱼群这种小东西）；游戏里不设
     if (this.camAt) cam.pivotT.set(this.camAt.x, this.camAt.y || 0, this.camAt.z);
@@ -1823,9 +1876,18 @@ export class Game {
     while (F.trailIdx < TRAIL.length && Math.hypot(bp.x - TRAIL[F.trailIdx].x, bp.z - TRAIL[F.trailIdx].z) < 12) F.trailIdx++;
     // 大轮廓：看懂普通生物以后才出现。离深槽近了，或者在沉船这儿下过几网
     const lev = this.leviathan;
-    if (!lev.active && !lev.done && this.trip.time > 55) {
+    if (!this.moment.on && !lev.active && !lev.done && this.trip.time > 55) {
       if (trenchNear || (F.wreck && this.trip.nets >= 3)) this.threat.armed = true;
     }
+  }
+
+  // 大轮廓经过（网在水里）：它只走深槽中间，不靠近船、不碰网，下网、收网、开船、冲洗照常（世界和内容.md「活物和生态」）
+  levPass() {
+    const lev = this.leviathan;
+    if (lev.active || lev.done) return;
+    lev.start(this.boatCtl.pos, true);
+    lev.calm = true;
+    this.threat.cued = {};
   }
 
   // C01 到了一处新地方：左上海图比例尺一节节画出、地名滑进来，远远一声钟（浅滩亮、深槽低）
@@ -1839,14 +1901,19 @@ export class Game {
   // 一道光从船尾扫到船头，光扫过那一截，鱼从船肋里炸开、往上冒
   sightWreck() {
     this.trip.sawWreck = true;
+    // 这片海走熟了：以后出海直接回到沉船旁
+    this.gear.found = true;
     this.ui.place(T('地名·沉船'), { big: true });
     this.audio.play('wreckMotif');
     // 浪和发动机让开，弦乐出来
     this.audio.duck(0.45, 0.5, 2.6, 2.2);
     this.cue('C03');
     this.cue('F03');
-    this.lookTo = { x: WRECK.x, y: -6, z: WRECK.z, t: 0, dur: 6.5, d0: this.cam.distT };
+    // 镜头不自己偏过去（开船和下网同一个跟船的镜头，玩法.md「镜头」）：要看近按住左 Shift 指着它（切片第 5 步）
+    if (!this.moment.on) this.lookTo = { x: WRECK.x, y: -6, z: WRECK.z, t: 0, dur: 6.5, d0: this.cam.distT };
     this.beam = { t: -0.5, dur: 3.2 };
+    const K = this.crabLife.key;
+    if (K && K.state === 'hide' && K.timer > 100) K.timer = 18;
     this.later(1.9, () => {
       const S = this.fish.schools[2];
       if (S) this.fish.burst(S.home.x, S.home.y - 0.5, S.home.z);
@@ -1899,7 +1966,7 @@ export class Game {
   // 认出沉船就先不指；在沉船这儿下过两网以后，顺着船尾和滚落的货指向坡下，到了深槽不再指。只给方向，不给落点。
   leadTarget() {
     const F = this.flags;
-    if (F.wreck) return !F.slope && F.wreckNets >= 2 ? SLOPE_LEAD : null;
+    if (F.wreck) return !this.moment.on && !F.slope && F.wreckNets >= 2 ? SLOPE_LEAD : null;
     if (!F.shoal) return SHOAL_MARK;
     const bp = this.boatCtl.pos;
     if (this.trip.nets < 1 && Math.hypot(bp.x - SHOAL.x, bp.z - SHOAL.z) < 30) return null;
@@ -2116,7 +2183,9 @@ export class Game {
     // - 摆放的位置（离船多远、往哪边让开船身）用弹簧跟过去，跟着船走、不跳；
     // - 到了这一串线索的终点附近（标杆、沉船、坡下），箭头缩小、淡掉收起来
     // 拉回大视野后方向箭头最后才出（拉回完 1.5 秒），不和拉回、收获飞进格子抢
-    const L = m === 'sail' && !(this.leadHold > 0) ? this.leadTarget() : null;
+    // 打捞这一屏（三小段以后开船、下网同一屏）：网不在水里、没在冲的时候也指
+    const leadOn = m === 'sail' || (this.moment.on && m === 'arm' && !this.netop.busy && !this.castQ);
+    const L = leadOn && !(this.leadHold > 0) ? this.leadTarget() : null;
     const LS = this.leadS || (this.leadS = { a: null, k: 0, off: null, v: { x: 0, y: 0 } });
     const ldt = clamp(this.clock - (LS.clock ?? this.clock), 0, 0.1);
     LS.clock = this.clock;

@@ -69,12 +69,21 @@ export class Moment {
     const T0 = g.trip;
     // 油箱升过几级，这一趟就带多少油（设备表「油箱」）
     T0.fuel = g.gear.fuel;
-    T0.sawWreck = true;
-    // 这一刻不讲路上的事：浅滩、沉船、深槽都算已经到过，线索箭头不出，大轮廓不来
-    Object.assign(g.flags, { shoal: true, wreck: true, slope: true, slopeSaid: true, trailIdx: TRAIL.length });
-    g.leviathan.done = true;
+    // 第一趟（还没找到过沉船）从港外航路开出：浅滩、船板线索、第一眼看见沉船都在路上（切片第 1～5 步）；
+    // 找到过沉船以后这片海走熟了，出海直接回到沉船旁（世界和内容.md「先找到它」）
+    const out = this.out = o.out ?? !g.gear.found;
+    T0.sawWreck = !out;
+    if (!out) Object.assign(g.flags, { shoal: true, wreck: true, slope: true, slopeSaid: true, trailIdx: TRAIL.length });
+    else Object.assign(g.flags, { slopeSaid: true });
+    // 港外开局：钥匙蟹先藏着，等望见沉船（game.sightWreck）才开始走，不然开到时它早挖完了
+    if (out && g.crabLife.key && g.crabLife.key.state === 'hide') g.crabLife.key.timer = 1e9;
+    // 大轮廓：这一潮来不来，出海那一刻定下（gear.levDue），来的话在沉船旁下够几网以后的下一网（game.levCheck）
+    g.leviathan.done = !g.gear.levDue(g.items.tide);
+    this.fuelSaid = null;
+    this.drySaid = false;
     const bc = g.boatCtl;
-    bc.reset(N('开局船位x'), N('开局船位z'), N('开局船头'));
+    if (out) bc.reset(N('港外开局船位x'), N('港外开局船位z'), N('港外开局船头'));
+    else bc.reset(N('开局船位x'), N('开局船位z'), N('开局船头'));
     bc.update(0.016, {}, 1, g.time);
     g.boat.root.updateMatrixWorld(true);
     g.crew.toPosts();
@@ -93,8 +102,8 @@ export class Moment {
     // 白圈等镜头落定、看得见的都看过一遍再吸到打捞点上（不先吸到远处）
     this.enterT = 0.2;
     g.aimJumps = -1;
-    // 第二潮起：地名底下写第几潮（潮水把海底重铺了一遍）
-    g.ui.place(g.items.tide > 0 ? T('地名·沉船·第几潮', { n: g.items.tide + 1 }) : T('地名·沉船'));
+    // 第二潮起：地名底下写第几潮（潮水把海底重铺了一遍）；港外开出的写港外航路
+    if (!o.quiet) g.ui.place(out ? T('地名·港外航路') : g.items.tide > 0 ? T('地名·沉船·第几潮', { n: g.items.tide + 1 }) : T('地名·沉船'));
     g.ui.hudEnter();
     g.cue('A14');
   }
@@ -278,6 +287,27 @@ export class Moment {
     g.ui.deckTip(null);
   }
 
+  // 网和甲板都空着、油不够一网：这一趟到头了，提醒回港，不自己走（玩法.md「一趟什么时候结束」）
+  get dry() {
+    const g = this.g;
+    return this.on && !g.trip.ended && g.trip.fuel < MIN_NET_COST && !g.netop.busy && !g.castQ && !g.deck.filled && !g.deck.busy;
+  }
+
+  // 每帧（海上）：油的提醒。还够几网掉到 2、掉到 1 那一刻各跳一次；不够一网（网和甲板都空着）时一直提醒回港
+  fuelTick() {
+    const g = this.g;
+    if (!this.on || g.trip.ended || !['arm', 'net', 'batch', 'result', 'reveal'].includes(g.mode)) return;
+    const n = g.threat.netsLeft;
+    if (this.fuelSaid == null) this.fuelSaid = n;
+    if (n < this.fuelSaid) {
+      this.fuelSaid = n;
+      if (n === 2 || n === 1) { g.ui.fuelSay(T('提示·还够几网', { n })); g.cue('W01'); }
+    }
+    const dry = this.dry && g.mode === 'arm';
+    if (dry && !this.drySaid) { this.drySaid = true; g.ui.fuelSay(T('提示·该回港'), true); }
+    else if (!dry && this.drySaid) { this.drySaid = false; g.ui.fuelSay(null); }
+  }
+
   // 第一包码上甲板：甲板那一排底下说一次码满会怎样
   onLanded() {
     const g = this.g;
@@ -393,6 +423,8 @@ export class Moment {
     g.audio.play('press');
     g.tally.close();
     g.gear.coins += g.trip.total;
+    // 这一潮海底还剩什么、捞走了哪几处：下一潮照它铺（itemsys.nextTide）
+    g.items.closeTide();
     const first = !g.gear.trips;
     g.gear.trips++;
     g.mode = 'debt';
@@ -421,7 +453,13 @@ export class Moment {
     const over = g.ui.over('again', inp.ptr);
     this.el.querySelector('.again').classList.toggle('hot', over);
     const press = inp.a || (inp.click && over);
-    if (press && this.resultT > 0.6) { if (this.more) this.more_(); else this.home(); }
+    if (press && this.resultT > 0.6) { if (this.more) this.more_(); else this.home(); return; }
+    // 结算牌上也能按住 Q（手柄 B）回港开舱（玩法.md「一趟什么时候结束」）
+    if (inp.b) g.quitHold = 0;
+    if (g.quitHold !== null) {
+      if (!inp.bHeld) g.quitHold = null;
+      else if ((g.quitHold += dt) >= N('回港按住多久', 0.9)) { g.quitHold = null; this.home(); }  // 表的 id，不是玩家看的
+    }
   }
 
   // 再来一次：黑一下，回到这一刻开头

@@ -1,7 +1,7 @@
 // 沉债的这一份（主文件夹这条线）：怎么直接到第一段·归潮沙湾三小段（小样那一刻、回港开舱和债本、船坞和第二潮）的每一刻。
 // 页面带 manual=1 时画面不自己走，由 __advance 一帧一帧推（固定 1/60 秒），不画的帧 game.noDraw 跳过画面（状态照样算，跳不跳截出来的一样）。
 export default {
-  owns: ['这一刻', '演示', '一整趟', '码满', '码满·没去舱里', '触屏', '债本', '船坞', '第二潮'],
+  owns: ['这一刻', '演示', '一整趟', '码满', '码满·没去舱里', '触屏', '债本', '船坞', '第二潮', '小段一', '小段二', '小段三', '小段四', '小段五', '小段一·演示', '小段二·演示', '小段三·演示', '小段四·演示', '小段五·演示'],
   reaches: [
     '这一刻：一打开就停在沉船旁边（小样），自己玩（没有机器人）。',
     '自己玩的手（每一段都有，发的是真的鼠标键盘事件，走玩家那条路）：__hand.move(x,y) 指针挪到画面上一点（1920×1080）、__hand.at(\'jar\') 指到含这件东西的那一处打捞点、',
@@ -10,7 +10,10 @@ export default {
     '码满：甲板直接码好五包（外侧陶罐那一组、铜锅、箍桶、铜印、舱里银币匣那一组；油照五网扣），自动演示接着按开冲——开冲、齐冲、压轴（银币匣）、结算都从这儿直接到。',
     '码满·没去舱里：同上，第五包换成蟹翻泥那一处（压轴是铜印），看不去舱里的结果。',
     '触屏：当成手机、平板打开（只有手指，没有鼠标）：应当一打开就放演示，kit/hengping.js 接管点按。',
-    '一整趟：原来那一整趟（标题、出港、收获单），trip=1&autostart=demo。',
+    'N 小段（2026-11-27，切片.md「小段」）：小段一（开始页，点「开始打捞」从港外航路开出）、小段二（沉船旁第一潮，甲板空、满油，大轮廓这一潮会来）、',
+    '  小段三（照路线捞完第一潮、按住 Q 回港那一刻：开舱）、小段四（船坞，手里 2,500，网 0 级、油箱 0 级）、小段五（第二潮，网 1 级、油箱 1 级）；页面上是 index.html?seg=1…5。',
+    '  加「·演示」从那一小段接着照路线自动演示（index.html?seg=N&demo=1）。一整趟：从开始页放整条自动演示（demo.html），`--until window.__demoEnd` 到终点（船离开码头那一截放完，画面停住）。',
+    '  路线上几刻：`__game.flags.shoal`（到了浅滩）、`__game.flags.wreck`（第一眼看见沉船）、`__game.leviathan.active`（大轮廓经过）、`__game.bot.stage`（title/out/shoal/trail/wreck/sail/pick/crab/lev/go/result/home/debt/dock）。',
     '几刻用 --until 到：码满 `__game.deck.full`；开冲 `__game.mode===\'batch\'`；压轴 `__game.batch.phase===\'finale\'`；',
     '  压轴揭晓 `__game.reveal.cur&&__game.reveal.cur.phase===\'show\'`；结算 `__game.mode===\'result\'`；再来一次 `__game.moment.runs.length>=1&&__game.mode===\'arm\'`。',
     '开船（从「这一刻」）：`--pre "__hand.key(\'KeyW\',true);__adv(3)"` 开着走，`__hand.key(\'KeyD\',true)` 转向（停着、倒船也按哪边转哪边）；松 W 按 KeyS 是刹车、倒船；看 `__game.boatCtl.speed`、`.turnRate`、`__game.cam.dist`；跟船的镜头在 `__game.chase`（打捞一屏从头到尾都在跟）。',
@@ -27,7 +30,12 @@ export default {
     '素材对照（换素材前后比）：--probe @素材对照·捞获 / @素材对照·场地，用法见文件里这两条探针上面的注释；截图对的是 素材/基准/ 里同名的图。@素材对照·近看：舱里的杂货、礁石、沉船散件（断桅横桁、舱盖、埋着的船材、尾楼）推近（基准里没有，比上一版同机位）。',
   ].join('\n'),
   page: 'index.html',
-  query: (seg = '') => (seg = seg || '', seg === '触屏' ? 'manual=1&touch=1' : seg.startsWith('演示') || seg.startsWith('码满') ? 'manual=1&demo=1' : seg === '一整趟' ? 'manual=1&trip=1&autostart=demo' : 'manual=1'),
+  query: (seg = '') => {
+    seg = seg || '';
+    const n = { 一: 1, 二: 2, 三: 3, 四: 4, 五: 5 }[(/^小段(.)/.exec(seg) || [])[1]];
+    if (n) return `manual=1&seg=${n}` + (seg.endsWith('演示') ? '&demo=1' : '');
+    return seg === '触屏' ? 'manual=1&touch=1' : seg.startsWith('演示') || seg.startsWith('码满') ? 'manual=1&seg=2&demo=1' : seg === '一整趟' ? 'manual=1&demo=1' : 'manual=1&seg=2';
+  },
   // 触屏：在页面自己的脚本之前把「指针」改成只有手指（kit/hengping.js 照这个判断）
   pre: `if (location.search.includes('touch=1')) { const mm = window.matchMedia.bind(window); window.matchMedia = (q) => (/pointer: coarse/.test(q) ? { matches: true, media: q, addEventListener() {}, addListener() {} } : /pointer: fine/.test(q) ? { matches: false, media: q, addEventListener() {}, addListener() {} } : mm(q)); }
 window.__adv = (t) => { const g = window.__game; g.noDraw = true; window.__advance(Math.max(1, Math.round(t * 60)) - 1); g.noDraw = false; window.__advance(1); };

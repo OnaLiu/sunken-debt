@@ -138,7 +138,11 @@ export class UI {
     this.coinsEl = h('div');
     this.coinsEl.id = 'coins';
     this.coins = [];
-    this.hud.append(this.marksEl, this.placeEl, this.fuelEl, this.tallyEl, this.sonarEl, this.leadEl, this.modeEl, this.cards, this.progEl, this.tipEl, this.bigEl, this.toastEl, this.sayEl, this.flyEl, this.deckEl, this.coinsEl);
+    // 油那一格底下跳出来的一句：油还够几网、油不够下一网（信息.md「常驻在屏幕上的」）
+    this.fuelSayEl = h('div', 'panel');
+    this.fuelSayEl.id = 'fuelsay';
+    this.fuelSayT = 0;
+    this.hud.append(this.marksEl, this.placeEl, this.fuelEl, this.fuelSayEl, this.tallyEl, this.sonarEl, this.leadEl, this.modeEl, this.cards, this.progEl, this.tipEl, this.bigEl, this.toastEl, this.sayEl, this.flyEl, this.deckEl, this.coinsEl);
     this.blackEl = h('div');
     this.blackEl.id = 'black';
     // 演示徽标不跟着界面藏：收获单、暂停菜单上也看得见是机器人在操作
@@ -252,7 +256,7 @@ export class UI {
     }
     if (!L.zoom) out.push([key(K.zoom), '键·远近']);  // 表的 id，不是玩家看的
     // 冲过一甲板以后：按住 Q 回港开舱（回过一次就收起）
-    if (this.mode === 'arm' && !L.home && this.g.moment.decks > 0) out.push([T('键·按住') + key(K.quit, 'b'), '键·回港']);  // 表的 id，不是玩家看的
+    if (this.mode === 'arm' && !L.home && (this.g.moment.decks > 0 || this.g.moment.dry)) out.push([T('键·按住') + key(K.quit, 'b'), '键·回港']);  // 表的 id，不是玩家看的
     return out.map(([k, t]) => `<span>${k}${T(t)}</span>`).join('');
   }
 
@@ -389,6 +393,24 @@ export class UI {
   }
 
   // 出了岔子才说一句，弹一下就收
+  // 油那一格底下说一句，停一下就收（hold：一直留着，直到再说一次 null）
+  fuelSay(text, hold = false) {
+    const el = this.fuelSayEl;
+    if (!text) { el.classList.remove('on'); this.fuelSayT = 0; this.fuelSayText = null; return; }
+    if (text !== this.fuelSayText || !el.classList.contains('on')) {
+      el.textContent = text;
+      el.classList.remove('on');
+      void el.offsetWidth;
+      el.classList.add('on');
+      // 那一格跳红、闪一下就停
+      this.fuelEl.classList.remove('flash');
+      void this.fuelEl.offsetWidth;
+      this.fuelEl.classList.add('flash');
+    }
+    this.fuelSayText = text;
+    this.fuelSayT = hold ? 1e9 : 2.6;
+  }
+
   toast(text, dur = 2.2) {
     this.toastEl.textContent = text;
     this.toastEl.classList.add('on');
@@ -728,6 +750,8 @@ export class UI {
     this.bigTitle(null);
     this.toastEl.classList.remove('on');
     this.toastT = 0;
+    this.fuelSay(null);
+    this.fuelEl.classList.remove('flash');
     this.modeEl.querySelector('.why').classList.remove('on');
     this.whyT = 0;
     this.placeEl.classList.remove('on');
@@ -797,6 +821,10 @@ export class UI {
     if (this.placeT > 0) {
       this.placeT -= dt;
       if (this.placeT <= 0) this.placeEl.classList.remove('on');
+    }
+    if (this.fuelSayT > 0) {
+      this.fuelSayT -= dt;
+      if (this.fuelSayT <= 0) { this.fuelSayEl.classList.remove('on'); this.fuelSayText = null; }
     }
     if (this.toastT > 0) {
       this.toastT -= dt;

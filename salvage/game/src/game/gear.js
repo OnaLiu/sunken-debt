@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { setNetR, NET_R } from '../config.js';
-import { GEAR, DEBT } from './tables.js';
+import { GEAR, DEBT, N } from './tables.js';
 import { toon } from '../render/materials.js';
 import { GeoBuilder } from '../util/builder.js';
 import { BOAT } from '../world/boat.js';
@@ -29,12 +29,19 @@ export class Gear {
     for (const id of Object.keys(GEAR)) this.lv[id] = 0;
     this.paid = 0;
     this.trips = 0;
+    // 这片海走熟了没有：看见过沉船（左上大一号写出「沉船」那一下）以后，出海直接回到沉船旁
+    this.found = false;
+    // 大轮廓头一回经过是第几潮（还没经过：null）。之后每一潮来不来照配表的机会，出海那一刻定下
+    this.levTide = null;
     this.pop = null;
     // 船上装好了的那一级（买下以后船员走过去装上才算到船上；规则照 lv）
     this.fitted = { ...this.lv };
   }
 
   // —— 设备 ——
+  levels(id, lv) {
+    return GEAR[id].levels[lv];
+  }
   ids() {
     return Object.keys(GEAR);
   }
@@ -68,6 +75,16 @@ export class Gear {
     this.pop = null;
     this.g.boat.net.root.scale.set(1, 1, 1);
     this.drums.forEach((d) => { d.scale.set(1, 1, 1); d.position.y = DRUM_Y; });
+  }
+  // 这一潮大轮廓来不来：头一回经过以前每一潮都等（沉船旁下够几网以后的下一网）；经过以后下一潮照「第2潮来的机会」，
+  // 再往后照「第3潮起来的机会」。照潮号定下（同一潮重来一样），不在下网时临时抽（世界和内容.md「活物和生态」）
+  levDue(tide) {
+    if (this.levTide == null) return true;
+    if (tide <= this.levTide) return false;
+    const p = tide === this.levTide + 1 ? N('大轮廓·第2潮来的机会', 0) : N('大轮廓·第3潮起来的机会', 0);
+    let h = (tide * 2654435761 + 97) >>> 0;
+    h ^= h >>> 15; h = Math.imul(h, 2246822507) >>> 0; h ^= h >>> 13;
+    return h / 4294967296 < p;
   }
   // 这一趟出海带多少油
   get fuel() {

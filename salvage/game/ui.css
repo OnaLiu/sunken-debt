@@ -58,8 +58,11 @@ html, body { margin: 0; height: 100%; background: #05080a; overflow: hidden; }
 #fuel.w1 .fill { background: linear-gradient(180deg, #ffd0b8 0 3px, #ff7a5a 3px 9px, #d4503a 9px 15px, #8a2a1c 15px); box-shadow: inset -3px 0 0 #ffd8c8; }
 #fuel.w2 .fi, #fuel.w2 .fv { color: #ffa060; }
 #fuel.w1 .fi, #fuel.w1 .fv { color: #ff8a6a; }
-#fuel.w2 .track { animation: lowglass2 1.7s steps(2) infinite; }
-#fuel.w1 .track { animation: lowglass 0.9s steps(2) infinite; }
+/* 跳红、闪一下就停（信息.md「常驻在屏幕上的」）：只在提醒那一刻闪两下，不一直闪 */
+#fuel.w2.flash .track { animation: lowglass2 0.5s steps(2) 2; }
+#fuel.w1.flash .track { animation: lowglass 0.5s steps(2) 2; }
+#fuelsay { position: absolute; right: 52px; top: 132px; padding: 8px 20px; font-size: 26px; font-weight: 700; color: #ffd3a0; white-space: nowrap; border-image-source: var(--px-iron-red); opacity: 0; transform: translateY(-8px); transition: opacity 0.2s, transform 0.25s cubic-bezier(.2,1.6,.4,1); pointer-events: none; }
+#fuelsay.on { opacity: 1; transform: none; }
 @keyframes lowglass2 { 50% { box-shadow: 0 0 0 3px #04090b, 0 0 0 6px rgba(255,150,70,.4); } }
 @keyframes lowglass { 50% { box-shadow: 0 0 0 3px #04090b, 0 0 0 6px rgba(255,106,77,.45); } }
 /* 油还够在这儿下几网 */

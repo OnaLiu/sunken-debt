@@ -443,6 +443,7 @@ export class Leviathan {
     this.leaving = false;
     this.again = false;
     for (const bb of this.body.barbels) bb.init = false;
+    this.calm = false;
   }
 
   // focus：从哪儿经过。先在那儿东边的深槽底下停两三秒（看不见，附近的鱼已经先逃了），

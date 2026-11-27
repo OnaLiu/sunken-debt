@@ -21,11 +21,8 @@ export function money(v) {
   if (v >= 1e5) return (Math.round(v / 1e3) / 10).toString().replace(/\.0$/, '') + T('数·万');  // 表的 id，不是玩家看的
   return v.toLocaleString('en-US');
 }
-// 债签上那种窄地方：一万以上都写成「万」（6万、90万、1200万）
-function moneyShort(v) {
-  v = Math.round(v);
-  return v >= 1e4 ? (Math.round(v / 1e3) / 10).toString().replace(/\.0$/, '') + T('数·万') : v.toLocaleString('en-US');  // 表的 id，不是玩家看的
-}
+// 债签上那种窄地方：和别处同一条写法（配表「写法」数字：十万以上写「万」，6 万写 60,000）
+const moneyShort = money;
 const coin = (v, cls = '') => `<span class="cn ${cls}">${ICON.coin}<b>${money(v)}</b></span>`;
 
 const _v = new THREE.Vector3();
@@ -503,14 +500,18 @@ export class Harbor {
     g.audio.hush(1, 0.4);
     g.boatCtl.brake = false;
     g.castOff = { throttle: 1, brake: 0, steer: 0 };
+    // 自动演示放完一圈（第二潮回港还了第一页、又升了设备，再出海）：船离开栈桥往前开那一截放完，就停在那一帧，
+    // 不再黑场回沉船（平台和发行.md「自动演示」、切片第 24 步）
+    if (g.bot && g.gear.paid > 0) {
+      g.later(1.6, () => { window.__demoEnd = true; g.freeze(); });
+      return;
+    }
     g.later(1.1, () => {
       g.mode = 'fading';
       g.ui.fade(true);
       g.audio.hush(0.3, 0.4);
       g.audio.play('waveSwell');
     });
-    // 自动演示放完一圈：第二潮回港还了第一页、又升了设备，再出海
-    if (g.gear.paid > 0) window.__demoEnd = true;
     g.later(1.8, () => {
       g.castOff = null;
       this.leave();

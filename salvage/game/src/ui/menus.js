@@ -64,16 +64,16 @@ export class Menus {
     this.titleDemo = !!demo;
     const el = h('div');
     el.id = 'title';
-    el.innerHTML = `<div class="logo"><div class="n">沉债</div><div class="rule"><i></i>${ICON.anchor}<i></i></div></div>`;
+    el.innerHTML = `<div class="logo"><div class="n">${T('标题·游戏名')}</div><div class="rule"><i></i>${ICON.anchor}<i></i></div></div>`;
     if (demo) {
-      el.append(h('div', 'clickall', `<span class="pl">${ICON.play}</span><span>自动演示</span>`));
+      el.append(h('div', 'clickall', `<span class="pl">${ICON.play}</span><span>${T('开始·自动演示')}</span>`));
       el.addEventListener('pointerdown', () => (this.pending = 'demo'));
     } else {
       const menu = h('div', 'menu');
       this.titleOpts = [
-        { k: 'play', t: '开始打捞' },
-        { k: 'demo', t: '自动演示' },
-        { k: 'settings', t: '设置' },
+        { k: 'play', t: T('开始·开始打捞') },
+        { k: 'demo', t: T('开始·自动演示') },
+        { k: 'settings', t: T('开始·设置') },
       ];
       this.titleSel = 0;
       this.titleOpts.forEach((o, i) => {
@@ -156,7 +156,17 @@ export class Menus {
 
   titleInput(inp, dt) {
     if (this.pending) { const p = this.pending; this.pending = null; return p; }
+    // 指针点在哪一项上（自动演示的指针也照这个算：它挪过去、左键点下去）
+    if (inp.click && this.title) {
+      if (this.titleOpts) { const o = this.titleOpts.find((q) => this.g.ui.overEl(q.el, inp.ptr)); if (o) return o.k; }
+      else if (this.g.ui.overEl(this.title.querySelector('.clickall'), inp.ptr)) return 'demo';
+    }
     if (!this.titleOpts) return inp.a || inp.start ? 'demo' : null;
+    // 演示的指针停在哪一项上，那一项就亮（真鼠标走 pointerenter）
+    if (this.g.bot && inp.ptr) {
+      const i = this.titleOpts.findIndex((q) => this.g.ui.overEl(q.el, inp.ptr));
+      if (i >= 0 && i !== this.titleSel) { this.titleSel = i; this.renderTitle(); }
+    }
     const d = this.nav(inp, dt);
     if (d) { this.titleSel = (this.titleSel + d + this.titleOpts.length) % this.titleOpts.length; this.renderTitle(); this.g.audio.play('menu'); this.g.cue('D02'); }
     if (inp.a || inp.start) return this.titleOpts[this.titleSel].k;
@@ -171,9 +181,9 @@ export class Menus {
     el.id = 'pause';
     const wrap = h('div', 'wrap');
     const box = h('div', 'box panel');
-    box.append(h('div', 'h sh', settingsOnly ? '设置' : T('暂停·标题')));  // 表的 id，不是玩家看的
+    box.append(h('div', 'h sh', settingsOnly ? T('开始·设置') : T('暂停·标题')));  // 表的 id，不是玩家看的
     this.pauseOpts = settingsOnly
-      ? [{ k: 'wobble' }, { k: 'volume' }, { k: 'look' }, { k: 'invert' }, { k: 'back', t: '返回' }]
+      ? [{ k: 'wobble' }, { k: 'volume' }, { k: 'look' }, { k: 'invert' }, { k: 'back', t: T('设置·返回') }]
       : this.g.moment && this.g.moment.on ? this.g.moment.pauseOpts()
       : [{ k: 'resume', t: '继续' }, { k: 'end', t: '结束这一趟' }, { k: 'wobble' }, { k: 'volume' }, { k: 'look' }, { k: 'invert' }, { k: 'title', t: '回到标题' }];
     this.pauseOpts.forEach((o, i) => {

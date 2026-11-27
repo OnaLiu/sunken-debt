@@ -6,6 +6,7 @@ import { floorPoint } from '../world/wreck.js';
 import { toon } from '../render/materials.js';
 import { mulberry32 } from '../util/math.js';
 import { SEA } from '../world/seas.js';
+import { N } from './tables.js';
 
 // 海底的每一件东西：开局时就生成并固定位置；被网收走就真的离开海底，留下压痕。
 // 每潮重铺冲出来的是哪几样、落在哪、几件：这一片海自己的（world/seas.js 的 spill），重铺的做法全游戏一份
@@ -26,13 +27,19 @@ export class ItemSystem {
   }
 
   reset() {
+    // 直接打开第二潮（没走过第一潮）：先当上一潮照切片路线捞过
+    const tide0 = this.tide || 0;
+    if (tide0 > 0 && !(this.layouts && this.layouts[tide0]) && (!this.left || this.left.tide !== tide0 - 1)) this.assumeRoute();
     for (const it of this.items) {
       it.model.group.parent && it.model.group.parent.remove(it.model.group);
       if (it.mound) this.group.remove(it.mound);
     }
     while (this.decals.children.length) this.decals.remove(this.decals.children[0]);
     this.items = [];
+    this.seal = null;
+    this.chest = null;
     let seed = 0.11;
+    // 一件东西放上海底。spec 带着它是怎么摆的（坐标、在不在舱里、舱底哪一点），下一潮照它挪、照它补
     const add = (spec, x, z, y = null, opts = {}) => {
       const def = ITEM_DEFS[spec.kind];
       seed += 0.173;
@@ -44,13 +51,38 @@ export class ItemSystem {
         x, z, y: sy, rot: spec.rot || 0, tilt: spec.tilt || 0, bury: spec.bury || 0, grip: spec.grip, moundAt: spec.moundAt || 0,
         h: model.info.h, r: def.r, state: 'seabed', inHold: !!opts.inHold, seed,
         surfaceTag: opts.tag || 0,
+        rec: { spec, x, z, y, opts },
       };
       this.placeItem(it);
       this.group.add(model.group);
       if (it.bury > 0.15 && !opts.noMound) it.mound = this.makeMound(it);
       this.items.push(it);
+      if (spec.id === 'seal') this.seal = it;
+      if (spec.id === 'chest') this.chest = it;
       return it;
     };
+    // 舱里：落在淤泥面上（lx 沿船、t 横着；舱里的东西蒙着一层灰白的细淤，压在更暗的舱底上看得出轮廓）
+    const fi = this.world.wreck.floorInfo;
+    const ship = this.world.wreck.ship;
+    const putHold = (spec, lx, t) => {
+      const p = floorPoint(fi, lx, t).applyMatrix4(ship.matrixWorld);
+      return add(spec, p.x, p.z, p.y, { inHold: true, tag: 1, mud: 0.46, mudColor: 0x8c8473, lx, t });
+    };
+    this.layouts = this.layouts || {};
+    const tide = this.tide || 0;
+    // 同一潮重来（暂停里「重来这一刻」、再打开同一段）：海底和第一次一模一样（出海那一刻铺好，不临时抽）
+    const same = this.layouts[tide];
+    if (same) {
+      for (const r of same) r.opts && r.opts.lx !== undefined ? putHold(r.spec, r.opts.lx, r.opts.t) : add(r.spec, r.x, r.z, r.y, r.opts);
+      return;
+    }
+    if (tide === 0) this.firstTide(add, putHold);
+    else this.nextTide(tide, add, putHold);
+    this.layouts[tide] = this.items.map((i) => i.rec);
+  }
+
+  // 第一潮：原来摆好的那一片（他看过的小样、三小段），银币匣一定在舱里
+  firstTide(add, putHold) {
     for (const s of LOOSE_ITEMS) add(s, s.x, s.z);
     for (const s of OUTER_ITEMS) {
       const w = wreckToWorld(s.along, s.side);
@@ -60,26 +92,76 @@ export class ItemSystem {
     // 印章：事先就埋着（蟹翻泥会把它翻出来）
     {
       const w = wreckToWorld(SEAL_SPOT.along, SEAL_SPOT.side);
-      this.seal = add({ id: 'seal', kind: 'seal', rot: 0.7, bury: SEAL_SPOT.bury }, w.x, w.z, null, { noMound: true });
+      add({ id: 'seal', kind: 'seal', rot: 0.7, bury: SEAL_SPOT.bury }, w.x, w.z, null, { noMound: true });
     }
-    // 舱里：银币匣和货袋，落在淤泥面上
-    {
-      const fi = this.world.wreck.floorInfo;
-      const ship = this.world.wreck.ship;
-      const put = (spec, lx, t) => {
-        const p = floorPoint(fi, lx, t).applyMatrix4(ship.matrixWorld);
-        // 舱里的东西蒙着一层灰白的细淤，压在更暗的舱底上看得出轮廓
-        return add(spec, p.x, p.z, p.y, { inHold: true, tag: 1, mud: 0.46, mudColor: 0x8c8473 });
-      };
-      this.chest = put({ id: 'chest', kind: 'chest', rot: 0.4, tilt: 0.12, bury: 0.32 }, 2.75, 0.55);
-      put({ id: 'sack', kind: 'sack', rot: 2.2, tilt: 0.2, bury: 0.2 }, 1.85, 0.42);
-    }
-    // 第二潮起：潮水又从沉船的两道舱口里冲出一些货，散在甲板那一侧（每一潮不一样）
-    if (this.tide > 0) this.spill(this.tide, add);
+    // 舱里：银币匣和货袋
+    putHold({ id: 'chest', kind: 'chest', rot: 0.4, tilt: 0.12, bury: 0.32 }, 2.75, 0.55);
+    putHold({ id: 'sack', kind: 'sack', rot: 2.2, tilt: 0.2, bury: 0.2 }, 1.85, 0.42);
   }
 
-  // 每潮重铺（设计「海底的潮一趟一个样」「先有来源，再有散落」）：第一潮就是原来摆好的那一片（他看过的小样），
-  // 以后每一潮在两道舱口翻出货的那两堆旁边、甲板那一侧的海底上多冲出几件。挨着原来那几件，网口大了一网罩得进去
+  // 一趟回港（开完舱）：记下这一潮海底还剩什么、捞走了哪几处，下一潮照它铺
+  closeTide() {
+    const tide = this.tide || 0;
+    this.left = {
+      tide,
+      stay: this.items.filter((i) => i.state === 'seabed' && !i.id.startsWith('trail')).map((i) => ({ ...i.rec, bury: i.id === 'seal' ? SEAL_SPOT.bury : i.bury })),
+      taken: this.items.filter((i) => i.state !== 'seabed' && !i.id.startsWith('trail') && i.kind !== 'crab').map((i) => ({ x: i.x, z: i.z, inHold: i.inHold, rec: i.rec })),
+    };
+  }
+
+  // 直接打开第二潮（N 小段那一页单独打开第五小段）：当上一潮照切片路线捞过（浅滩铜筒那一组、陶罐那一组、铜锅和箍桶、铜印、舱里那一处）
+  assumeRoute(ids = ['tube', 'pulley', 'hinge', 'jar', 'jar2', 'rope', 'copperset', 'barrel', 'seal', 'chest', 'sack']) {
+    const keep = this.tide;
+    this.tide = 0;
+    this.reset();
+    for (const it of this.items) if (ids.includes(it.id)) it.state = 'net';
+    this.closeTide();
+    this.tide = keep;
+  }
+
+  // 新的一潮（世界和内容.md「一趟一潮」）：上一潮没捞走的都还在（重的不动，小件被潮水挪一点）；
+  // 捞走的那几处由潮水冲出来的货补上；舱口、船腹旁多出两堆刚冲出来的货。地形、沉船、线索不变
+  nextTide(tide, add, putHold) {
+    const L = this.left;
+    const rnd = mulberry32(7300 + tide * 977);
+    const drift = N('潮·小件最多挪多远', 0.5);
+    for (const t of TRAIL) add({ id: 'trail-' + t.kind + t.x, kind: t.kind, rot: t.rot, bury: 0.2 }, t.x, t.z);
+    for (const r of L.stay) {
+      const spec = { ...r.spec, bury: r.bury ?? r.spec.bury };
+      const def = ITEM_DEFS[spec.kind];
+      if (r.opts && r.opts.lx !== undefined) { putHold(spec, r.opts.lx, r.opts.t); continue; }
+      if (def.heavy || r.opts && r.opts.noMound) { add(spec, r.x, r.z, r.y, r.opts); continue; }
+      const a = rnd() * Math.PI * 2, d = rnd() * drift;
+      add({ ...spec, rot: (spec.rot || 0) + (rnd() - 0.5) * 0.8 }, r.x + Math.cos(a) * d, r.z + Math.sin(a) * d, null, r.opts);
+    }
+    // 捞走的那几处：挨得近的算一处，每一处补上几件
+    const pool = SEA.spill.kinds;
+    const total = pool.reduce((s, [, w]) => s + w, 0);
+    const pick = () => { let x = rnd() * total; for (const [k, w] of pool) if ((x -= w) <= 0) return k; return pool[0][0]; };
+    const spots = [];
+    for (const t of L.taken) {
+      const S = spots.find((q) => q.inHold === t.inHold && Math.hypot(q.x - t.x, q.z - t.z) < 2.4);
+      if (S) S.n++;
+      else spots.push({ x: t.x, z: t.z, inHold: t.inHold, rec: t.rec, n: 1 });
+    }
+    const per = N('冲出来·补一处几件', 1);
+    spots.forEach((S, si) => {
+      for (let k = 0; k < per; k++) {
+        const kind = pick();
+        const spec = { id: `tide${tide}-fill${si}-${k}`, kind, rot: rnd() * Math.PI * 2, tilt: kind === 'jar' || kind === 'barrel' ? 1.3 + rnd() * 0.25 : rnd() * 0.3, bury: 0.08 + rnd() * 0.2 };
+        if (S.inHold && S.rec.opts && S.rec.opts.lx !== undefined) putHold(spec, S.rec.opts.lx + (rnd() - 0.5) * 0.4, S.rec.opts.t);
+        else {
+          const a = rnd() * Math.PI * 2, d = rnd() * 0.4;
+          add(spec, S.x + Math.cos(a) * d, S.z + Math.sin(a) * d);
+        }
+      }
+    });
+    // 舱口、船腹旁两堆刚冲出来的
+    this.spill(tide, add);
+  }
+
+  // 每潮冲出来的两堆（设计「海底的潮一趟一个样」「先有来源，再有散落」）：在两道舱口翻出货的那两堆旁边、甲板那一侧的海底上，
+  // 第 2 潮冲出「冲出来·第2潮几件」，以后每潮多一点（配表「切片的数」）。挨着原来那几件，网口大了一网罩得进去
   spill(tide, add) {
     const rnd = mulberry32(9100 + tide * 131);
     const { kinds: pool, at: SPILL_AT, n: SPILL_N } = SEA.spill;
@@ -87,8 +169,8 @@ export class ItemSystem {
     const pick = () => { let r = rnd() * total; for (const [k, w] of pool) if ((r -= w) <= 0) return k; return pool[0][0]; };
     const n = SPILL_N[0] + Math.min((tide - 1) * (SPILL_N[2] ?? 1), SPILL_N[1]);
     const placed = this.items.filter((i) => !i.inHold).map((i) => ({ x: i.x, z: i.z, r: i.r }));
-    for (let i = 0, tries = 0; i < n && tries < 200; tries++) {
-      const A = SPILL_AT[Math.floor(rnd() * SPILL_AT.length)];
+    for (let i = 0, tries = 0; i < n && tries < 400; tries++) {
+      const A = SPILL_AT[i % SPILL_AT.length];
       const along = A.along + (rnd() - 0.5) * 2 * A.da, side = A.side + (rnd() - 0.5) * 2 * A.ds;
       const w = wreckToWorld(along, side);
       const kind = pick();

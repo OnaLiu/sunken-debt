@@ -1,3 +1,4 @@
+import { N } from './tables.js';
 import { FUEL_MAX, netFuelCost } from '../config.js';
 
 // 小小的事件总线
@@ -15,7 +16,8 @@ export class Events {
 }
 
 // 这一趟：油、网数、收获（揭晓那一刻一次记入）
-export const MIN_NET_COST = netFuelCost(3);
+// 这片海里最省的一网（配表「小样的数」一网最少的油）：剩的油比它少就是不够一网
+export const MIN_NET_COST = N('一网最少的油');
 
 export class Trip {
   constructor() {

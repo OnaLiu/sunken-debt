@@ -31,23 +31,22 @@ function start() {
   const game = new Game(canvas, document.getElementById('ui'), { demo: mode === 'demo', tags: fxMode || !!window.SUNKEN_TAGS || q.get('tags') === '1' });
   window.__game = game;
 
-  // 一打开就是第一段·归潮沙湾的这一刻（小样）：停在沉船旁边、在打捞模式里。
-  // trip=1：原来那一整趟（标题、出港、收获单），留着给效果页和以后的段用
-  const wholeTrip = q.get('trip') === '1' || fxMode;
+  // 第一段·归潮沙湾的 N 小段（切片.md「小段」）：一打开是开始页，点「开始打捞」从港外航路开出去，点「自动演示」照路线演到再出海。
+  // seg=1…5：从哪一小段开头打开（「你看 N 小段」那一页每一小段单独打开）；demo=1（demo.html、触屏）：自动演示
   const touch = !!(window.HengPing && window.HengPing.touch);
-  if (!wholeTrip) {
-    game.moment.begin();
+  const demo = mode === 'demo' || q.get('demo') === '1' || q.get('autostart') === 'demo' || touch;
+  if (!fxMode) {
+    const seg = q.get('fill') === '1' ? 2 : Math.max(1, Math.min(5, Number(q.get('seg')) || 1));
+    game.openSeg(seg, demo);
     // fill=1：从「甲板码满、等开冲」那一刻放（展示页里看招牌那一扇小窗）；再来一次也从这儿
     if (q.get('fill') === '1') { game.moment.autoFill = [['jar', 'jar2', 'rope'], ['copperset'], ['barrel'], ['seal'], ['chest', 'sack']]; game.moment.prefill(game.moment.autoFill); }
-    // 自动演示：demo.html、地址里带 demo=1 / autostart=demo、触屏（手机平板只看演示）
-    if (mode === 'demo' || q.get('demo') === '1' || q.get('autostart') === 'demo' || touch) game.startMomentDemo();
-    // 触屏：点一下暂停时挑看哪一段（这一版只有这一刻的开头）；暂停时声音也停
+    // 触屏：点一下暂停时挑看哪一段（五小段各从开头放）；暂停时声音也停
     if (window.HengPing) {
-      window.HengPing.segments([{ name: game.moment.segName(), go: () => { game.moment.begin(); if (!game.bot) game.startMomentDemo(); else game.bot.restart(); } }]);
+      const go = (n) => () => { const u = new URLSearchParams(location.search); u.set('seg', n); location.search = u.toString(); };
+      window.HengPing.segments(game.segNames().map((name, i) => ({ name, go: go(i + 1) })));
       window.HengPing.onPause((on) => { const c = game.audio.ctx; if (c) { if (on) c.suspend(); else c.resume(); } });
     }
-  } else if (q.get('autostart') === 'demo') game.startPlay(true);
-  else if (q.get('autostart') === 'play') game.startPlay(false);
+  }
   const timeScale = Number(q.get('speed') || 1);
   // 录像用：manual=1 时画面不自己走，由 __advance 一帧一帧推进（固定步长，录出来不掉帧）
   window.__manual = q.get('manual') === '1';
