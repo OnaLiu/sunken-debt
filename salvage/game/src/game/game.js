@@ -51,6 +51,7 @@ import { KeyShow } from '../ui/keyshow.js';
 import { T, N } from './tables.js';
 import { Run } from './run.js';
 import { RunBot } from './runbot.js';
+import { CraneHand } from './hand.js';
 window.__floorPoint = floorPoint;
 const TT = T; // tripDeeds 里 T 是这一趟，表的字用这个名字拿
 
@@ -110,6 +111,8 @@ export class Game {
     this.netop = new NetOp(this);
     this.forecast = new Forecast(this);
     this.crew = new Crew(this.boat, this);
+    // 吊机手：雇来以后他自己挑一处、下网（你只管开船、停在哪）
+    this.hand = new CraneHand(this);
     this.crabLife = new CrabLife(this);
     this.fish = new FishLife(this);
     this.leviathan = new Leviathan(this);
@@ -283,6 +286,7 @@ export class Game {
     this.setCraneTip(STOW_TIP);
     this.arm.sync(STOW_TIP);
     this.castQ = null;
+    if (this.hand) this.hand.reset();
     this.netop.netPos.copy(this.netop.hookWorld()).y -= 2.8;
     this.wake = [];
     for (const p of PRESS.uPress.value) p.set(0, 0, 0, 0);
@@ -462,7 +466,8 @@ export class Game {
     this.ui.learned = { sail: true, arm: true, reveal: true, quit: true };
   }
 
-  // 直接从三小段的某一段开始（试跑、手机上挑段）：1 第一趟、2 船坞（第一趟捞完回来，先翻开债本）、3 第二潮
+  // 直接从某一小段开始（试跑、手机上挑段）：1 第一趟、2 船坞（第一趟捞完回来，先翻开债本）、3 第二潮、
+  // 4 吊机手（第二潮回港进船坞）、5 最后一网（第三潮，油只够一网）、6 还清第一页（第三潮开舱）
   jumpSeg(n, withBot) {
     if (this.bot) this.bot.stop();
     this.bot = null;
@@ -479,13 +484,16 @@ export class Game {
     const R = this.run;
     R.preset(n);
     R.on = true;
-    if (n === 2) {
+    if (n === 2 || n === 4) {
       this.tally.end();
       this.menus.hideSummary();
       R.toDock();
       if (!R.st.sawDebt) R.openLedger(true);
     } else {
-      R.beginTrip();
+      // 5 最后一网、6 还清第一页：一趟的中间（第三潮快到头、开舱）开始，不报地名、不说新的一潮
+      R.beginTrip({ quiet: n >= 5 });
+      if (n === 5) R.lastNetSetup();
+      if (n === 6) R.tallySetup();
       this.ui.fade(false);
     }
     if (withBot) this.startRunDemo();
@@ -1221,6 +1229,7 @@ export class Game {
       return;
     }
     this.castQ = { t: 0, settle: 0, cost: ev.cost };
+    this.hand.onCast();
     // 点下去了：记着下的是哪一处（镜头照旧跟船，不转、不拉近）
     if (this.moment.on) { this.snap.cast = this.snap.cur; this.snap.heading = null; }
     // 船要自动刹停了：白圈就定在眼下想去的那一点，不再按「滑停在哪」往前算
@@ -1359,6 +1368,8 @@ export class Game {
           break;
       }
       this.stickWas = Math.hypot(inp.mx, inp.my) > 0.6;
+      // 吊机手：船停稳、你没在开船，他自己挑一处下网
+      if (this.moment.run) this.hand.update(dt, driveOf(inp));
     }
     if (this.igniteT > 0 || (this.mode !== 'sail' && this.mode !== 'arm')) drive = NO_DRIVE;
     // 引擎出力没有：给油、或停住了接着踩（倒船）；往前滑着踩刹车不算
@@ -1383,7 +1394,9 @@ export class Game {
     if (!this.netop.busy || this.netop.phase === 'release') {
       const work = (this.mode === 'arm' || this.mode === 'reveal' || this.mode === 'net') && !idle;
       // 一甲板一起冲时吊臂转到船尾上方，网圈不挡着甲板
-      const want = work ? _w.set(this.arm.target.x, ARM_TIP_H, this.arm.target.y) : this.batch.on ? BATCH_TIP : STOW_TIP;
+      // 雇了吊机手：没有人在挑（你没指着打捞点、他没在下网）、或者你在开船，吊臂收在原位
+      const rest = work && this.mode === 'arm' && this.hand.hired && !this.castQ && !this.netop.busy && (!this.snap.lit || this.stickMag > 0.1 || this.hand.st === 'wait');
+      const want = work && !rest ? _w.set(this.arm.target.x, ARM_TIP_H, this.arm.target.y) : this.batch.on ? BATCH_TIP : STOW_TIP;
       this.setCraneTip(this.arm.drive(dt, want, _v));
     } else if (this.netop.phase !== 'swing' && this.netop.phase !== 'set') this.arm.sync(this.craneTip);
     this.netop.update(dt, this.time);
@@ -1989,6 +2002,11 @@ export class Game {
       rows.push([{ ic: ICON.bundle, t: T('暂停·甲板'), color: '#b8936a' }]);
       if (m === 'arm') keys.push(...this.moment.pauseKeys(K, alt));
       if (this.moment.run && (m === 'arm' || m === 'net')) keys.push([key(K.quit, 'b'), T('键·按住回港')]);
+      // 雇了吊机手：箭头上他的小头像是他要下的地方；指着一处左键，这一网就由你下
+      if (this.hand.hired && (m === 'arm' || m === 'net')) {
+        rows.push([{ ic: ICON.hand, t: T('图例·吊机手'), color: '#f2c23a' }]);
+        if (!pad) keys.push([key(K.a, 'a'), T('键·接手')]);
+      }
     } else if (m === 'arm') keys.push([key(K.aim), '挪白圈'], [alt(K.a, K.aAlt, 'a'), '下网'], [alt(K.b, K.bAlt, 'b'), '退出打捞'], [key(K.move), '照样开船'], [key(K.zoom), '拉近拉远']);
     if (m === 'net') keys.push([key(K.zoom), '拉近拉远']);
     if (m === 'net' && this.moment.on && !pad) keys.push([key(T('键名·左Shift')), T('键·看海底')]);  // 表的 id，不是玩家看的
@@ -2108,6 +2126,8 @@ export class Game {
       grid: this.pipe.offset,
     };
     const m = this.mode === 'pause' ? this.prevMode : this.mode;
+    // 模式牌：吊机手作业、吊机手无处下网、油只够一网
+    s.plate = this.hand.plate();
     // 一甲板一起冲：还有泥包在冲（按住左键冲得快，模式条旁边给这个键）
     s.batchWash = m === 'batch' && this.batch.on && this.batch.phase === 'wash' ? { fast: !!this.input.state.aHeld } : null;
     // 油还够下几网：按上一网真正用掉的油算，只有真花了油才少（船开到深水上不跳）
@@ -2130,6 +2150,10 @@ export class Game {
       if (this.moment.on && this.snap.cur && this.snap.cur.under) s.tip.n = Math.max(s.tip.n, this.snap.cur.n);
       // 小样：这一处按哪个键、按了是什么，写在这一处的小牌上（按了下网、等吊臂到的那一会儿收起）
       if (this.moment.on) s.tip.act = s.tip.bad || s.tip.poor || this.castQ ? null : 'cast';
+      // 雇了吊机手：这一处会刮到硬东西，他不下
+      // 白圈里有埋着的船材：小牌下面说「会刮到硬东西」；雇了吊机手再一行「吊机手不下这一处」
+      s.tip.hard = !this.castQ && this.forecast.marks.some((mk) => mk.k === 'hard');
+      s.tip.handNo = s.tip.hard && this.hand.hired;
       s.tip.reason = ev.ok ? (s.tip.poor ? '油不够这一网' : null) : ev.reason;
       // 小牌子不压自己的船（白圈穿过船身也画出来，牌子挪到旁边不压船的地方）
       s.tip.boat = this.boatOnScreen();

@@ -101,6 +101,40 @@ export function spotArrow(kind) {
   return cv;
 }
 
+// —— 吊机手的小头像：顶在他挑好的那一处的箭头上（黄雨帽、灰胡子，一格 3 像素）。临时的，代码画的，回本机换 Codex 出的头像 ——
+const HAND_FACE = [
+  '....ooooooo....',
+  '...oyyyyyyyo...',
+  '..oyYYYYYYYyo..',
+  '.oyyyyyyyyyyyo.',
+  'ooooyyyyyyyoooo',
+  'oyyyoooooooyyyo',
+  '.oo.osssssso.oo',
+  '....osesssesO..',
+  '....ossssssso..',
+  '....oggsssggo..',
+  '....oggggggggo.',
+  '.....oggggggo..',
+  '......oooooo...',
+];
+const HAND_PAL = { o: '#1a0e04', y: '#f2c23a', Y: '#ffe68a', s: '#e8b48a', e: '#1a0e04', g: '#c9cfcc', O: '#1a0e04' };
+let handCv = null;
+export function handBadge() {
+  if (handCv) return handCv;
+  const G = HAND_FACE, cv = canvas(G[0].length + 2, G.length + 2);
+  const c = cv.getContext('2d');
+  // 一圈铜底，看得出是个牌子
+  c.fillStyle = '#1a0e04';
+  c.fillRect(0, 2, cv.width, cv.height - 4);
+  c.fillRect(2, 0, cv.width - 4, cv.height);
+  c.fillStyle = '#3a6a78';
+  c.fillRect(1, 3, cv.width - 2, cv.height - 6);
+  c.fillRect(3, 1, cv.width - 6, cv.height - 2);
+  G.forEach((row, y) => [...row].forEach((ch, x) => { if (HAND_PAL[ch]) { c.fillStyle = HAND_PAL[ch]; c.fillRect(x + 1, y + 1, 1, 1); } }));
+  handCv = cv;
+  return cv;
+}
+
 // —— 鼠标指针：铜边的箭头，一格 2 像素（指针不跟着画面缩放）。turn：按住右键拖着转镜头时 ——
 const CURSOR = [
   'o............',

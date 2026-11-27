@@ -53,14 +53,14 @@ function start() {
       hush();
     }
   } else if (route === 'run') {
-    // seg=1/2/3：直接从第一趟、船坞、第二潮开始（试跑、手机上挑段）；照这一局走到那里时的样子摆好，不动玩家的存档
+    // seg=1..6：直接从第一趟、船坞、第二潮、吊机手、最后一网、还清第一页开始（试跑、手机上挑段）；照这一局走到那里时的样子摆好，不动玩家的存档
     const seg = Number(q.get('seg') || 0);
     const jump = (n, bot) => game.jumpSeg(n, bot);
     if (seg) jump(seg, wantDemo);
     else if (wantDemo) game.later(touch || mode === 'demo' ? 3.2 : 0.1, () => { if (game.mode === 'title') game.startPlay(true); });
     else if (q.get('autostart') === 'play') game.startPlay(false);
     if (window.HengPing) {
-      window.HengPing.segments([1, 2, 3].map((n) => ({ name: game.run.segName(n), go: () => jump(n, true) })));
+      window.HengPing.segments([1, 2, 3, 4, 5, 6].map((n) => ({ name: game.run.segName(n), go: () => jump(n, true) })));
       hush();
     }
   } else if (q.get('autostart') === 'demo') game.startPlay(true);

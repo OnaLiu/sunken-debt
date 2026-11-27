@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { setNetR, setFuelMax, FUEL_MAX, VIEW_W } from '../config.js';
-import { START, story } from '../sea/index.js';
+import { START, story, lampSpot, SHARDS_AT } from '../sea/index.js';
+import { ITEM_DEFS } from './itemdefs.js';
+import { drawStrait } from '../ui/strait.js';
 import { MIN_NET_COST } from './trip.js';
 import { tideLayout } from '../sea/index.js';
 import { Dock, GEAR_SPOTS } from './dock.js';
@@ -17,8 +19,21 @@ import { BOAT_MAX_SPEED } from '../config.js';
 //   第一趟：从港外航路出发，顺着船板找到沉船，一网一揭（甲板还没加宽），银币匣一定在；收工、开舱，第一次翻开债本。
 //   船坞：船停在码头，点船上哪一处升哪一样（网、油箱、甲板、水泵），船员当场装上，船上多一样。
 //   第二潮起：海底重铺过，挑一处按一下；甲板加宽以后泥包码在甲板上，码满一甲板一起冲；一趟比一趟多。
+// 路线后面三小段（切片「第一段·归潮沙湾」小段 4～6）：
+//   吊机手：甲板加宽以后出过一趟海，再进船坞，扳吊机的那个船员头上有一块牌子，雇他（和买设备同一套）；以后船停稳他自己挑一处下网（hand.js）。
+//   最后一网：油只够再下一网，模式牌换成「油只够一网」，他回头看你一眼；坡上那盏灯紧挨着埋着的船材，只有你自己下得了。
+//   还清第一页：钱够还一页，船坞右上债本牌子亮；还这一页：盖章、翻过来是下一片海的画和名字。
 
 const SAVE = 'sunken-run-v1'; // 不是玩家看的：存档的键
+// 从「吊机手」起直接开始时，第二潮那一趟记多少（收获单「比上一趟」照它比）：自动演示第二潮约 2600
+const SECOND_TRIP = 2600;
+// 最后一网停船的那一处：沉船船尾外，船头朝坡下（镜头在船后，看得见船边那一小堆碎陶片和坡上那盏灯）
+export const LAST_PARK = () => {
+  const L = lampSpot(), S = SHARDS_AT;
+  const mx = (L.x + S.x) / 2, mz = (L.z + S.z) / 2;
+  return { x: mx + 4.2, z: mz - 1.2, heading: -1.75 };
+};
+const R_PAGE = (R) => R.st.paid - 1;
 const KINDS = ['net', 'tank', 'deck', 'pump'];
 const STOW_TIP = new THREE.Vector3(4.3, 5.6, 0);
 
@@ -45,6 +60,7 @@ export class Run {
     this.ui = new RunUI(g, this);
     this.quitHold = null;
     this.endAfterBatch = false;
+    this.endWhenIdle = null;
   }
 
   // —— 存档 ——
@@ -65,6 +81,14 @@ export class Run {
   }
 
   // —— 设备 ——
+  // 船坞里这会儿有哪几块牌子：四样设备；甲板加宽以后出过「吊机手·出现要几趟」趟海，扳吊机的那个船员头上多一块（雇了以后一直在）
+  kinds() {
+    return this.handShown ? [...KINDS, 'hand'] : KINDS;
+  }
+  get handShown() {
+    if (this.level('hand') >= 2) return true;
+    return this.level('deck') >= 2 && this.st.trips.filter((t) => (t.deck || 1) >= 2).length >= N('吊机手·出现要几趟', 1);
+  }
   level(kind) { return this.st.gear[kind] || 1; }
   row(kind, lv = this.level(kind)) { return GEAR.find((r) => r.kind === kind && r.level === lv) || null; }
   next(kind) { return this.row(kind, this.level(kind) + 1); }
@@ -79,6 +103,9 @@ export class Run {
     g.deck.enable(slots > 0, slots || 5);
     g.washK = this.row('pump').value;
     for (const k of KINDS) this.dock.parts.set(k, this.level(k));
+    // 吊机手：雇了以后吊机前立着带顶棚的座子，他坐在上面握着手柄
+    this.dock.parts.set('hand', this.level('hand'));
+    g.crew.seatHand(this.level('hand') >= 2);
   }
 
   // —— 从标题出发（G03 的镜头、点火由 game.startPlay 做）：第一趟，或者存档里接着的那一潮 ——
@@ -105,6 +132,7 @@ export class Run {
     this.ui.hide();
     this.quitHold = null;
     this.endAfterBatch = false;
+    this.endWhenIdle = null;
     g.menus.hidePause();
     g.menus.hideSummary();
     g.ui.setPaused(false);
@@ -145,8 +173,8 @@ export class Run {
       g.audio.hush(1, 0.6);
       g.chase.snap(g.cam, bc, BOAT_MAX_SPEED);
       g.ui.hudEnter();
-      g.later(0.6, () => g.ui.place(T('地名·港外航路')));
-      if (st.tide > 1) g.later(2.2, () => { if (this.phase === 'trip') g.ui.toast(T('提示·新的一潮', { n: st.tide }), 3.2); });
+      if (!o.quiet) g.later(0.6, () => g.ui.place(T('地名·港外航路')));
+      if (st.tide > 1 && !o.quiet) g.later(2.2, () => { if (this.phase === 'trip') g.ui.toast(T('提示·新的一潮', { n: st.tide }), 3.2); });
     }
     g.ui.learned = { ...g.ui.learned, sail: true };
     g.mode = 'arm';
@@ -168,12 +196,14 @@ export class Run {
     const idle = !g.netop.busy && !g.castQ && !g.reveal.active && !g.batch.on && !g.deck.busy && (g.mode === 'arm');
     // 按住回港：模式牌翻成「回港」，小表盘走满一秒
     // 按下去那一刻要在打捞那一屏（网在水里、冲洗时按着不算）；中途松手不算
-    if (inp.bHeld && (this.quitHold !== null || (inp.b && g.mode === 'arm' && !g.castQ))) {
+    if (inp.bHeld && (this.quitHold !== null || (inp.b && (g.mode === 'arm' || g.mode === 'net')))) {
       this.quitHold = (this.quitHold || 0) + dt;
       const T1 = N('回港按住多久', 1);
       g.quitHold = Math.min(1, this.quitHold / T1); // 模式牌上那一圈（hudState 照 1 秒走满算）
       if (this.quitHold >= T1) { this.quitHold = null; g.quitHold = null; g.ui.learn('quit'); g.audio.play('menuGo'); this.requestEnd(null); }
     } else if (this.quitHold !== null) { this.quitHold = null; g.quitHold = null; }
+    // 网在水里时按了回港：网收回来、那一包码上甲板，再一起冲完收工
+    if (this.endWhenIdle !== null && !g.netop.busy && !g.castQ && !g.deck.busy && g.mode === 'arm') { const why = this.endWhenIdle; this.endWhenIdle = null; this.requestEnd(why); return; }
     if (!idle) return;
     if (g.trip.fuel < MIN_NET_COST) this.requestEnd(T('收工·油不够'));
   }
@@ -182,6 +212,7 @@ export class Run {
   requestEnd(why) {
     const g = this.g;
     if (g.trip.ended) return;
+    if (g.netop.busy || g.castQ || g.deck.busy) { this.endWhenIdle = why; return; }
     if (g.deck.on && g.deck.filled > 0 && !g.batch.on) {
       this.endAfterBatch = why || true;
       if (g.mode === 'arm' && g.moment.canGo) g.moment.go();
@@ -216,7 +247,7 @@ export class Run {
   afterTally() {
     const g = this.g, st = this.st;
     st.money += g.trip.total;
-    st.trips.push({ total: g.trip.total, n: g.trip.haul.length });
+    st.trips.push({ total: g.trip.total, n: g.trip.haul.length, deck: this.level('deck') });
     st.tide++;
     if (g.trip.sawWreck) st.knowWreck = true;
     this.save();
@@ -254,7 +285,7 @@ export class Run {
     this.st.gear[kind] = nx.level;
     this.save();
     g.audio.play('castLock');
-    // 船员走过去装上：装上那一下船上的部件露出来、网圈变大
+    // 船员走过去装上：装上那一下船上的部件露出来、网圈变大（吊机手：他戴上手套，座子立起来，他坐上去）
     this.dock.install(kind, nx.level, () => {
       if (kind === 'net') { setNetR(nx.value); g.boat.net.setR(nx.value); }
       if (kind === 'deck') g.deck.enable(nx.value > 0, nx.value || 5);
@@ -305,9 +336,13 @@ export class Run {
     this.st.money -= p.amount;
     this.st.paid++;
     this.save();
-    this.g.audio.play('tallyTotal', { big: true });
+    // 盖章那一下一个声音；章盖稳了，这一页翻过来（翻页一个声音），背面是那片海的画和名字
+    const g = this.g;
+    g.audio.play('stamp');
     this.ui.showLedger(false, true);
     this.ui.refresh();
+    this.flipT = 0;
+    g.later(0.75, () => { if (this.phase === 'ledger') { g.audio.play('pageFlip'); this.ui.flipPage(R_PAGE(this)); } });
     return true;
   }
 
@@ -346,7 +381,7 @@ export class Run {
 
   // 三小段每一段叫什么（触屏暂停时挑段）
   segName(n) {
-    return T(['段·第一趟', '段·船坞', '段·第二潮'][n - 1]);
+    return T(['段·第一趟', '段·船坞', '段·第二潮', '段·吊机手', '段·最后一网', '段·还清第一页'][n - 1]);
   }
 
   // 直接从某一小段开始（试跑、手机上挑段看）：照这一局走到那里时的样子摆好
@@ -357,12 +392,76 @@ export class Run {
     if (seg >= 3) {
       for (const k of ['deck', 'net', 'tank']) { const nx = this.next(k); if (nx) { this.st.money -= nx.price; this.st.gear[k] = nx.level; } }
       this.st.money = Math.max(0, this.st.money);
+      this.st.trips[0].deck = 1;
     }
+    // 4 吊机手：第二潮捞完回港（加宽的甲板出过一趟海），手上照「段·第二潮带回来的钱」
+    if (seg >= 4) {
+      this.st.trips.push({ total: SECOND_TRIP, n: 16, deck: 2 });
+      this.st.tide = 3;
+      this.st.money = N('段·第二潮带回来的钱', 2800);
+    }
+    // 5 最后一网、6 还清第一页：雇了吊机手，第三潮
+    if (seg >= 5) {
+      const nx = this.next('hand');
+      this.st.money = Math.max(0, this.st.money - nx.price);
+      this.st.gear.hand = nx.level;
+    }
+  }
+
+  // 「最后一网」直接开始：第三潮快到头。船边、断舱那几堆吊机手捞完了（这几包码在甲板上），船停在船尾外，
+  // 油只剩「段·最后一网的油」；够得着的只剩船边那一小堆碎陶片和坡上那盏灯
+  lastNetSetup() {
+    const g = this.g, P = LAST_PARK();
+    const bc = g.boatCtl;
+    bc.reset(P.x, P.z, P.heading);
+    bc.update(0.016, { throttle: 0, brake: 0, steer: 0 }, 1, g.time);
+    g.boat.root.updateMatrixWorld(true);
+    g.chase.snap(g.cam, bc, BOAT_MAX_SPEED);
+    const keep = (it) => it.kind === 'lantern' || it.kind === 'shards' || String(it.id).startsWith('trail');
+    const sea = g.items.items.filter((it) => it.state === 'seabed' && !keep(it));
+    // 甲板上那几包：照吊机手捞的样子，一堆一包（不放银币匣：最后一网那盏灯是这一甲板最贵的，压轴）
+    const pool = sea.filter((it) => it.kind !== 'chest');
+    const want = Math.round(N('段·最后一网甲板上几包', 4));
+    const groups = [];
+    for (const kinds of [['jar', 'jar2'], ['copperset', 'sack'], ['barrel', 'rope'], ['seal'], ['jar'], ['barrel']]) {
+      if (groups.length >= want) break;
+      const ids = [];
+      for (const k of kinds) { const it = pool.find((i) => i.kind === k && !groups.flat().includes(i.id) && !ids.includes(i.id)); if (it) ids.push(it.id); }
+      if (ids.length) groups.push(ids);
+    }
+    g.moment.prefill(groups);
+    // 别的都在前面那几网里捞走了
+    for (const it of g.items.items) {
+      if (it.state !== 'seabed' || keep(it)) continue;
+      g.items.removeFromSeabed(it);
+      it.state = 'gone';
+      if (it.model.group.parent) it.model.group.parent.remove(it.model.group);
+    }
+    g.trip.fuel = N('段·最后一网的油', 11);
+    g.trip.nets = Math.max(g.trip.nets, 9);
+    g.trip.sawWreck = true;
+    g.snap.refresh(true);
+  }
+
+  // 「还清第一页」直接开始：第三潮开舱。这一舱照自动演示第三潮捞上来的（有银币匣、那盏灯），开完舱进船坞手上是「段·还清第一页的钱」
+  tallySetup() {
+    const g = this.g;
+    const haul = [['chest', '地点·断舱'], ['lantern', '地点·坡下'], ['seal', '地点·船边'], ['copperset', '地点·船边'], ['sack', '地点·断舱'], ['jar', '地点·船边'], ['jar', '地点·船边'], ['jar2', '地点·船边'], ['jar', '地点·断舱'], ['barrel', '地点·船边'], ['rope', '地点·船边'], ['shards', '地点·船边'], ['shards', '地点·船边'], ['shards', '地点·船边']];
+    g.trip.haul = [];
+    haul.forEach(([kind, from], i) => {
+      const def = ITEM_DEFS[kind];
+      g.trip.nets = 1 + Math.floor(i / 2);
+      g.trip.haul.push({ kind, name: def.name, value: def.value, precious: !!def.precious, desc: def.desc, net: g.trip.nets, from: T(from) });
+    });
+    this.st.money = Math.max(0, N('段·还清第一页的钱', 3300) - g.trip.total);
+    g.trip.fuel = 2;
+    g.trip.sawWreck = true;
+    g.endTrip(T('收工·油不够'));
   }
 }
 
 // —— 船坞和债本的牌子（DOM，和收获单、暂停同一套铜铁面板、像素圆、小图）——
-const GEAR_ICON = { net: 'net', tank: 'fuel', deck: 'deck', pump: 'pump' };
+const GEAR_ICON = { net: 'net', tank: 'fuel', deck: 'deck', pump: 'pump', hand: 'hand' };
 
 class RunUI {
   constructor(g, run) {
@@ -395,7 +494,7 @@ class RunUI {
       <div class="sail" data-k="sail">${key(K.go, 'go')}<span>${T('船坞·出海')}</span></div>`;
     const pins = el.querySelector('.pins');
     this.pins = {};
-    for (const k of KINDS) {
+    for (const k of R.kinds()) {
       const p = document.createElement('div');
       p.className = 'pin';
       p.dataset.k = k;
@@ -413,6 +512,7 @@ class RunUI {
 
   // 一样设备这会儿的卡（一整块，贴在那一样的牌子正上方）：名字和几级、升了以后那一行（图标、哪一项、前后的数）、一句说明、购买和价钱
   cardHtml(kind) {
+    if (kind === 'hand') return this.handCard();
     const R = this.run, cur = R.row(kind), nx = R.next(kind);
     const val = (r) => (!r ? '' : kind === 'deck' && !(r.value > 0) ? T('设备数·deck0') : T('设备数·' + kind, { n: r.value }));
     const lv = `<span class="lvl">${T('船坞·级', { n: R.level(kind) })}</span>`;
@@ -430,13 +530,34 @@ class RunUI {
     return `<div class="nm">${T('设备·' + kind)}${lv}</div>${eff}<div class="say">${TK('设备说明·' + kind)}</div>${act}`;
   }
 
+  // 吊机手那张卡：是人，不写几级；那一行是下网的那只手从「你」换成「他」（他的小头像），一句说明，雇用和价钱；雇了以后是「已雇用」（不能辞）
+  handCard() {
+    const R = this.run, nx = R.next('hand');
+    const head = `<span class="lab">${T('设备项·hand')}</span>`;
+    let eff, act;
+    if (nx) {
+      eff = `<div class="eff">${head}<span class="a">${T('设备数·hand0')}</span><span class="to">${ICON.arrow}</span><span class="ic">${ICON.hand}</span><span class="b">${T('设备数·hand')}</span></div>`;
+      const poor = R.st.money < nx.price;
+      const K = KEYS[this.g.ui.device];
+      act = `<div class="buy${poor ? ' poor' : ''}" data-k="buy">${key(K.aAlt || K.a, 'a')}<span>${T(poor ? '船坞·钱不够' : '船坞·雇用')}</span><span class="price">${ICON.coin}${money(nx.price)}</span></div>`;
+    } else {
+      eff = `<div class="eff">${head}<span class="ic">${ICON.hand}</span><span class="b">${T('设备数·hand')}</span></div>`;
+      act = `<div class="buy max">${T('船坞·已雇用')}</div>`;
+    }
+    return `<div class="nm">${T('设备·hand')}</div>${eff}<div class="say">${TK('设备说明·hand')}</div>${act}`;
+  }
+
   refresh() {
     const R = this.run, el = this.dockEl;
     if (!el) return;
     el.querySelector('.mv').textContent = money(R.st.money);
-    for (const k of KINDS) {
+    // 钱够还这一页：右上债本那块牌子亮着（不弹提示）
+    const pg = R.page();
+    el.querySelector('.book').classList.toggle('lit', !!pg && R.st.money >= pg.amount);
+    for (const k of R.kinds()) {
       const p = this.pins[k], max = !R.next(k);
-      p.querySelector('.lv').innerHTML = Array.from({ length: GEAR.filter((r) => r.kind === k).length }, (_, i) => `<i class="${i < R.level(k) ? 'f' : ''}"></i>`).join('');
+      // 吊机手是人：牌子上不画几级的格子
+      p.querySelector('.lv').innerHTML = k === 'hand' ? '' : Array.from({ length: GEAR.filter((r) => r.kind === k).length }, (_, i) => `<i class="${i < R.level(k) ? 'f' : ''}"></i>`).join('');
       p.classList.toggle('max', max);
       p.classList.toggle('can', !max && R.st.money >= R.next(k).price);
       p.classList.toggle('on', this.sel === k);
@@ -473,7 +594,7 @@ class RunUI {
     const upOk = yUp >= 16 && !((x < 360 && yUp < 120) || (x + w > 1400 && yUp < 128));
     const covers = (y) => {
       let n = 0;
-      for (const k of KINDS) {
+      for (const k of this.run.kinds()) {
         if (k === this.sel) continue;
         const o = this.run.dock.screenAt(k);
         if (!o.on) continue;
@@ -531,7 +652,7 @@ class RunUI {
     const g = this.g, R = this.run;
     // 牌子钉在船上那一处
     if (this.dockEl) {
-      for (const k of KINDS) {
+      for (const k of R.kinds()) {
         const s = R.dock.screenAt(k), p = this.pins[k];
         p.style.transform = `translate(${s.x.toFixed(0)}px, ${s.y.toFixed(0)}px)`;
         p.style.opacity = s.on ? '' : '0';
@@ -544,12 +665,13 @@ class RunUI {
     const h = this.hit(inp.ptr);
     for (const e of this.dockEl.querySelectorAll('[data-k]')) e.classList.toggle('hot', e.dataset.k === h);
     // 指着另一块牌子停一下（0.12 秒）才换：从牌子挪到卡上的「购买」时划过别的牌子，卡不跟着换
-    if (h && KINDS.includes(h) && h !== this.sel) {
+    const ks = R.kinds();
+    if (h && ks.includes(h) && h !== this.sel) {
       if (this.hoverK !== h) { this.hoverK = h; this.hoverT = 0; } else this.hoverT += dt;
       if (this.hoverT >= 0.12) this.select(h);
     } else this.hoverK = null;
     if (inp.click) {
-      if (h && KINDS.includes(h)) { this.select(h); }
+      if (h && ks.includes(h)) { this.select(h); }
       else if (h === 'buy' && this.sel) R.buy(this.sel);
       else if (h === 'sail') return R.sail();
       else if (h === 'book') return R.openLedger(false);
@@ -557,8 +679,8 @@ class RunUI {
     // 键盘、手柄：左右换一样，空格（A）买下，E（Y）出海，Q（B）翻债本
     const d = g.menus.navX(inp, dt) || -g.menus.nav(inp, dt);
     if (d) {
-      const i = this.sel ? KINDS.indexOf(this.sel) : -1;
-      this.select(KINDS[(i + d + KINDS.length) % KINDS.length]);
+      const i = this.sel ? ks.indexOf(this.sel) : -1;
+      this.select(ks[(i + d + ks.length) % ks.length]);
     }
     if (inp.a && !inp.click && this.sel) R.buy(this.sel);
     if (inp.go) return R.sail();
@@ -580,8 +702,11 @@ class RunUI {
       const unl = pg.unlock
         ? `<span class="ic">${ICON[done ? 'unlock' : 'lock']}</span><span class="pl">${pg.unlock}</span>`
         : `<span class="pl last">${T('债·最后一页').replace('，', '，<br>')}</span>`;
-      const tip = pg.unlock ? (done ? T('债·已还清·这一版没做', { s: pg.unlock }) : T('债·还清以后', { s: pg.unlock })) : '';
-      return `<div class="pg${done ? ' done' : ''}${cur ? ' cur' : ''}${paid && i === R.st.paid - 1 ? ' just' : ''}" data-k="pg${i + 1}">
+      const tip = pg.unlock && !done ? T('债·还清以后', { s: pg.unlock }) : '';
+      const just = paid && i === R.st.paid - 1;
+      // 还清的那一页翻过来：背面是那片海的画和名字（刚还的这一页先盖章，再翻）
+      const back = done && pg.unlock ? `<span class="back"><canvas class="pic" width="72" height="48" data-sea="${pg.unlock}"></canvas><span class="sea">${pg.unlock}</span><span class="soon">${T('债·已还清·这一版没做', { s: pg.unlock })}</span></span>` : '';
+      return `<div class="pg${done ? ' done' : ''}${done && !just && back ? ' flipped' : ''}${cur ? ' cur' : ''}${just ? ' just' : ''}" data-k="pg${i + 1}">${back}
         <span class="no">${T('债·第几页', { n: i + 1 })}</span>
         <span class="amt">${ICON.coin}<b>${money(pg.amount)}</b></span>
         <span class="bar"><i style="width:${(k * 100).toFixed(1)}%"></i></span>
@@ -602,6 +727,7 @@ class RunUI {
     </div>`;
     this.root.append(el);
     this.bookEl = el;
+    for (const cv of el.querySelectorAll('canvas.pic')) drawStrait(cv);
     this.first = first;
     this.bookT = paid ? 0.5 : 0;
     // 船坞那一屏的牌子、卡、按钮先收起来：翻开债本时只看债本
@@ -609,6 +735,19 @@ class RunUI {
     void el.offsetWidth;
     el.classList.add('on');
     if (paid) el.classList.add('paid');
+  }
+
+  // 刚还清的这一页翻过来：先压扁、换成背面、再展开，翻过来的这一页放大停一会儿（看清那张画），再落回去
+  flipPage(i) {
+    const el = this.bookEl && this.bookEl.querySelector(`[data-k="pg${i + 1}"]`);
+    if (!el) return;
+    el.classList.add('turn');
+    this.g.later(0.18, () => {
+      el.classList.add('flipped');
+      el.classList.remove('turn');
+      el.classList.add('big');
+      this.g.later(N('演示·翻页停多久', 2.5), () => el.classList.remove('big'));
+    });
   }
 
   // 合上：债本收回右上那块「债本」牌子里（swap：马上换一本新的，不收）

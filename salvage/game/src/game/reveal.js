@@ -245,7 +245,7 @@ export class Reveal {
     if (si) {
       g.audio.play('slide', { at: 0.1 });
       g.cue('B22');
-      const s = g.crew.sailors.filter((x) => !x.task || x.task.kind !== 'carry').sort((a, b) => Math.hypot(a.x - this.at.x, a.z - this.at.z) - Math.hypot(b.x - this.at.x, b.z - this.at.z))[0];
+      const s = g.crew.sailors.filter((x) => !x.task || (x.task.kind !== 'carry' && x.task.kind !== 'crane')).sort((a, b) => Math.hypot(a.x - this.at.x, a.z - this.at.z) - Math.hypot(b.x - this.at.x, b.z - this.at.z))[0];
       if (s) s.gesture('steady', { delay: 0.05, tx: this.at.x, tz: this.at.z });
     }
     return si;
@@ -657,7 +657,7 @@ export class Reveal {
       g.crew.flinch(lx, lz, 1);
       for (const s of g.crew.sailors) {
         const dx = s.x - lx, dz = s.z - lz, d = Math.hypot(dx, dz);
-        if (d < 3.2 && (!s.task || s.task.kind !== 'carry')) s.gesture('back', { dx: (dx / (d || 1)) * 0.72, dz: (dz / (d || 1)) * 0.72, delay: 0.05 });
+        if (d < 3.2 && (!s.task || (s.task.kind !== 'carry' && s.task.kind !== 'crane'))) s.gesture('back', { dx: (dx / (d || 1)) * 0.72, dz: (dz / (d || 1)) * 0.72, delay: 0.05 });
       }
       g.cue('C05');
     } else {

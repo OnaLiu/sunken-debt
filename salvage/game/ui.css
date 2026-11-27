@@ -156,6 +156,8 @@ html, body { margin: 0; height: 100%; background: #05080a; overflow: hidden; }
 #tip .c b { font-weight: 700; }
 #tip .x { display: none; color: #ff6a4d; font-size: 26px; line-height: 0; }
 #tip > .r { display: none; font-size: 24px; color: #ffb39a; }
+#tip .hn { display: none; position: absolute; left: 0; top: 100%; margin-top: 8px; padding: 4px 12px; font-size: 22px; color: #ffc88a; background: rgba(8,18,21,.88); border: 3px solid #2a1206; white-space: nowrap; }
+#tip.handno .hn { display: block; }
 #tip.bad, #tip.poor { border-image-source: var(--px-iron-red); }
 #tip.bad .c { opacity: 0.42; }
 #tip.bad .x { display: block; }
@@ -732,3 +734,25 @@ html, body { margin: 0; height: 100%; background: #05080a; overflow: hidden; }
 #ledger .pay .key, #ledger .close .key { margin: 0; }
 #ledger .pay.poor { filter: grayscale(0.85) brightness(0.8); }
 #ledger .pay.hot, #ledger .close.hot { transform: translateY(-3px); }
+
+/* —— N 小段（路线做完）：吊机手、还清第一页 —— */
+/* 钱够还一页：船坞右上债本那块牌子亮着 */
+#dock .book.lit { color: #2a1806; border-image-source: var(--px-brass); animation: booklit 1.6s ease-in-out infinite; }
+#dock .book.lit .ic { color: #8a1e08; }
+@keyframes booklit { 0%, 100% { filter: drop-shadow(0 0 0 rgba(255,211,106,0)); } 50% { filter: drop-shadow(0 0 14px rgba(255,211,106,.85)); } }
+/* 吊机手那张卡：那一行里他的小头像 */
+#dock .gcard .eff .ic + .b { margin-left: -4px; }
+/* 还清的那一页翻过来：背面是那片海的画和名字 */
+#ledger .pg .back { display: none; position: absolute; inset: 0; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 12px 10px; }
+#ledger .pg .back .pic { width: 216px; height: 144px; image-rendering: pixelated; box-shadow: 0 0 0 3px #0a0604, 4px 5px 0 rgba(0,0,0,.4); }
+#ledger .pg .back .sea { font-size: 30px; font-weight: 800; letter-spacing: 6px; color: #9fd8e8; }
+#ledger .pg .back .soon { font-size: 17px; color: #8fb6bf; white-space: nowrap; }
+#ledger .pg.flipped { background: linear-gradient(180deg, rgba(160,220,255,.08), rgba(0,0,0,.2)), #142430; }
+#ledger .pg.flipped > :not(.back):not(.stamp) { visibility: hidden; }
+#ledger .pg.flipped .back { display: flex; }
+#ledger .pg.flipped .stamp { top: 20%; font-size: 24px; }
+#ledger .pg { transition: transform 0.18s ease-in-out; }
+#ledger .pg.turn { transform: scaleX(0.02); }
+#ledger .pg.big { z-index: 5; transform: scale(1.75) translateY(-30px); transition: transform 0.35s cubic-bezier(.3,1.3,.5,1); }
+/* 吊机手不下这一处：小牌下面一行 */
+#tip .hn .t { display: block; }

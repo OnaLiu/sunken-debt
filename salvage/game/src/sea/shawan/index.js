@@ -11,5 +11,5 @@ export * from './seabed.js';
 export { buildDecor, buildMarks } from './decor.js';
 export { buildWreck, buildWreckCollider, floorPoint, deckY, hullPt, keelY, sheerY, algaeTint } from './wreck.js';
 export { buildWreckExtras } from './wreckExtras.js';
-export { tideLayout } from './tide.js';
+export { tideLayout, lampSpot, timberCorner, SHARDS_AT } from './tide.js';
 export { story, placeOf } from './story.js';

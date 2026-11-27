@@ -3,6 +3,7 @@ import { GeoBuilder } from '../util/builder.js';
 import { toon } from '../render/materials.js';
 import { seabedY } from '../world/terrain.js';
 import { BOAT } from '../world/boat.js';
+import { HAND_SEAT, HAND_FACE } from '../life/crew.js';
 import { VIEW_W, VIEW_H } from '../config.js';
 import { clamp, damp, lerp, smoothstep, mulberry32, easeOutBack } from '../util/math.js';
 
@@ -22,6 +23,8 @@ export const GEAR_SPOTS = {
   tank: { p: new THREE.Vector3(-4.3, 4.2, 0.0), at: [-3.0, -1.5], face: Math.PI },
   deck: { p: new THREE.Vector3(3.3, 1.5, 3.0), at: [3.2, 1.5], face: -Math.PI / 2 },
   pump: { p: new THREE.Vector3(1.0, 1.6, -1.9), at: [1.0, -1.35], face: Math.PI / 2 },
+  // 吊机手：牌子钉在吊机前扳手柄的那个船员头上（雇了以后是他坐的座子顶上）
+  hand: { p: new THREE.Vector3(HAND_SEAT[0], BOAT.deckY + 2.25, HAND_SEAT[1]), at: HAND_SEAT, face: HAND_FACE },
 };
 
 const C = {
@@ -153,7 +156,10 @@ export class Dock {
   leave() {
     this.on = false;
     for (const l of this.lines) l.L.visible = false;
-    for (const I of this.installs) if (I.s) { I.s.task = null; I.s.pose = 'stand'; }
+    for (const I of this.installs) {
+      if (I.hire) { this.parts.set('hand', 2); this.g.crew.seatHand(true); continue; }
+      if (I.s) { I.s.task = null; I.s.pose = 'stand'; }
+    }
     this.installs = [];
   }
 
@@ -203,6 +209,7 @@ export class Dock {
   // 买下一样：一个空着的船员走过去，蹲下摆弄（拧、敲），部件跟着一下一下装上，最后站起来点个头
   install(kind, level, onSet) {
     const g = this.g;
+    if (kind === 'hand') return this.hire(onSet);
     const busy = new Set(this.installs.map((I) => I.s));
     const s = g.crew.sailors.find((q) => !busy.has(q) && !q.task) || g.crew.sailors.find((q) => !busy.has(q)) || g.crew.sailors[0];
     const spot = GEAR_SPOTS[kind];
@@ -212,7 +219,48 @@ export class Dock {
     this.installs.push({ s, kind, level, spot, t: 0, step: 'go', onSet });
   }
 
+  // 雇吊机手：扳吊机的那个船员（老周）走到吊机前，戴上手套；吊机前立起一张带顶棚的座子（从上面落下来、一顿），
+  // 他坐上去握住手柄，冲镜头点一下头
+  hire(onSet) {
+    const g = this.g, s = g.crew.sailors[0];
+    for (const I of this.installs) if (I.s === s) I.done = true;
+    s.task = { kind: 'install' };
+    s.goTo(HAND_SEAT[0] - 0.55, HAND_SEAT[1] + 0.15);
+    s.pose = 'stand';
+    this.installs.push({ s, kind: 'hand', level: 2, t: 0, step: 'go', onSet, hire: true });
+  }
+
+  hireStep(I, dt) {
+    const g = this.g, s = I.s;
+    I.t += dt;
+    if (I.step === 'go') {
+      if (!s.moving || I.t > 6) { I.step = 'gloves'; I.t = 0; s.faceT = HAND_FACE - 0.9; s.pose = 'stand'; s.gesture('gloves'); g.audio.play('stow'); }
+      return;
+    }
+    if (I.step === 'gloves') {
+      if (I.t > 1.7) {
+        I.step = 'seat'; I.t = 0;
+        this.parts.set('hand', 2, true);
+        g.audio.play('stow');
+        if (I.onSet) I.onSet();
+      }
+      return;
+    }
+    if (I.step === 'seat') {
+      // 座子落定以后他坐上去
+      if (I.t > 0.75) { I.step = 'sit'; I.t = 0; g.crew.seatHand(true, true); }
+      return;
+    }
+    if (I.step === 'sit') {
+      if (!s.moving && s.p.sit > 0.8 && I.t > 0.6) { I.step = 'nod'; I.t = 0; s.gesture('nod'); g.audio.play('castLock'); }
+      else if (I.t > 4) { I.step = 'nod'; I.t = 0; }
+      return;
+    }
+    if (I.t > 1.2) I.done = true;
+  }
+
   installStep(I, dt) {
+    if (I.hire) return this.hireStep(I, dt);
     const s = I.s;
     I.t += dt;
     if (I.step === 'go') {
@@ -236,7 +284,11 @@ export class Dock {
   // 这一处在画面上哪一点（牌子钉在这里）
   screenAt(kind) {
     const g = this.g;
-    const w = g.boat.body.localToWorld(GEAR_SPOTS[kind].p.clone());
+    const q = GEAR_SPOTS[kind].p.clone();
+    // 吊机手：牌子顶在扳吊机的那个船员头上（他走到哪跟到哪），比别的牌子高一截，不和水泵那块挤在一起
+    const s = kind === 'hand' && g.crew.sailors[0];
+    if (s) q.set(s.x, q.y + 0.9, s.z);
+    const w = g.boat.body.localToWorld(q);
     const p = g.project(w);
     return { x: p.x, y: p.y, on: p.z < 1 && p.x > 40 && p.x < VIEW_W - 40 && p.y > 40 && p.y < VIEW_H - 40 };
   }
@@ -252,7 +304,7 @@ function dampAngleTo(a, b, rate, dt) {
 // —— 船上看得见的设备部件（代码画的）：油箱多两只、四只；水泵一台、两台；网（网圈在 boat.js 的 setR）；甲板加宽（deck.js 的平台）——
 // 新装上的那一样从上面落下来、一顿、弹一下站稳
 function buildGearParts(boat) {
-  const parts = { tank: [], pump: [] };
+  const parts = { tank: [], pump: [], hand: [] };
   const shell = new THREE.Color(0.88, 0.88, 0.82);
   const mkTank = (x, z) => {
     const b = new GeoBuilder();
@@ -291,6 +343,38 @@ function buildGearParts(boat) {
     return [m];
   };
   parts.pump.push(mkPump(-1.72), mkPump(1.72));
+  // 吊机手的座子：一张矮木凳，四根细柱撑一块帆布顶棚（红白条），立在吊机前他原来扳手柄的那一处，背靠吊机立柱
+  const mkSeat = () => {
+    const b = new GeoBuilder();
+    const V = (x, y, z) => new THREE.Vector3(x, y, z);
+    const wood = new THREE.Color(0.5, 0.36, 0.22), wood2 = new THREE.Color(0.42, 0.3, 0.19);
+    const canvasW = new THREE.Color(0.9, 0.86, 0.76), canvasR = new THREE.Color(0.72, 0.26, 0.18);
+    // 凳面（他背后那一侧，坐上去胯落在这里）和四条腿
+    b.box(V(0, 0.4, 0.12), V(0.24, 0, 0), V(0, 0.035, 0), V(0, 0, 0.2), wood);
+    for (const [x, z] of [[-0.19, -0.04], [0.19, -0.04], [-0.19, 0.28], [0.19, 0.28]]) b.box(V(x, 0.19, z), V(0.025, 0, 0), V(0, 0.19, 0), V(0, 0, 0.025), wood2);
+    // 靠背
+    b.box(V(0, 0.68, 0.33), V(0.22, 0, 0), V(0, 0.2, 0), V(0, 0, 0.02), wood);
+    // 顶棚的四根柱子
+    for (const [x, z] of [[-0.42, -0.42], [0.42, -0.42], [-0.42, 0.38], [0.42, 0.38]]) b.cylinder(V(x, 0, z), V(x, z < 0 ? 1.82 : 1.95, z), 0.022, 0.022, 5, C.iron, true);
+    // 帆布顶：前低后高，一条红一条白
+    const n = 6;
+    for (let i = 0; i < n; i++) {
+      const x0 = -0.48 + (0.96 * i) / n, x1 = -0.48 + (0.96 * (i + 1)) / n;
+      const c = i % 2 ? canvasR : canvasW;
+      b.quad(V(x0, 1.84, -0.5), V(x1, 1.84, -0.5), V(x1, 1.97, 0.44), V(x0, 1.97, 0.44), c);
+      b.quad(V(x1, 1.84, -0.5), V(x0, 1.84, -0.5), V(x0, 1.97, 0.44), V(x1, 1.97, 0.44), c.clone().multiplyScalar(0.85));
+      // 前沿垂下来一小截
+      b.quad(V(x0, 1.84, -0.5), V(x0, 1.74, -0.52), V(x1, 1.74, -0.52), V(x1, 1.84, -0.5), c.clone().multiplyScalar(0.92));
+    }
+    const m = new THREE.Mesh(b.build(), toon({ vertexColors: true, spec: 0.1, side: THREE.DoubleSide }));
+    m.castShadow = true;
+    // 船局部：x 往船头、z 往右舷；凳子的「前」是 -z（他脸朝左舷）
+    m.position.set(HAND_SEAT[0], BOAT.deckY, HAND_SEAT[1]);
+    m.visible = false;
+    boat.body.add(m);
+    return [m];
+  };
+  parts.hand = [mkSeat()];
   const pops = [];
   return {
     // level：这一样现在几级（1 是原来就有的）；pop：刚装上，落下来一顿

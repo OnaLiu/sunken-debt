@@ -1594,6 +1594,14 @@ export class Audio {
     });
   }
 
+  // 债本翻页：厚纸翻过去「哗啦」一下，落下来轻轻一拍
+  _pageFlip(o, t) {
+    this._hit(t, 0.32, 0.07, 'bandpass', 3200, 1400, 0.8, { white: true, a: 0.06 });
+    this._hit(t + 0.08, 0.22, 0.05, 'bandpass', 1800, 900, 0.9, { white: true, a: 0.04 });
+    this._hit(t + 0.3, 0.09, 0.09, 'lowpass', 700, 200, 1);
+    this._wood(t + 0.31, 260, 0.05);
+  }
+
   // —— C14 / C15 / C16 开舱清点 ——
   // C14 往舱口扎下去：风一收，木头一声闷的「咚」，舱里的回声
   _hatchDive(o, t) {

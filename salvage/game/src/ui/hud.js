@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { FUEL_MAX, VIEW_W } from '../config.js';
 import { ICON } from './icons.js';
 import { installArt } from './pixelart.js';
-import { markSprite, spotArrow, drawXBadge, drawWarnBadge, drawProg, PROG_N, drawQuit, QUIT_N } from './pixring.js';
+import { markSprite, spotArrow, handBadge, drawXBadge, drawWarnBadge, drawProg, PROG_N, drawQuit, QUIT_N } from './pixring.js';
 import { clamp, lerp, easeOutBack } from '../util/math.js';
 import { T } from '../game/tables.js';
 import { rectClearOfBoat } from '../util/screen2d.js';
@@ -69,6 +69,10 @@ export function keepOut(x, y, w, h, extra) {
 }
 
 const MODE = {
+  // 吊机手、最后一网：盖在打捞（作业）这块牌上（game.hudState 的 plate）
+  hand: { n: T('模式·吊机手'), ic: ICON.hand },
+  handWait: { n: T('模式·吊机手等'), ic: ICON.hand },
+  last: { n: T('模式·最后一网'), ic: ICON.fuel },
   sail: { n: T('模式·开船'), ic: ICON.sail },
   arm: { n: T('模式·打捞'), ic: ICON.arm },
   net: { n: T('模式·作业'), ic: ICON.net },
@@ -92,7 +96,7 @@ export class UI {
     this.tallyEl.id = 'tally';
     this.modeEl = h('div', '', `<div class="why panel sh"></div><div class="chip"><span class="mi"></span><span class="mn"></span><canvas class="qr" width="${QUIT_N}" height="${QUIT_N}"></canvas><span class="qn">${T('模式·回港')}</span></div><div class="keys panel"></div>`);
     this.modeEl.id = 'modebar';
-    this.tipEl = h('div', 'panel', `<span class="do"></span><span class="n">${ICON.crate}<b class="roll"></b></span><span class="c"><span class="fi">${ICON.fuel}</span><b></b></span><span class="x">${ICON.no}</span><span class="r"></span>`);
+    this.tipEl = h('div', 'panel', `<span class="do"></span><span class="n">${ICON.crate}<b class="roll"></b></span><span class="c"><span class="fi">${ICON.fuel}</span><b></b></span><span class="x">${ICON.no}</span><span class="r"></span><span class="hn"><span class="t hd">${T('图例·硬东西')}</span><span class="t hh">${T('小牌·吊机手不下')}</span></span>`);
     this.tipEl.id = 'tip';
     this.sonarEl = h('div', 'panel', `<div class="t"><span class="di">${ICON.depth}</span><b class="sd">--</b><span class="u">${T('单位·米')}</span></div>`);
     this.sonarEl.id = 'sonar';
@@ -191,7 +195,18 @@ export class UI {
   setMode(mode) {
     if (mode === this.mode) return;
     this.mode = mode;
-    const M = MODE[mode];
+    this.chipShow(MODE[this.plate] || MODE[mode]);
+    this.hintKey = null;
+  }
+
+  // 模式牌上盖一块（吊机手作业、吊机手无处下网、油只够一网）；null 照这一屏的牌
+  setPlate(p) {
+    if ((p || null) === (this.plate || null)) return;
+    this.plate = p || null;
+    this.chipShow(MODE[this.plate] || MODE[this.mode]);
+  }
+
+  chipShow(M) {
     if (M) {
       const chip = this.modeEl.querySelector('.chip');
       // 换了牌子：铜牌翻过来一下（作业→揭晓是同一块牌，不翻）
@@ -203,7 +218,6 @@ export class UI {
       this.modeEl.querySelector('.mi').innerHTML = M.ic;
       this.modeEl.querySelector('.mn').textContent = M.n;
     }
-    this.hintKey = null;
   }
 
   // 玩家自己做过一次的事，按键提示就收起来（机器人做的不算）
@@ -226,7 +240,7 @@ export class UI {
       case 'net':
         return this.g.moment && this.g.moment.on ? this.momentHints(K) : '';
       case 'reveal':
-        return this.learned.reveal || !this.washing ? '' : `<span>按住${key(K.wash, 'a')}冲洗加快</span>`;
+        return this.learned.reveal || !this.washing ? '' : `<span>${key(K.wash, 'a')}${T('键·冲洗加快')}</span>`;
       default:
         return '';
     }
@@ -250,6 +264,9 @@ export class UI {
       }
     }
     if (!L.zoom) out.push([key(K.zoom), '键·远近']);  // 表的 id，不是玩家看的
+    // 雇了吊机手：他挑好一处、下网时说一次「左键 自己下这一网」，你自己点过一处就收起
+    const H = this.g.hand;
+    if (H && H.hired && !L.takeover && this.device !== 'pad' && (H.st === 'beat' || H.st === 'cast')) out.push([key(K.a, 'a'), '键·接手']);  // 表的 id，不是玩家看的
     // 一局里：下过一网以后说一次按住 Q（手柄 B）回港，回过一次港就收起
     if (this.g.moment.run && L.arm && !L.quit && this.mode === 'arm') out.push([key(K.quit, 'b'), '键·按住回港']);  // 表的 id，不是玩家看的
     return out.map(([k, t]) => `<span>${k}${T(t)}</span>`).join('');
@@ -853,7 +870,8 @@ export class UI {
     if (this.shown.n !== s.haulCount) { roll(this.tallyEl.querySelector('.n'), s.haulCount); this.shown.n = s.haulCount; }
     if (this.shown.v !== s.haulTotal) { this.tallyEl.querySelector('.v').textContent = s.haulTotal; this.shown.v = s.haulTotal; }
     this.tallyEl.classList.toggle('empty', s.haulCount === 0);
-    // 模式条
+    // 模式条（吊机手、最后一网盖在打捞那块牌上）
+    this.setPlate(s.plate);
     this.armBad = !!(s.tip && s.tip.show && (s.tip.bad || s.tip.poor));
     this.renderKeys(this.paused);
     // 臂端标签：这一网要的油；下不了网时变灰打叉，按了 A 才说原因
@@ -864,7 +882,7 @@ export class UI {
         if (!T.reason || T.reason !== this.tipWhy) this.tipWhyT = 0;
       }
       const why = this.tipWhyT > 0 ? this.tipWhy : '';
-      const key2 = `${this.device}|${T.act || ''}|${T.lite ? 1 : 0}|${T.cost}|${T.bad ? 1 : 0}|${T.poor ? 1 : 0}|${why}|${T.n}|${T.wait ? 1 : 0}`;
+      const key2 = `${this.device}|${T.act || ''}|${T.lite ? 1 : 0}|${T.cost}|${T.bad ? 1 : 0}|${T.poor ? 1 : 0}|${why}|${T.n}|${T.wait ? 1 : 0}|${T.handNo ? 1 : 0}|${T.hard ? 1 : 0}`;
       if (this.tipKey !== key2) {
         this.tipKey = key2;
         this.tipEl.querySelector('.c b').textContent = T.cost;
@@ -884,6 +902,9 @@ export class UI {
         this.tipEl.classList.toggle('why', !!why);
         // 按了下网、吊臂还在路上：牌子亮着等，到了就下
         this.tipEl.classList.toggle('wait', !!T.wait);
+        // 雇了吊机手：会刮到硬东西的这一处，下面一行说他不下（只有你自己下得了）
+        this.tipEl.classList.toggle('handno', !!T.hard);
+        this.tipEl.querySelector('.hh').style.display = T.handNo ? '' : 'none';
       }
       const w = this.tipEl.offsetWidth || 120, hh = this.tipEl.offsetHeight || 50;
       const gap = Math.max(46, (T.r || 0) + 14);
@@ -1008,10 +1029,13 @@ export class UI {
         const n = Math.max(12, Math.round((S.r * 2) / 3));
         c.drawImage(markSprite(S.next ? 'next' : S.ring ? 'aim' : 'under', n), cx - (n >> 1), cy - (n >> 1));
       }
-      if (S.on && !S.ring) continue;
+      if (S.on && !S.ring && !S.hand) continue;
       const a = spotArrow(S.next ? 'next' : S.far ? 'far' : S.on ? 'on' : 'go');
       const bob = S.next ? 0 : Math.round(Math.sin(T0 * 4 + S.x * 0.01) * 1.4);
-      c.drawImage(a, cx - (a.width >> 1), cy - Math.max(8, Math.round((S.r * 0.75) / 3)) - a.height + bob);
+      const ay = cy - Math.max(8, Math.round((S.r * 0.75) / 3)) - a.height + bob;
+      c.drawImage(a, cx - (a.width >> 1), ay);
+      // 吊机手挑好的那一处：箭头上顶着他的小头像
+      if (S.hand) { const b = handBadge(); c.drawImage(b, cx - (b.width >> 1), ay - b.height - 1); }
     }
   }
 

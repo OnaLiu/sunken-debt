@@ -34,10 +34,15 @@ export function tideBench(n, { sources, from, keepOut = [], radius = () => 0.42 
     loose.push({ id: id(kind), kind, x, z, rot: range(0, Math.PI * 2), tilt: extra.tilt ?? range(0, 0.4), bury: extra.bury ?? range(0.08, 0.3), from: T(from[src]), ...extra });
     return true;
   };
+  // 定死的一件（这一潮一定在、摆在哪是设计定的）：不照空隙、不照 keepOut，后面摆的照旧离它留出空隙
+  const pin = (src, kind, x, z, extra = {}) => {
+    taken.push({ x, z, r: radius(kind) });
+    loose.push({ id: id(kind), kind, x, z, rot: extra.rot ?? 0, tilt: extra.tilt ?? 0.2, bury: extra.bury ?? 0.15, from: T(from[src]), ...extra });
+  };
   // 舱底的一件（lx/t 是舱底的坐标）
   const putHold = (kind, lx, t, extra = {}) => hold.push({ id: id(kind), kind, lx, t, from: T(from.hold), ...extra });
   const rare = (src) => sources[src].rare.length && R() < N('潮·稀罕的几成', 0.2);
   // 太深够不着的（深槽太陡的地方）不摆：作业深度以内才算
   const done = () => ({ loose: loose.filter((s) => seabedY(s.x, s.z) > -29.5), hold });
-  return { R, pick, range, put, putHold, rare, done };
+  return { R, pick, range, put, pin, putHold, rare, done };
 }

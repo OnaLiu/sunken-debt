@@ -190,7 +190,8 @@ export class Moment {
       if (!p || p.x < 0 || p.x > VIEW_W || p.y < 0 || p.y > VIEW_H) continue;
       const on = !!act && act.key === o.key;
       const next = !!S.next && S.next.key === o.key;
-      s.spots.push({ x: p.x, y: p.y, r: p.r, far: o.far, on, next, ring: on && (busy ? !o.far : o.far), under: o.under && !on });
+      const hand = g.hand && g.hand.marked === o.key;
+      s.spots.push({ x: p.x, y: p.y, r: p.r, far: o.far, on, next, hand, ring: on && (busy ? !o.far : o.far), under: o.under && !on });
     }
     // 开过去的那一处：从吊机到它牵一串点
     const to = S.heading || (S.mouse && S.hov && S.hov.far ? S.hov : null);

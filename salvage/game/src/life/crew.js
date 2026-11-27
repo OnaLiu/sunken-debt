@@ -213,6 +213,10 @@ const HIP_Y = 0.88, THIGH = 0.44, SHIN = 0.38, UPPER = 0.29, FORE = 0.25;
 // 冲洗时拿水管的人站在哪：从网包看过去，和近景镜头方向差多少（弧度）、离网包多远（米）
 const WASH_ANG = 2.6;
 const WASH_R = 1.75;
+// 吊机手的座子（船局部）：原来扳手柄的那一处，脸朝左舷；让开时退到座子后面一步
+export const HAND_SEAT = [0.55, -0.98];
+export const HAND_FACE = Math.PI / 2;
+const HAND_AWAY = [-0.15, -0.72];
 
 export class Sailor {
   constructor(i, home) {
@@ -291,7 +295,7 @@ export class Sailor {
     this.poseT = 0;
     this.task = null;
     this.busy = false;
-    this.p = { crouch: 0, armF: 0, armUp: 0, lean: 0, brow: 0, coil: 0, cheer: 0, hose: 0, lever: 0, carry: 0, look: 0, rail: 0, check: 0, watch: 0, shrug: 0, peer: 0, wipe: 0 };
+    this.p = { crouch: 0, armF: 0, armUp: 0, lean: 0, brow: 0, coil: 0, cheer: 0, hose: 0, lever: 0, carry: 0, look: 0, rail: 0, check: 0, watch: 0, shrug: 0, peer: 0, wipe: 0, sit: 0 };
     this.gest = null; // 一下就完的小动作：点头、耸肩、凑近看、退半步、伸手扶
     this.backX = 0; this.backZ = 0;
     this.t = Math.random() * 10;
@@ -482,7 +486,7 @@ export class Sailor {
   // tx, tz（甲板坐标）：凑近看、伸手扶时转过去对着那一点、往那儿迈一步
   // 动作都做大：默认镜头距离下头和手挪得比一个人还宽（和点头、擦手一样看得出来）
   gesture(kind, o = {}) {
-    this.gest = { kind, t: 0, dur: o.dur ?? { nod: 1.15, shrug: 1.7, peer: 2.2, back: 1.9, steady: 1.4, wipe: 2.6, heave: 1.5 }[kind], dx: o.dx || 0, dz: o.dz || 0, tx: o.tx, tz: o.tz, delay: o.delay || 0 };
+    this.gest = { kind, t: 0, dur: o.dur ?? { nod: 1.15, shrug: 1.7, peer: 2.2, back: 1.9, steady: 1.4, wipe: 2.6, heave: 1.5, gloves: 1.6 }[kind], dx: o.dx || 0, dz: o.dz || 0, tx: o.tx, tz: o.tz, delay: o.delay || 0 };
   }
 
   // 甩水那一下：从两只手上甩出一串亮水珠，往前、往外飞，划个弧落下去（默认镜头距离下也看得见一蓬）
@@ -523,7 +527,7 @@ export class Sailor {
     this.face = dampAngle(this.face, this.faceT, 9, dt);
     // 姿势目标
     const P = this.p;
-    const target = { crouch: 0, armF: 0, armUp: 0, lean: 0, brow: 0, coil: 0, cheer: 0, hose: 0, lever: 0, carry: 0, look: 0, rail: 0, check: 0, watch: 0, shrug: 0, peer: 0, wipe: 0 };
+    const target = { crouch: 0, armF: 0, armUp: 0, lean: 0, brow: 0, coil: 0, cheer: 0, hose: 0, lever: 0, carry: 0, look: 0, rail: 0, check: 0, watch: 0, shrug: 0, peer: 0, wipe: 0, sit: 0 };
     const pose = this.moving || this.inPlace ? (P.carry > 0.5 || this.pose === 'carryWalk' ? 'carryWalk' : 'walk') : this.pose;
     switch (pose) {
       case 'crouch': target.crouch = 1; target.armF = 0.9; target.lean = 0.5; break;
@@ -531,6 +535,8 @@ export class Sailor {
       case 'lookout': target.brow = 1; target.look = 1; break;
       case 'coil': target.crouch = 0.6; target.coil = 1; target.lean = 0.35; break;
       case 'lever': target.lever = 1; target.lean = 0.1; break;
+      // 吊机手坐在吊机前的座子上，右手握着手柄
+      case 'sit': target.sit = 1; target.lever = 1; break;
       case 'rail': target.rail = 1; target.lean = 0.55; break;
       case 'hose': target.hose = 1; break;
       case 'watch': target.watch = 1; target.look = 0.35; break;
@@ -540,7 +546,7 @@ export class Sailor {
     }
     // 小动作：叠在姿势上
     let nod = 0, bow = 0, brim = 0, brimOff = 0, backK = 0, stepK = 0, guard = 0, reach = 0, shrugUp = 0, headShake = 0, heaveR = 0, heaveP = 0;
-    this.shakeK = 0; this.shakeR = 0; this.wipeSt = 0;
+    this.shakeK = 0; this.shakeR = 0; this.wipeSt = 0; this.gloveK = 0; this.gloveTug = 0;
     const G = this.gest;
     if (G) {
       if (G.delay > 0) G.delay -= dt;
@@ -601,6 +607,13 @@ export class Sailor {
           heaveP = u < 0.4 ? 0 : u < 0.52 ? Math.sin(((u - 0.4) / 0.12) * Math.PI * 0.5) : u < 0.74 ? 1 : 0.5 + 0.5 * Math.cos(((u - 0.74) / 0.26) * Math.PI);
           stepK = heaveR * 0.8;
           target.crouch = Math.max(target.crouch, 0.25 * heaveR + 0.5 * heaveP);
+        }
+        if (G.kind === 'gloves') {
+          // 戴手套：两只手在胸前碰到一起，左手拽右手的手套口、右手拽左手的，一下一下往上提，最后两手一合、搓一下
+          const k = u < 0.15 ? Math.sin((u / 0.15) * Math.PI * 0.5) : u < 0.85 ? 1 : Math.cos(((u - 0.85) / 0.15) * Math.PI * 0.5);
+          this.gloveK = k;
+          this.gloveTug = u > 0.15 && u < 0.85 ? Math.sin(((u - 0.15) / 0.7) * Math.PI * 4) : 0;
+          bow = Math.max(bow, 0.12 * k);
         }
         if (G.kind === 'back') {
           // 退半步：往后一跳（一大步），两手抬起来挡在胸前、身子往后仰、膝盖一弯，停一拍再走回来
@@ -689,18 +702,19 @@ export class Sailor {
     const jump = P.cheer * Math.max(0, Math.sin(this.t * 9)) * 0.12;
     const lateral = this.shift * 0.035;
     // 耸肩那一下整个人往上一提（踮一下脚）
-    this.hips.position.set(-P.hose * 0.03 - fq * 0.05 * this.flinchDir, -drop + bob + jump + breath * 0.004 + su * 0.06, lateral);
+    // 坐着：胯落到座面上（大腿放平、小腿垂下来，脚踩着甲板）
+    this.hips.position.set(-P.hose * 0.03 - fq * 0.05 * this.flinchDir - P.sit * 0.12, -drop + bob + jump + breath * 0.004 + su * 0.06 - P.sit * 0.46, lateral);
     this.hips.rotation.y = -sL * 0.07 * walkAmt;
     this.hips.rotation.x = -lateral * 1.2;
     // 腿
     const legLat = lateral / HIP_Y;
     const hoseStance = P.hose * 0.22 + P.lever * 0.12;
-    const tL = sL * stride + crouchA + hoseStance + br * 0.15;
-    const tR = sR * stride + crouchA - hoseStance * 0.6 + br * 0.15;
+    const tL = sL * stride + crouchA + hoseStance + br * 0.15 + P.sit * 1.42;
+    const tR = sR * stride + crouchA - hoseStance * 0.6 + br * 0.15 + P.sit * 1.32;
     const kneeRest = 0.06 + (this.shift > 0 ? 0 : 0.1) * Math.abs(this.shift);
     const kneeRestR = 0.06 + (this.shift < 0 ? 0 : 0.1) * Math.abs(this.shift);
-    const kL = -(2 * crouchA + walkAmt * (0.12 + 0.85 * Math.pow(swingL, 1.6)) + kneeRest * (1 - walkAmt) + hoseStance * 0.4);
-    const kR = -(2 * crouchA + walkAmt * (0.12 + 0.85 * Math.pow(swingR, 1.6)) + kneeRestR * (1 - walkAmt));
+    const kL = -(2 * crouchA + walkAmt * (0.12 + 0.85 * Math.pow(swingL, 1.6)) + kneeRest * (1 - walkAmt) + hoseStance * 0.4 + P.sit * 1.42);
+    const kR = -(2 * crouchA + walkAmt * (0.12 + 0.85 * Math.pow(swingR, 1.6)) + kneeRestR * (1 - walkAmt) + P.sit * 1.22);
     this.legL.rotation.set(legLat + 0.03, 0, tL);
     this.legR.rotation.set(legLat - 0.03, 0, tR);
     this.kneeL.rotation.z = kL;
@@ -781,6 +795,12 @@ export class Sailor {
     const sway = Math.min(1, Math.abs(br) + Math.abs(brs)) * (1 - P.rail);
     xL += sway * 0.3 + Math.max(0, -brs) * 0.25; xR -= sway * 0.3 + Math.max(0, brs) * 0.25;
     aL -= grip * 0.2; aR -= grip * 0.2; eL += grip * 0.5; eR += grip * 0.5;
+    // 戴手套：两只手抬到胸前凑在一起，一下一下往上拽手套口
+    const gk = this.gloveK || 0, gt = this.gloveTug || 0;
+    if (gk > 0.01) {
+      aL += gk * (1.0 + gt * 0.12); aR += gk * (1.0 - gt * 0.12); eL += gk * (1.5 - gt * 0.2); eR += gk * (1.5 + gt * 0.2);
+      yL -= gk * 0.6; yR += gk * 0.6; xL += gk * 0.05; xR -= gk * 0.05;
+    }
     this.armL.rotation.set(xL, yL, aL);
     this.armR.rotation.set(xR, yR, aR);
     this.armL.position.y = 0.53 + breath * 0.004 + roll * 0.04 + fShoulder * 0.02 + su * 0.15;
@@ -824,6 +844,7 @@ export class Crew {
 
   reset() {
     const homes = [[5.1, 0.35], [-5.45, -0.72], [1.4, 1.6], [-0.6, -1.5]];
+    const hired = this.hired;
     this.sailors.forEach((s, i) => {
       s.x = homes[i][0]; s.z = homes[i][1]; s.path = []; s.task = null; s.busy = false; s.pose = 'stand';
       s.role = ['lookout', 'coil', 'check', 'patrol'][i]; s.roleT = 9 + i * 3.5; s.pairWith = null; s.stareSide = 0; s.endSide = 0;
@@ -840,6 +861,52 @@ export class Crew {
     this.hose.visible = false;
     this.batch = [];
     for (const H of this.hoses) { H.line.visible = false; H.s = null; }
+    if (hired) this.seatHand(true);
+  }
+
+  // —— 吊机手（雇了以后）：吊机前扳手柄的那个船员（老周）坐到带顶棚的座子上，一直在 ——
+  // 座子在哪（船局部）：他原来扳手柄站的那一处，脸朝左舷
+  get hand() {
+    const s = this.sailors[0];
+    return s.task && s.task.kind === 'crane' ? s : null;
+  }
+
+  seatHand(on, walk = false) {
+    const s = this.sailors[0];
+    this.hired = on;
+    if (!on) { if (s.task && s.task.kind === 'crane') { s.task = null; s.pose = 'stand'; } return; }
+    s.task = { kind: 'crane', st: 'sit', look: 0, lookT: 0 };
+    s.path = [];
+    if (walk) s.goTo(HAND_SEAT[0], HAND_SEAT[1]);
+    else { s.x = HAND_SEAT[0]; s.z = HAND_SEAT[1]; s.face = s.faceT = HAND_FACE; s.p.sit = 1; s.p.lever = 1; }
+    s.pose = walk ? 'stand' : 'sit';
+    s.headTurn = 0;
+  }
+
+  // 吊机手每帧：坐着握手柄；让开时站到座子后面；头转向 task.lookAt（船局部的一点，没有就看前面）
+  updateHand(s, T, dt) {
+    if (T.st === 'sit') {
+      if (s.moving) { s.pose = 'stand'; }
+      else if (Math.hypot(s.x - HAND_SEAT[0], s.z - HAND_SEAT[1]) > 0.16) { s.goTo(HAND_SEAT[0], HAND_SEAT[1]); s.pose = 'stand'; }
+      else {
+        // 到了座子跟前：挪正坐下去
+        s.x += (HAND_SEAT[0] - s.x) * Math.min(1, dt * 6);
+        s.z += (HAND_SEAT[1] - s.z) * Math.min(1, dt * 6);
+        s.faceT = HAND_FACE;
+        s.pose = 'sit';
+      }
+    } else if (T.st === 'away') {
+      // 让开：松开手柄站起来，往后退一步，侧过身看着你下这一网
+      if (!s.moving && Math.hypot(s.x - HAND_AWAY[0], s.z - HAND_AWAY[1]) > 0.16) s.goTo(HAND_AWAY[0], HAND_AWAY[1]);
+      if (!s.moving) { s.faceT = HAND_FACE + 0.5; s.pose = 'stand'; }
+    }
+    // 头：转向他挑的那一处、回头看镜头；别的时候慢慢转回来
+    let want = 0;
+    if (T.lookAt && !s.moving) {
+      const a = Math.atan2(-(T.lookAt.z - s.z), T.lookAt.x - s.x);
+      want = clamp(wrapAngle(a - s.face), -1.25, 1.25);
+    }
+    s.headTurn = damp(s.headTurn || 0, want, 7, dt);
   }
 
   // G01 标题画面：活还没开始，船员散在甲板上歇着（两个趴舷边看海、一个抱着胳膊、一个蹲在船头摆弄东西）
@@ -875,7 +942,8 @@ export class Crew {
     this.endTaken = [];
     this.wipeTaken = [];
     // 还没弯腰拿起货的就不去拿了（货留在甲板上），已经抱着的放进舱再来
-    const free = this.sailors.filter((s) => !(s.task && s.task.kind === 'carry' && s.task.step !== 'go'));
+    // 吊机手坐在座子上不动（他一直在吊机前）
+    const free = this.sailors.filter((s) => !(s.task && s.task.kind === 'carry' && s.task.step !== 'go') && !(s.task && s.task.kind === 'crane'));
     free.forEach((s, i) => {
       s.task = null;
       s.path = [];
@@ -1050,7 +1118,7 @@ export class Crew {
   // 挑 n 个手上没在搬货的（离前甲板近的先），别的人站到一边看。
   // o.near：挑离这一点近的（船局部 [x, z]）；o.hoses === false：不拿水管（去扳泵闸这类）；o.watch：看的人各站哪儿（[[x, z]…]，不给就都站到船尾正中）
   startBatch(n, o = {}) {
-    const free = this.sailors.filter((s) => !(s.task && s.task.kind === 'carry'));
+    const free = this.sailors.filter((s) => !(s.task && (s.task.kind === 'carry' || s.task.kind === 'crane')));
     const nx = o.near ? o.near[0] : 3.4, nz = o.near ? o.near[1] : 0;
     free.sort((a, b) => Math.hypot(a.x - nx, a.z - nz) - Math.hypot(b.x - nx, b.z - nz));
     const picked = free.slice(0, n);
@@ -1075,7 +1143,7 @@ export class Crew {
     // 看的人：给了站位的，各去离自己最近的那一处
     const left = o.watch ? o.watch.slice() : null;
     for (const s of this.sailors) {
-      if (picked.includes(s) || (s.task && s.task.kind === 'carry')) continue;
+      if (picked.includes(s) || (s.task && (s.task.kind === 'carry' || s.task.kind === 'crane'))) continue;
       s.task = { kind: 'watch', x: 3.4, z: 0 };
       s.pose = 'watch';
       let p = [-0.55, 0];
@@ -1173,7 +1241,7 @@ export class Crew {
     for (const s of this.sailors) {
       if (!this.queue.length || this.ending) break;
       if (s === this.washer) continue;
-      if (s.task && (s.task.kind === 'carry' || s.task.kind === 'bwash')) continue;
+      if (s.task && (s.task.kind === 'carry' || s.task.kind === 'bwash' || s.task.kind === 'crane')) continue;
       const e = this.queue.shift();
       s.task = { kind: 'carry', e, step: 'go' };
       const p = e.pickLocal();
@@ -1186,6 +1254,8 @@ export class Crew {
       if (T && T.kind === 'carry') this.updateCarry(s, T, dt);
       // 船坞里装设备：走过去、蹲下、拧几下，由 game/dock.js 一步步带着，这里不管
       else if (T && T.kind === 'install') { /* dock.js */ }
+      // 吊机手：坐在吊机前（雇了以后一直在）；挑一处、回头、让开、点头由 game/hand.js 带着
+      else if (T && T.kind === 'crane') this.updateHand(s, T, dt);
       else if (T && T.kind === 'wash') {
         if (!s.moving) {
           s.faceT = Math.atan2(-(this.washSpot.z - s.z), this.washSpot.x - s.x);

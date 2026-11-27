@@ -1,4 +1,5 @@
 // 全局常量：画面、作业、时长。改这里会同时影响游戏、自动演示和效果页。
+import { N } from './game/tables.js';
 
 export const VIEW_W = 1920;
 export const VIEW_H = 1080;
@@ -25,8 +26,8 @@ export const MAX_WORK_DEPTH = 30; // 最大作业深度
 export let FUEL_MAX = 110;
 export function setFuelMax(v) { FUEL_MAX = v; }
 // 开船、转头扣的油在 配表.md「小样的数」，怎么扣在 boatCtl.js 的 moveFuel
-// 每一网的作业油取整：屏幕上的数就是实际扣的数，和油表上的整数直接比
-export const netFuelCost = (depth) => Math.round(5 + depth * 0.25);
+// 每一网的作业油：起步 + 水深 × 每米，取整（配表「一局的数」一网的油·起步、·每米）。屏幕上的数就是实际扣的数，和油表上的整数直接比
+export const netFuelCost = (depth) => Math.round(N('一网的油·起步', 5) + depth * N('一网的油·每米', 0.25));
 
 // 航行
 export const BOAT_MAX_SPEED = 7.2;
