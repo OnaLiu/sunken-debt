@@ -47,6 +47,14 @@ export class Threat {
     }
   }
 
+  // 最后一网下去了（这一网下完油就不够再下一网，第三潮起）：它从船旁边过去
+  lastNet() {
+    const g = this.g;
+    if (g.leviathan.active && g.leviathan.pass) return;
+    g.leviathan.passBy(g.boatCtl.pos);
+    this.cued = { W02: true };
+  }
+
   spent(cost) {
     this.refCost = cost;
   }
@@ -74,7 +82,9 @@ export class Threat {
     // 经过时玩家下网（网一入水）、推近冲洗、这一趟到头：它被惊动，扎回深槽底走了，不跟着下网和冲洗近景待着；
     // 还没让玩家看见过（C10 没响）就过一阵、下一回开船时再来
     if (lev.active && !lev.leaving) {
-      this.stirT = g.netop.busy || g.reveal.cur || over ? (this.stirT || 0) + dt : 0;
+      // 最后一网那一次：网在水里它照样游过去（不被网惊动），开冲、揭宝、收工时才走
+      const stir = lev.pass ? g.reveal.cur || g.batch.on || over : g.netop.busy || g.reveal.cur || over;
+      this.stirT = stir ? (this.stirT || 0) + dt : 0;
       if (this.stirT > 0.6) lev.leave(!this.cued.C10 && !over);
     }
     // —— 大轮廓离船多远（身子上最近的那一节）——
@@ -146,10 +156,11 @@ export class Threat {
       gain = n >= 3 ? 0.55 : n === 2 ? 0.75 : 0.95;
     }
     const over = g.trip.ended || g.mode === 'ending' || g.mode === 'summary' || g.mode === 'fading';
-    if (g.leviathan.active && this.nearK > 0 && g.mode !== 'reveal' && !over) {
-      const lb = 44 + 36 * this.proxK;
+    if (g.leviathan.active && (this.nearK > 0 || g.leviathan.pass) && g.mode !== 'reveal' && !over) {
+      // 最后一网那一次：比油只够一网时还快，网触底、它在船边时最快
+      const lb = g.leviathan.pass ? 96 + 34 * this.proxK : 44 + 36 * this.proxK;
       if (lb > bpm) { bpm = lb; gain = 0.45 + 0.5 * this.proxK; deep = true; }
-      gain *= Math.max(this.nearK, 0.0001);
+      gain *= Math.max(g.leviathan.pass ? 1 : this.nearK, 0.0001);
     }
     this.bpm = bpm;
     if (!bpm || !gain) { this.beat = 0.75; return; }

@@ -868,6 +868,9 @@ export class Crew {
   // 座子在哪（船局部）：他原来扳手柄站的那一处，脸朝左舷
   get hand() {
     const s = this.sailors[0];
+    if (!this.hired || this.atTitle) return null;
+    // 别的活把他叫走了（不该有）：他走回座子坐下
+    if (!s.task || (s.task.kind !== 'crane' && s.task.kind !== 'carry' && s.task.kind !== 'install')) this.seatHand(true, true);
     return s.task && s.task.kind === 'crane' ? s : null;
   }
 
@@ -1057,7 +1060,7 @@ export class Crew {
     }
     let k = 0;
     for (const s of this.sailors) {
-      if (s === w || (s.task && s.task.kind === 'carry')) continue;
+      if (s === w || (s.task && (s.task.kind === 'carry' || s.task.kind === 'crane'))) continue;
       const p = spots[k++ % spots.length];
       s.task = { kind: 'watch', x: spot.x, z: spot.z };
       this.washGo(s, p[0], p[1]);

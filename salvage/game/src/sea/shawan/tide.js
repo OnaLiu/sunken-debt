@@ -37,7 +37,7 @@ export function lampSpot() {
   return { x: e.x + uz * d, z: e.z - ux * d };
 }
 // 第三潮船尾外那一小堆碎陶片（沉船坐标：船尾再往后、偏甲板那一侧）
-export const SHARDS_AT = wreckToWorld(-9.6, 2.4);
+export const SHARDS_AT = wreckToWorld(-13.2, 6.4);
 
 // 第 n 潮（n ≥ 2）的散货：返回 { loose: [世界坐标的], hold: [舱底的，lx/t 是舱底的坐标] }
 export function tideLayout(n) {
@@ -70,9 +70,10 @@ export function tideLayout(n) {
   if (rare('shoal')) put('shoal', 'anchor', ANCHOR_SPOT.x + range(-3, 3), ANCHOR_SPOT.z + range(-3, 3), { bury: 0.18 });
 
   // 外侧散落区：沿船身甲板那一侧排开几堆，每堆一到三件（一网罩得住一堆），堆和堆之间隔开
-  const outerN = Math.round(N('潮·船边几堆', 6));
+  // 第三潮多五堆、沿船身排得长一点（切片「要配表跟上的」：第三潮海底约 20 件，吊机手一网一网下得到油快到头）
+  const outerN = Math.round(N('潮·船边几堆', 6)) + (n === 3 ? 5 : 0), span = n === 3 ? 15 : 11.2;
   for (let p = 0; p < outerN; p++) {
-    const along = -5.6 + ((p + 0.5) / outerN) * 11.2 + range(-0.35, 0.35), side = range(7.3, 9.3);
+    const along = -span / 2 + ((p + 0.5) / outerN) * span + range(-0.35, 0.35), side = range(7.3, 9.3);
     const c = wreckToWorld(along, side);
     const m = 1 + Math.floor(R() * 3);
     for (let i = 0; i < m; i++) {

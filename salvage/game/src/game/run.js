@@ -31,7 +31,7 @@ const SECOND_TRIP = 2600;
 export const LAST_PARK = () => {
   const L = lampSpot(), S = SHARDS_AT;
   const mx = (L.x + S.x) / 2, mz = (L.z + S.z) / 2;
-  return { x: mx + 4.2, z: mz - 1.2, heading: -1.75 };
+  return { x: mx + 7.6, z: mz, heading: Math.PI / 2 };
 };
 const R_PAGE = (R) => R.st.paid - 1;
 const KINDS = ['net', 'tank', 'deck', 'pump'];
@@ -44,6 +44,13 @@ export function money(n) {
   if (n < 1e8) { const v = n / 1e4; return (v >= 100 ? Math.round(v) : +v.toFixed(v < 10 ? 2 : 1)) + T('单位·万'); }
   const v = n / 1e8;
   return (v >= 100 ? Math.round(v) : +v.toFixed(v < 10 ? 2 : 1)) + T('单位·亿');
+}
+
+// 债本上「还欠」的总数：多写一位（还掉一页 3000，1100 万也看得出少了一截）
+function debtMoney(n) {
+  n = Math.round(n);
+  if (n < 10000 || n >= 1e8) return money(n);
+  return +(n / 1e4).toFixed(1) + T('单位·万');
 }
 
 const fresh = () => ({ v: 1, money: 0, tide: 1, trips: [], paid: 0, gear: { net: 1, tank: 1, deck: 1, pump: 1 }, sawDebt: false, knowWreck: false });
@@ -719,7 +726,7 @@ class RunUI {
     el.innerHTML = `<div class="bk panel${paid ? ' still' : ''}">
       ${first ? `<div class="intro">${TK('债·初见')}</div>` : ''}
       <div class="h sh"><span class="ic">${ICON.book}</span>${T('债·标题')}</div>
-      <div class="tot"><span class="lab">${T('债·总数')}</span><span class="num">${ICON.coin}<b>${money(R.debtLeft)}</b></span></div>
+      <div class="tot"><span class="lab">${T('债·总数')}</span><span class="num">${ICON.coin}<b>${debtMoney(R.debtLeft)}</b></span></div>
       <div class="pages">${pages}</div>
       <div class="foot"><span class="have">${T('债·手上')}<b>${ICON.coin}${money(R.st.money)}</b></span>
         ${p ? `<div class="pay${can ? '' : ' poor'}" data-k="pay">${key(K.aAlt || K.a, 'a')}<span>${can ? T('债·还') : T('债·差多少', { n: money(p.amount - R.st.money) })}</span></div>` : ''}

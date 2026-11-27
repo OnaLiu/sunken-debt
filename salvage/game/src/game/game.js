@@ -499,6 +499,19 @@ export class Game {
     if (withBot) this.startRunDemo();
   }
 
+  // 回到标题（暂停里的「回到标题」；自动演示放完一局也走这里）：一局留在存档里
+  leaveToTitle() {
+    if (this.bot) this.bot.stop();
+    this.bot = null;
+    this.input.botDriven = false;
+    this.ui.demoBadge(false);
+    if (this.run.on) this.run.leave();
+    this.tideNext = null;
+    this.resetTrip();
+    this.ui.fade(false);
+    this.enterTitle();
+  }
+
   // 一局里暂停（船坞、债本这两屏按 Esc）
   pauseRun() {
     this.prevMode = this.mode;
@@ -539,6 +552,8 @@ export class Game {
     const E = this.events;
     E.on('netTouch', (e) => {
       this.crabLife.disturb(e.x, e.z, NET_R, 5);
+      // 试跑看的：网触底那一下大轮廓离船多远、心跳多快（最后一网那一次要两样都对上）
+      this.touchLog = { lev: this.leviathan.active ? +this.threat.levD.toFixed(2) : null, bpm: this.threat.bpm, pass: !!this.leviathan.pass, t: +this.clock.toFixed(2) };
     });
     // 在沉船这儿下过几网：之后开船时箭头指向坡下
     E.on('netStart', (ev) => {
@@ -843,15 +858,7 @@ export class Game {
       else if (act === 'title') {
         this.audio.play('menuGo');
         this.hidePause();
-        if (this.bot) this.bot.stop();
-        this.bot = null;
-        this.input.botDriven = false;
-        this.ui.demoBadge(false);
-        if (this.run.on) this.run.leave();
-        this.tideNext = null;
-        this.resetTrip();
-        this.ui.fade(false);
-        this.enterTitle();
+        this.leaveToTitle();
       }
       // 停在「晃动和折射」上：别的都停着，只有水面接着晃，调的时候看得见变成什么样
       if (this.menus.peek) U.uTime.value += dt;
@@ -1230,6 +1237,8 @@ export class Game {
     }
     this.castQ = { t: 0, settle: 0, cost: ev.cost };
     this.hand.onCast();
+    // 一局里第三潮起，这一网下完油就不够再下一网：最后一网，大轮廓从船旁边过去
+    if (this.run.on && this.moment.run && this.run.st.tide >= 3 && this.trip.fuel - ev.cost < MIN_NET_COST) this.threat.lastNet();
     // 点下去了：记着下的是哪一处（镜头照旧跟船，不转、不拉近）
     if (this.moment.on) { this.snap.cast = this.snap.cur; this.snap.heading = null; }
     // 船要自动刹停了：白圈就定在眼下想去的那一点，不再按「滑停在哪」往前算
@@ -1395,7 +1404,7 @@ export class Game {
       const work = (this.mode === 'arm' || this.mode === 'reveal' || this.mode === 'net') && !idle;
       // 一甲板一起冲时吊臂转到船尾上方，网圈不挡着甲板
       // 雇了吊机手：没有人在挑（你没指着打捞点、他没在下网）、或者你在开船，吊臂收在原位
-      const rest = work && this.mode === 'arm' && this.hand.hired && !this.castQ && !this.netop.busy && (!this.snap.lit || this.stickMag > 0.1 || this.hand.st === 'wait');
+      const rest = work && this.mode === 'arm' && this.hand.hired && !this.castQ && !this.netop.busy && (!(this.snap.mouse && this.snap.hov && !this.snap.hov.far) || this.stickMag > 0.1);
       const want = work && !rest ? _w.set(this.arm.target.x, ARM_TIP_H, this.arm.target.y) : this.batch.on ? BATCH_TIP : STOW_TIP;
       this.setCraneTip(this.arm.drive(dt, want, _v));
     } else if (this.netop.phase !== 'swing' && this.netop.phase !== 'set') this.arm.sync(this.craneTip);

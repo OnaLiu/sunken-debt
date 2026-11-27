@@ -70,8 +70,9 @@ export class CraneHand {
     }
     let n = 0;
     for (const id of s.ids) {
-      if (id === 'dig') { n++; continue; }
-      const it = g.items.items.find((i) => i.id === id);
+      // 蟹翻过泥的那块地：泥里还埋着那枚印章才算一件（捞走以后那块泥还看得见，下下去是一网空泥）
+      const it = id === 'dig' ? g.items.seal : g.items.items.find((i) => i.id === id);
+      if (id === 'dig' && s.ids.includes(it && it.id)) continue;
       if (it && it.state === 'seabed' && netVerdict(it, s.x, s.z, ev.restY, ev.inHold, false, 0.05, ev.r, ev.drop) === 'yes') n++;
     }
     return { k: n ? 'gold' : 'no', n, ev };

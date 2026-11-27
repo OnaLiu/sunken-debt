@@ -12,6 +12,8 @@ import { smoothstep, mulberry32, clamp, damp } from '../util/math.js';
 // 一对像翅膀的胸鳍和一对小腹鳍、从脖子一直到尾尖的背鳍冠、后半身两侧的褶边。
 // 背暗腹浅，身上有灰白的斑和几道旧伤疤。
 const LEN = 26;
+// 最后一网那一次经过：起点在船东边几米（头先到船边，网触底时身子在船旁）
+const N_PASS_AHEAD = 9;
 // 水色只吃六成：在水下读起来是一条比海底更暗的长影（不是一团淡青的雾）
 const SEE_K = 0.6;
 const RINGS = 60;
@@ -434,6 +436,7 @@ export class Leviathan {
   reset() {
     this.active = false;
     this.done = false;
+    this.pass = false;
     this.group.visible = false;
     this.focus = null;
     this.fromX = LEVIATHAN_PATH.fromX;
@@ -465,6 +468,19 @@ export class Leviathan {
     this.again = false;
     this.group.visible = true;
     // 先把身子摆到起点：不然头还停在原点（正好是沉船那儿），那一帧附近的鱼会被一个看不见的东西吓跑
+    this.update(0, this.g.time || 0);
+  }
+
+  // 最后一网（切片小段 5）：网往坡下沉的时候，它从深槽里游上来、逆着水流从船旁边（船底下那一片）慢慢过去。
+  // 这一趟见过它也再来一次；起点就在船东边不远、已经浮到一半，网触底那一下正好身子在船边
+  passBy(at) {
+    this.active = false;
+    this.done = false;
+    this.start(at, true);
+    this.x = this.fromX = at.x + N_PASS_AHEAD;
+    this.dive = 0.55;
+    this.t = 2.5;
+    this.pass = true;
     this.update(0, this.g.time || 0);
   }
 
@@ -520,6 +536,7 @@ export class Leviathan {
       this.dive = Math.min(1.6, this.dive + dt / 2.5);
       if (this.dive >= 1.6) {
         this.active = false;
+        this.pass = false;
         this.done = !this.again;
         this.group.visible = false;
         return;
