@@ -26,7 +26,7 @@ export default {
     '开船的油：--probe @开船的油（十五种按法各跑一遍：按着多久、扣了多少、走了多远；没按键的每一帧都不该扣；油用完、开着下网；约两分钟）；左 Shift 指着的那一处走到正中、到了停、挪鼠标：--probe @看海底·正中。',
     '按住左 Shift 看海底（从「这一刻」，停着、开着、网在水里都行）：`--pre "__adv(1);__hand.at(\'jar\');__hand.key(\'ShiftLeft\',true);__adv(1.5)"`，`__game.peek.k` 到 1，松开（`false`）回 0；换处用 `__hand.move`。',
     '演示放完一遍：`--until window.__demoEnd`（约 90 秒）。',
-    '素材对照（换素材前后比）：--probe @素材对照·捞获 / @素材对照·场地，用法见文件里这两条探针上面的注释；截图对的是 素材/基准/ 里同名的图。@素材对照·近看：舱里的杂货、礁石、沉船散件（断桅横桁、舱盖、埋着的船材、尾楼）推近（基准里没有，比上一版同机位）。@素材对照·三小段：三小段新出现的码头、船上设备、航路浮标、远岸灯塔、浅滩、船板、礁脊，在「船坞」「第一趟」各跑一遍（截图对 素材/基准/三小段-*.png）。',
+    '素材对照（换素材前后比）：--probe @素材对照·捞获 / @素材对照·场地，用法见文件里这两条探针上面的注释；截图对的是 素材/基准/ 里同名的图。@素材对照·近看：舱里的杂货、礁石、沉船散件（断桅横桁、舱盖、埋着的船材、尾楼）推近（基准里没有，比上一版同机位）。@素材对照·三小段：三小段新出现的码头、船上设备、航路浮标、远岸灯塔、浅滩、船板、礁脊，在「船坞」「第一趟」各跑一遍（截图对 素材/基准/三小段-*.png）。@素材对照·N小段：吊机手的座子和顶棚（在「最后一网」跑，截图对 素材/基准/N小段-吊机手座子*.png、N小段-船上全景.png）。',
   ].join('\n'),
   page: 'index.html',
   query: (seg = '') => {
@@ -255,6 +255,41 @@ window.__hand = (() => {
       const v = S.views[Math.max(0, Math.min(S.n - 1, S.views.length - 1))];
       for (const [k, o] of Object.entries(objs)) if (o) o.visible = !v.hide.includes(k);
       for (const s of g.crew.sailors || []) if (s.root) s.root.visible = !v.hide.includes('boat');
+      g.cam.alt.pos.copy(v.pos);
+      g.cam.alt.look.copy(v.look);
+      g.cam.alt.fov = v.fov;
+      g.cam.alt.w = 1; g.cam.altFrom = 1; g.cam.altTo = 1;
+      return orig(dt);
+    };
+  }
+  const shown = S.n === 0 ? '游戏画面' : S.views[Math.min(S.n - 1, S.views.length - 1)].n;
+  S.n++;
+  return shown;
+})()`,
+    // 素材对照·N小段：吊机手的座子和顶棚几个固定机位（素材单·N 小段截 素材/基准/N小段-吊机手座子*.png 用；换素材前后同机位比）。
+    // node tools/moment.mjs 最后一网 1,1.5,2,2.5 --probe @素材对照·N小段（第一帧是游戏画面，后面一帧一个机位；水和界面隐掉）
+    '素材对照·N小段': `return (() => {
+  const g = __game;
+  const P = g.boat.root.position.constructor;
+  const V = (x, y, z) => new P(x, y, z);
+  if (!window.__vN) { document.getElementById('ui').style.display = 'none'; window.__vN = { n: 0, views: null }; }
+  const S = window.__vN;
+  if (!S.views) {
+    const bw = (x, y, z) => g.boat.body.localToWorld(V(x, y, z));
+    // 座子在船的局部坐标 (0.55, 0.95, -0.98)：x 往船头、z 往右舷、凳子的前是 -z（左舷）
+    const seat = bw(0.55, 1.75, -0.98);
+    S.views = [
+      { n: 'N小段-吊机手座子', pos: bw(0.55 + 2.2, 4.4, -0.98 - 3.6), look: seat, fov: 34, hide: ['water'] },
+      { n: 'N小段-吊机手座子-没有人', pos: bw(0.55 + 2.2, 4.4, -0.98 - 3.6), look: seat, fov: 34, hide: ['water', 'hand'] },
+      { n: 'N小段-船上全景', pos: bw(7.5, 9, -9), look: bw(0.5, 1.4, 0), fov: 42, hide: ['water'] },
+    ];
+    const objs = { water: g.world.water };
+    const orig = g.cam.update.bind(g.cam);
+    g.cam.update = (dt) => {
+      const v = S.views[Math.max(0, Math.min(S.n - 1, S.views.length - 1))];
+      for (const [k, o] of Object.entries(objs)) if (o) o.visible = !v.hide.includes(k);
+      const s0 = (g.crew.sailors || [])[0];
+      if (s0 && s0.root) s0.root.visible = !v.hide.includes('hand');
       g.cam.alt.pos.copy(v.pos);
       g.cam.alt.look.copy(v.look);
       g.cam.alt.fov = v.fov;
